@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #F5FDFE;
+  --foreground: #001019;
+  --primary: #005884;
+  --primary-foreground: #F5FDFE;
+  --badge: #001019;
+  --badge-foreground: #F5FDFE;
+  --badge-active: #00A9FF;
+  --badge-active-foreground: #001019;
+  --heading-color: #00A9FF;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-badge: var(--badge);
+  --color-badge-foreground: var(--badge-foreground);
+  --color-badge-active: var(--badge-active);
+  --color-badge-active-foreground: var(--badge-active-foreground);
+  --color-heading: var(--heading-color);
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Syne', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #001019;
+    --foreground: #F5FDFE;
+    --primary: #005884;
+    --primary-foreground: #F5FDFE;
+    --badge: #F5FDFE;
+    --badge-foreground: #001019;
+    --badge-active: #00A9FF;
+    --badge-active-foreground: #001019;
+    --heading-color: #00A9FF;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+h1 {
+  font-weight: 700; /* bold */
+  color: var(--heading-color);
+}
+
+h2, h3 {
+  font-weight: 600; /* semi-bold */
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-outline:hover {
+  background-color: rgba(0, 169, 255, 0.05);
+  color: #00A9FF;
+  border-color: #00A9FF;
+  opacity: 0.9;
+}
+
+/* Badge styles */
+.badge {
+  background-color: var(--badge);
+  color: var(--badge-foreground);
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge.active {
+  background-color: var(--badge-active);
+  color: var(--badge-active-foreground);
+}
