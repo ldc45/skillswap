@@ -34,6 +34,6 @@ jobs:
         run: |
           npm install -g surge
           cd frontend
-          surge ./out skillswap.surge.sh
+          surge ./next skillswap.surge.sh
         env:
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
