@@ -50,32 +50,42 @@ export default function Home() {
   ];
 
   return (
-    <main className="p-4 flex flex-col gap-y-5">
-      <div className="flex flex-col gap-y-4">
-        <h2>Echangez vos compétences</h2>
-        <h3>Rejoignez notre communauté et partagez vos connaissances</h3>
+    <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-4 md:gap-y-6 lg:gap-y-8">
+      <div className="flex-col gap-y-4 flex lg:min-h-[20vh] lg:flex-row-reverse lg:justify-between">
+        <div className="flex flex-col gap-y-2 lg:gap-y-6">
+          <h2 className="text-lg md:text-2xl lg:text-3xl">
+            Echangez vos compétences
+          </h2>
+          <h3 className="text-sm md:text-lg lg:text-xl">
+            Rejoignez notre communauté et partagez vos connaissances
+          </h3>
+        </div>
+
+        <Input
+          className="max-w-120 md:min-h-10"
+          placeholder="⌕ Rechercher une compétence..."
+        />
       </div>
 
-      <Input placeholder="⌕ Rechercher une compétence..." />
-
-      <div className="flex flex-col gap-y-2">
-        <h2>Compétences populaires</h2>
-        <div className="flex-wrap flex gap-x-2">
+      <div className="flex flex-col gap-y-2 lg:gap-y-3">
+        <h2 className="text-lg md:text-2xl lg:text-3xl">
+          Compétences populaires
+        </h2>
+        <div className="flex-wrap flex gap-y-1 gap-x-2">
           {mainSkills.map((skill) => (
-            <Badge key={skill.id}>{skill.diminutive}</Badge>
+            <Badge key={skill.id} className="md:text-md lg:text-lg">
+              {skill.diminutive}
+            </Badge>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-col gap-y-2">
-        <h2>Nos membres</h2>
-        <div className="grid gap-2">
+      <div className="flex flex-col gap-y-2 lg:gap-y-3">
+        <h2 className="text-lg md:text-2xl lg:text-3xl">Nos membres</h2>
+        <div className="grid gap-2 md:gap-3 xl:gap-4 md:grid-cols-2 xl:grid-cols-3">
           {fakeUsers.map((user) => (
             <MemberCard key={user.id} user={user} />
           ))}
-
-
-         
         </div>
       </div>
     </main>

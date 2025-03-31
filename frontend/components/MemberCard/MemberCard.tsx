@@ -20,9 +20,11 @@ export default function MemberCard({user}: MemberCardProps) {
       </Avatar>
 
       <div className="flex flex-col">
-        <p className="font-semibold">{user.first_name} {user.last_name.charAt(0)}.</p>
-        <p>Design</p>
+        <p className="font-semibold md:text-lg">
+          {user.first_name} {user.last_name.charAt(0)}.
+        </p>
+        <p className="lg:text-md">Design</p>
       </div>
     </Card>
-  )
+  );
 }
