@@ -13,8 +13,8 @@
   --badge-active-foreground: #001019;
   --heading-color: #00A9FF;
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --background: #F5FDFE;
+  --foreground: #001019;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
@@ -91,6 +91,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --background: #001019;
+    --foreground: #F5FDFE;
     --primary: #005884;
     --primary-foreground: #F5FDFE;
     --badge: #F5FDFE;
