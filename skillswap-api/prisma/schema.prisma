@@ -12,3 +12,100 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique @db.VarChar(64)
+  password  String   @db.VarChar(64)
+  firstName String   @map("first_name") @db.VarChar(64)
+  lastName  String   @map("last_name") @db.VarChar(64)
+  biography String?  @db.Text
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  skills               UserSkill[]
+  availabilities       Availability[]
+  messages             Message[]
+  createdConversations Conversation[] @relation("ConversationCreator")
+  partnerConversations Conversation[] @relation("ConversationPartner")
+
+  @@map("user")
+}
+
+model Availability {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  day       Int
+  startTime DateTime @map("start_time") @db.Time
+  endTime   DateTime @map("end_time") @db.Time
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("availability")
+}
+
+model Skill {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @unique @db.VarChar(100)
+  diminutive String?  @db.VarChar(32)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  users      UserSkill[]
+  category   Category    @relation(fields: [categoryId], references: [id])
+  categoryId String      @map("category_id") @db.Uuid
+
+  @@map("skill")
+}
+
+model Category {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @unique @db.VarChar(64)
+  color      String?  @db.VarChar(7)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  skills     Skill[]
+
+  @@map("category")
+}
+
+model UserSkill {
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id") @db.Uuid
+  skill     Skill    @relation(fields: [skillId], references: [id])
+  skillId   String   @map("skill_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@id([userId, skillId])
+  @@map("user_skill")
+}
+
+model Message {
+  id        String   @id @default(uuid()) @db.Uuid
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  senderId       String       @map("sender_id") @db.Uuid
+  sender         User         @relation(fields: [senderId], references: [id])
+  conversationId String       @map("conversation_id") @db.Uuid
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@map("message")
+}
+
+model Conversation {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  messages  Message[]
+  creatorId String    @map("creator_id") @db.Uuid
+  creator   User      @relation("ConversationCreator", fields: [creatorId], references: [id])
+  partnerId String    @map("recipient_id") @db.Uuid
+  partner   User      @relation("ConversationPartner", fields: [partnerId], references: [id])
+
+  @@map("conversation")
+}
