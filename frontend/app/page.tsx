@@ -23,12 +23,12 @@ export default function Home() {
         <section className="mb-12">
           <h2 className="text-2xl mb-6">Catégories populaires</h2>
           <div className="flex flex-wrap gap-3 mb-8">
-            <Badge>Développement web</Badge>
-            <Badge variant="secondary">Design</Badge>
-            <Badge variant="secondary">Marketing</Badge>
-            <Badge variant="secondary">Langues</Badge>
-            <Badge variant="secondary">Musique</Badge>
-            <Badge variant="secondary">Photographie</Badge>
+            <Badge variant="active">Développement web</Badge>
+            <Badge variant="badge">Design</Badge>
+            <Badge variant="badge">Marketing</Badge>
+            <Badge variant="badge">Langues</Badge>
+            <Badge variant="badge">Musique</Badge>
+            <Badge variant="badge">Photographie</Badge>
           </div>
         </section>
 
