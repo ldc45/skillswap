@@ -29,11 +29,12 @@ jobs:
         run: |
           cd frontend
           npm run build
+          npx next export
 
       - name: Deploy to Surge
         run: |
           npm install -g surge
           cd frontend
-          surge ./.next skillswap.surge.sh
+          surge ./out skillswap.surge.sh
         env:
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
