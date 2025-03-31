@@ -8,3 +8,67 @@ services:
       - /app/node_modules
     ports:
       - 3000:3000
+  skill-swap-api:
+    build:
+      context: ./skillswap-api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://localhost:3000/api || exit 1"
+      start_period: 10s
+      interval: 6s
+      timeout: 5s
+      retries: 12
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?schema=public"
+    develop:
+      watch:
+        - action: sync
+          path: ./skillswap-api/src
+          target: /usr/src/app/src
+        - action: sync+restart
+          path: ./skillswap-api
+          target: /usr/src/app
+          ignore:
+            - src
+            - node_modules
+            - dist
+            - package.json
+            - package-lock.json
+        - action: rebuild
+          path: ./skillswap-api/package.json
+        - action: rebuild
+          path: ./skillswap-api/package-lock.json
+        - action: rebuild
+          path: ./skillswap-api/prisma/schema.prisma
+
+  database:
+    image: postgres:17-alpine
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      start_period: 10s
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+
+  adminer:
+    image: adminer
+    ports:
+      - 8081:8080
+    depends_on:
+      - database
+
+volumes:
+  postgres_data:
