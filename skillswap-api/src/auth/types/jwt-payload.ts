@@ -1,5 +1,5 @@
 // TODO: Add the rest of the properties
 export type JwtPayload = {
-  id: number;
+  id: string;
   email: string;
 };

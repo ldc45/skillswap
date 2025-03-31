@@ -10,9 +10,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // TODO: await "findOneByMail" if necessary when Prisma models are done.
   async signIn(email: string, pass: string) {
-    const user = this.userService.findOneByMail(email);
+    const user = await this.userService.findOneByMail(email);
     if (user?.password !== pass) {
       throw new UnauthorizedException();
     }
