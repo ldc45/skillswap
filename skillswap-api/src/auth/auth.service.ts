@@ -1,23 +1,24 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { UserService } from '../user/user.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+  ) {}
 
-  // TODO: Add "async" and await "findOneByMail" if necessary when Prisma models are done.
-  signIn(email: string, pass: string) {
+  // TODO: await "findOneByMail" if necessary when Prisma models are done.
+  async signIn(email: string, pass: string) {
     const user = this.userService.findOneByMail(email);
     if (user?.password !== pass) {
       throw new UnauthorizedException();
     }
 
-    const { password, ...result } = user;
-
-    // TODO: Generate a JWT and return it here.
-    // For now, return user object.
-    return result;
+    const payload = { id: user.id, email: user.email };
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
 }

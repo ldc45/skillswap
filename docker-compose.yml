@@ -16,6 +16,7 @@ services:
       retries: 12
     environment:
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?schema=public"
+      JWT_SECRET: "${JWT_SECRET}"
     develop:
       watch:
         - action: sync

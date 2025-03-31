@@ -11,14 +11,14 @@ export class UserService {
   private readonly users = [
     {
       id: 1,
-      email: "johndoe@email.com",
-      password: "changeme"
+      email: 'johndoe@email.com',
+      password: 'changeme',
     },
     {
       id: 2,
-      email: "maria@email.com",
-      password: "guess"
-    }
+      email: 'maria@email.com',
+      password: 'guess',
+    },
   ];
 
   create(createUserDto: CreateUserDto) {
@@ -30,11 +30,11 @@ export class UserService {
   }
 
   findOne(id: number) {
-    return this.users.find(user => user.id === id);
+    return this.users.find((user) => user.id === id);
   }
 
   findOneByMail(email: string) {
-    return this.users.find(user => user.email === email);
+    return this.users.find((user) => user.email === email);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
