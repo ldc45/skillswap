@@ -16,10 +16,10 @@ export class UserService {
     return this.prisma.user.findMany();
   }
 
-  findOne(id: number): Promise<User | null> {
+  findOne(id: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: {
-        id: id.toString(),
+        id: id,
       },
     });
   }
@@ -32,11 +32,11 @@ export class UserService {
     });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(id: string, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} user`;
   }
 }
