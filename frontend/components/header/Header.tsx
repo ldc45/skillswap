@@ -2,16 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from "next/link";
 import { LogOut, Menu, X } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import Login from "../auth/Login";
 import Register from "../auth/Register";
+import { useAuthStore } from "@/lib/stores/authStore";
+import logo from "@/public/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
+
+  // Utilisation du store Zustand au lieu de l'état local
+  const { isAuthenticated, logout, login } = useAuthStore();
 
   // Effet pour bloquer le défilement du body quand le menu est ouvert
   useEffect(() => {
@@ -30,14 +35,20 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Pour les besoins de démonstration - à remplacer par un vrai système d'auth
+  // Simulation du logout
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    logout();
     setIsMenuOpen(false);
   };
 
   const handleLogin = () => {
-    setIsAuthenticated(true);
+    // Simule un utilisateur connecté
+    login({ id: 1, first_name: "John", last_name: "Doe" });
+    setIsMenuOpen(false);
+  };
+
+  // Ferme le menu lors de la navigation
+  const handleNavigation = () => {
     setIsMenuOpen(false);
   };
 
@@ -46,19 +57,31 @@ const Header = () => {
       <nav className="w-full mt-6">
         <ul className="space-y-6 text-center">
           <li>
-            <a href="#" className="block text-xl hover:text-blue-500">
+            <Link
+              href="/dashboard/profile"
+              className="block text-xl hover:text-blue-500"
+              onClick={handleNavigation}
+            >
               Profil
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="#" className="block text-xl hover:text-blue-500">
+            <Link
+              href="/dashboard/messages"
+              className="block text-xl hover:text-blue-500"
+              onClick={handleNavigation}
+            >
               Messages
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="#" className="block text-xl hover:text-blue-500">
+            <Link
+              href="/dashboard/partners"
+              className="block text-xl hover:text-blue-500"
+              onClick={handleNavigation}
+            >
               Trouver un skill
-            </a>
+            </Link>
           </li>
         </ul>
       </nav>
@@ -103,9 +126,13 @@ const Header = () => {
     <header className={`w-full py-4 px-6 flex items-center justify-between`}>
       <div className="flex items-center">
         <div className="mr-3">
-          <Image src="/logo.png" alt="SkillSwap Logo" width={40} height={40} />
+          <Link href="/" onClick={handleNavigation}>
+            <Image src={logo} alt="SkillSwap Logo" width={40} height={40} />
+          </Link>
         </div>
-        <h1 className="text-4xl">SkillSwap</h1>
+        <Link href="/" onClick={handleNavigation}>
+          <h1 className="text-4xl">SkillSwap</h1>
+        </Link>
       </div>
 
       <div>
@@ -128,4 +155,4 @@ const Header = () => {
   );
 };
 
-export default Header
+export default Header;
