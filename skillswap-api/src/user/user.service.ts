@@ -3,13 +3,21 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
+  private saltRounds = 10;
   constructor(private prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+    createUserDto.password = await bcrypt.hash(
+      createUserDto.password,
+      this.saltRounds,
+    );
+    return this.prisma.user.create({
+      data: createUserDto,
+    });
   }
 
   findAll(): Promise<User[]> {

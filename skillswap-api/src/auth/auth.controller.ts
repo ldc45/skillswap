@@ -9,6 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { Request } from 'express';
+import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +19,12 @@ export class AuthController {
   @Post('login')
   signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto.email, signInDto.password);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('register')
+  signUp(@Body() signUpDto: CreateUserDto) {
+    return this.authService.signUp(signUpDto);
   }
 
   @Post('refresh')
