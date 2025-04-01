@@ -1,212 +1,239 @@
-import {
-  Availability,
-  Category,
-  Conversation,
-  Message,
-  PrismaClient,
-  Skill,
-  User,
-  UserSkill,
-} from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
+// Configuration des quantités
+const CATEGORY_COUNT = 15;
+const SKILL_MIN_PER_CATEGORY = 5;
+const SKILL_MAX_PER_CATEGORY = 10;
+const USER_COUNT = 50;
+const SKILL_MIN_PER_USER = 3;
+const SKILL_MAX_PER_USER = 8;
+const AVAILABILITY_MIN_PER_USER = 2;
+const AVAILABILITY_MAX_PER_USER = 5;
+const CONVERSATION_COUNT = 100;
+const MESSAGE_MIN_PER_CONVERSATION = 5;
+const MESSAGE_MAX_PER_CONVERSATION = 20;
+
 async function main() {
   console.log('Starting seed...');
+  console.time('Seed execution time');
 
   try {
-    // Clear existing data
-    await prisma.message.deleteMany({});
-    await prisma.conversation.deleteMany({});
-    await prisma.userSkill.deleteMany({});
-    await prisma.availability.deleteMany({});
-    await prisma.skill.deleteMany({});
-    await prisma.category.deleteMany({});
-    await prisma.user.deleteMany({});
+    // Clear existing data in the correct order to avoid foreign key constraint errors
+    await prisma.$transaction([
+      prisma.message.deleteMany({}),
+      prisma.conversation.deleteMany({}),
+      prisma.userSkill.deleteMany({}),
+      prisma.availability.deleteMany({}),
+      prisma.skill.deleteMany({}),
+      prisma.category.deleteMany({}),
+      prisma.user.deleteMany({}),
+    ]);
 
     console.log('Database cleared');
 
-    // Create categories
-    const categories: Category[] = [];
-    for (let i = 0; i < 5; i++) {
-      const category = await prisma.category.create({
-        data: {
-          name: faker.word.noun(),
-          color: faker.color.rgb(),
-        },
-      });
-      categories.push(category);
-    }
+    // Create categories using createMany
+    const categoryData = Array.from({ length: CATEGORY_COUNT }).map(() => ({
+      name: faker.word.noun(),
+      color: faker.color.rgb(),
+    }));
 
-    console.log('Categories created');
+    await prisma.category.createMany({
+      data: categoryData,
+      skipDuplicates: true, // Skip records with duplicate name field
+    });
 
-    // Create skills for each category
-    const skills: Skill[] = [];
+    // Fetch created categories to get their IDs
+    const categories = await prisma.category.findMany();
+    console.log(`${categories.length} categories created`);
+
+    // Create skills for each category using createMany
+    const skillsData: Prisma.SkillCreateManyInput[] = [];
+
     for (const category of categories) {
-      // Generate between 3 and 6 skills per category
-      const skillCount = faker.number.int({ min: 3, max: 6 });
+      const skillCount = faker.number.int({
+        min: SKILL_MIN_PER_CATEGORY,
+        max: SKILL_MAX_PER_CATEGORY,
+      });
 
       for (let i = 0; i < skillCount; i++) {
         const skillName = faker.word.adjective() + ' ' + faker.word.noun();
 
-        const skill = await prisma.skill.create({
-          data: {
-            name: skillName,
-            diminutive: skillName
-              .replace(/\s+/g, '') // Remove spaces
-              .substring(0, faker.helpers.arrayElement([3, 4])) // Take first 3 or 4 letters
-              .toUpperCase(), // Convert to uppercase
-            categoryId: category.id,
-          },
+        skillsData.push({
+          name: skillName,
+          diminutive: skillName
+            .replace(/\s+/g, '')
+            .substring(0, faker.helpers.arrayElement([3, 4]))
+            .toUpperCase(),
+          categoryId: category.id,
         });
-        skills.push(skill);
       }
     }
 
-    console.log('Skills created');
+    await prisma.skill.createMany({
+      data: skillsData,
+      skipDuplicates: true, // Skip records with duplicate name field
+    });
+
+    // Fetch created skills to get their IDs
+    const skills = await prisma.skill.findMany();
+    console.log(`${skills.length} skills created`);
 
     // Create users with Faker data
-    const users: User[] = [];
-    const userCount = 10;
+    const userData: Prisma.UserCreateManyInput[] = [];
 
-    for (let i = 0; i < userCount; i++) {
+    // Pre-generate hashed passwords to avoid async issues in map
+    const hashedPasswords = await Promise.all(
+      Array.from({ length: USER_COUNT }).map(() =>
+        bcrypt.hash(faker.internet.password(), SALT_ROUNDS),
+      ),
+    );
+
+    for (let i = 0; i < USER_COUNT; i++) {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
-      // Generate email based on first and last name and convert to lowercase
       const email = faker.internet.email({ firstName, lastName }).toLowerCase();
-      const password = await bcrypt.hash(
-        faker.internet.password(),
-        SALT_ROUNDS,
-      );
 
-      const user = await prisma.user.create({
-        data: {
-          email,
-          password,
-          firstName,
-          lastName,
-          biography: faker.lorem.paragraph(),
-          avatarUrl: faker.image.avatar(),
-        },
+      userData.push({
+        email,
+        password: hashedPasswords[i],
+        firstName,
+        lastName,
+        biography: faker.lorem.paragraph(),
+        avatarUrl: faker.image.avatar(),
       });
-
-      users.push(user);
     }
 
-    console.log('Users created');
+    await prisma.user.createMany({
+      data: userData,
+      skipDuplicates: true, // Skip records with duplicate email field
+    });
 
-    // Assign random skills to users
-    const userSkills: UserSkill[] = [];
+    // Fetch created users to get their IDs
+    const users = await prisma.user.findMany();
+    console.log(`${users.length} users created`);
+
+    // Assign random skills to users using createMany
+    const userSkillsData: Prisma.UserSkillCreateManyInput[] = [];
+
     for (const user of users) {
-      // Assign 1 to 5 random skills to each user
       const selectedSkills = faker.helpers.arrayElements(
         skills,
-        faker.number.int({ min: 1, max: 5 }),
+        faker.number.int({
+          min: SKILL_MIN_PER_USER,
+          max: SKILL_MAX_PER_USER,
+        }),
       );
 
       for (const skill of selectedSkills) {
-        const userSkill = await prisma.userSkill.create({
-          data: {
-            userId: user.id,
-            skillId: skill.id,
-          },
+        userSkillsData.push({
+          userId: user.id,
+          skillId: skill.id,
         });
-        userSkills.push(userSkill);
       }
     }
 
-    console.log('User skills assigned');
+    await prisma.userSkill.createMany({
+      data: userSkillsData,
+      skipDuplicates: true, // Skip records with duplicate userId + skillId combination
+    });
 
-    // Create availabilities
-    const availabilities: Availability[] = [];
-    // Define days of the week (1-7, where 1 is Monday)
-    const days = [1, 2, 3, 4, 5, 6, 7];
+    console.log(`${userSkillsData.length} user skills assigned`);
 
-    // Create availabilities for each user
+    // Create availabilities using createMany
+    const availabilitiesData: Prisma.AvailabilityCreateManyInput[] = [];
+    const days = [1, 2, 3, 4, 5, 6, 7]; // 1 is Monday, 7 is Sunday
+
     for (const user of users) {
-      // Assign 1 to 3 random days to each user
       const selectedDays = faker.helpers.arrayElements(
         days,
-        faker.number.int({ min: 1, max: 3 }),
+        faker.number.int({
+          min: AVAILABILITY_MIN_PER_USER,
+          max: AVAILABILITY_MAX_PER_USER,
+        }),
       );
 
       for (const day of selectedDays) {
-        // Generate random start hour between 8am and 4pm
         const startHour = faker.number.int({ min: 8, max: 16 });
-        // Generate random end hour that's later than start hour (up to 7pm)
         const endHour = faker.number.int({ min: startHour + 1, max: 19 });
 
-        // Using a fixed date (Jan 1, 2025) - only the time matters
-        const availability = await prisma.availability.create({
-          data: {
-            userId: user.id,
-            day,
-            startTime: new Date(2025, 0, 1, startHour, 0, 0),
-            endTime: new Date(2025, 0, 1, endHour, 0, 0),
-          },
+        availabilitiesData.push({
+          userId: user.id,
+          day,
+          startTime: new Date(2025, 0, 1, startHour, 0, 0),
+          endTime: new Date(2025, 0, 1, endHour, 0, 0),
         });
-        availabilities.push(availability);
       }
     }
 
-    console.log('Availabilities created');
+    await prisma.availability.createMany({
+      data: availabilitiesData,
+      skipDuplicates: true, // Skip records with duplicate userId + day combination
+    });
 
-    // Create conversations
-    const conversations: Conversation[] = [];
-    const conversationCount = 15;
+    console.log(`${availabilitiesData.length} availabilities created`);
 
-    for (let i = 0; i < conversationCount; i++) {
-      // Safety check to ensure we have at least 2 users to create a conversation
-      // Jump to the next iteration if not enough users
-      if (users.length < 2) continue;
+    // Create conversations using createMany
+    const conversationsData: Prisma.ConversationCreateManyInput[] = [];
 
-      // Randomly select two different users
+    for (let i = 0; i < CONVERSATION_COUNT && users.length >= 2; i++) {
       const [user1, user2] = faker.helpers.arrayElements(users, 2);
 
-      const conversation = await prisma.conversation.create({
-        data: {
-          creatorId: user1.id,
-          partnerId: user2.id,
-        },
+      conversationsData.push({
+        creatorId: user1.id,
+        partnerId: user2.id,
       });
-
-      conversations.push(conversation);
     }
 
-    console.log('Conversations created');
+    await prisma.conversation.createMany({
+      data: conversationsData,
+      skipDuplicates: true, // Skip records with duplicate creatorId + partnerId combination
+    });
 
-    // Add messages to conversations
-    const messages: Message[] = [];
+    // Fetch created conversations to get their IDs
+    const conversations = await prisma.conversation.findMany();
+    console.log(`${conversations.length} conversations created`);
+
+    // Add messages to conversations using createMany
+    const messagesData: Prisma.MessageCreateManyInput[] = [];
+
     for (const conversation of conversations) {
-      // Generate between 2 and 8 messages per conversation
-      const messageCount = faker.number.int({ min: 2, max: 8 });
+      const messageCount = faker.number.int({
+        min: MESSAGE_MIN_PER_CONVERSATION,
+        max: MESSAGE_MAX_PER_CONVERSATION,
+      });
       const { creatorId, partnerId } = conversation;
 
-      // Randomly select which user sends the first message
+      // Determine who sends the first message
       let lastSenderId = faker.helpers.arrayElement([creatorId, partnerId]);
 
+      // Create all messages for this conversation
       for (let i = 0; i < messageCount; i++) {
-        const message = await prisma.message.create({
-          data: {
-            conversationId: conversation.id,
-            senderId: lastSenderId,
-            content: faker.lorem.paragraph(),
-          },
+        messagesData.push({
+          conversationId: conversation.id,
+          senderId: lastSenderId,
+          content: faker.lorem.paragraph(),
+          createdAt: faker.date.recent({ days: 30 }),
         });
 
-        messages.push(message);
-
-        // Alternate between senders to simulate a conversation
+        // Alternate senders
         lastSenderId = lastSenderId === creatorId ? partnerId : creatorId;
       }
     }
 
-    console.log('Messages created');
+    await prisma.message.createMany({
+      data: messagesData,
+      // No skipDuplicates for messages as they should all be unique
+    });
+
+    console.log(`${messagesData.length} messages created`);
+    console.timeEnd('Seed execution time');
     console.log(
-      `Seed completed successfully with ${users.length} users, ${skills.length} skills, ${userSkills.length} user skills, ${availabilities.length} availabilities, ${conversations.length} conversations, and ${messages.length} messages.`,
+      `Seed completed successfully with ${users.length} users, ${skills.length} skills, ${userSkillsData.length} user skills, ${availabilitiesData.length} availabilities, ${conversations.length} conversations, and ${messagesData.length} messages.`,
     );
   } catch (error) {
     console.error('Error during seeding:', error);
