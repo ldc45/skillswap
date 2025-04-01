@@ -146,7 +146,7 @@ async function main() {
 
     // Create availabilities using createMany
     const availabilitiesData: Prisma.AvailabilityCreateManyInput[] = [];
-    const days = [1, 2, 3, 4, 5, 6, 7]; // 1 is Monday, 7 is Sunday
+    const days = [0, 1, 2, 3, 4, 5, 6]; 
 
     for (const user of users) {
       const selectedDays = faker.helpers.arrayElements(
