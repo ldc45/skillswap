@@ -13,7 +13,12 @@ export class AuthService {
   ) {}
 
   async signUp(signUpDto: CreateUserDto) {
-    return this.userService.create(signUpDto);
+    const user = await this.userService.create(signUpDto);
+    const payload = { id: user.id, email: user.email } as JwtPayload;
+    return {
+      access_token: this.createAccessToken(payload),
+      refresh_token: this.createRefreshToken(payload),
+    };
   }
 
   async signIn(email: string, pass: string) {
