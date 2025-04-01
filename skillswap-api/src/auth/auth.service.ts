@@ -1,26 +1,56 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UserService } from '../user/user.service';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './types/jwt-payload';
+import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+  ) {}
+
+  async signUp(signUpDto: CreateUserDto) {
+    const user = await this.userService.create(signUpDto);
+    const payload = { id: user.id, email: user.email } as JwtPayload;
+    return {
+      access_token: this.createAccessToken(payload),
+      refresh_token: this.createRefreshToken(payload),
+    };
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async signIn(email: string, pass: string) {
+    const user = await this.userService.findOneByMail(email);
+    if (!user) {
+      throw new UnauthorizedException();
+    } else {
+      const isPassCorrect = await bcrypt.compare(pass, user.password);
+      if (!isPassCorrect) {
+        throw new UnauthorizedException();
+      }
+    }
+
+    const payload = { id: user.id, email: user.email } as JwtPayload;
+    return {
+      access_token: this.createAccessToken(payload),
+      refresh_token: this.createRefreshToken(payload),
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  createAccessToken(payload: JwtPayload) {
+    return this.jwtService.sign(payload, { expiresIn: '15m' });
   }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
+  createRefreshToken(payload: JwtPayload) {
+    return this.jwtService.sign(payload, { expiresIn: '7d' });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  refreshToken(refreshToken: string) {
+    const payload = this.jwtService.verify<JwtPayload>(refreshToken);
+    return {
+      access_token: this.createAccessToken(payload),
+    };
   }
 }
