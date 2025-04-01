@@ -73,7 +73,7 @@ export default function Home() {
         </h2>
         <div className="flex-wrap flex gap-y-1 gap-x-2">
           {mainSkills.map((skill) => (
-            <Badge key={skill.id} className="md:text-md lg:text-lg">
+            <Badge key={skill.id} className="md:text-base lg:text-lg">
               {skill.diminutive}
             </Badge>
           ))}
