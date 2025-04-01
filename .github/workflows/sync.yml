@@ -1,0 +1,46 @@
+name: Sync repositories
+
+on:
+  # Exécute le workflow lorsqu'il y a un push sur les branches develop ou main
+  push:
+    branches:
+      - develop
+      - main
+  
+  # Permet l'exécution manuelle du workflow
+  workflow_dispatch:
+  
+  # Exécute le workflow selon un calendrier (toutes les 3 heures)
+  schedule:
+    - cron: '0 */1 * * *'
+
+jobs:
+  sync-repos:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get current branch
+        id: branch
+        run: echo "BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+      
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+      
+      - name: Add personal repository remote
+        run: git remote add personal https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/QuentinJoanon/skillswap-personal.git
+      
+      - name: Fetch from personal repository
+        run: git fetch personal
+      
+      - name: Push to personal repository (same branch)
+        run: |
+          echo "Pushing branch ${{ env.BRANCH_NAME }} to personal repository..."
+          git push personal ${{ env.BRANCH_NAME }}:${{ env.BRANCH_NAME }}
