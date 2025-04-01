@@ -44,6 +44,7 @@ async function main() {
 
     await prisma.category.createMany({
       data: categoryData,
+      skipDuplicates: true, // Skip records with duplicate name field
     });
 
     // Fetch created categories to get their IDs
@@ -75,6 +76,7 @@ async function main() {
 
     await prisma.skill.createMany({
       data: skillsData,
+      skipDuplicates: true, // Skip records with duplicate name field
     });
 
     // Fetch created skills to get their IDs
@@ -108,6 +110,7 @@ async function main() {
 
     await prisma.user.createMany({
       data: userData,
+      skipDuplicates: true, // Skip records with duplicate email field
     });
 
     // Fetch created users to get their IDs
@@ -136,6 +139,7 @@ async function main() {
 
     await prisma.userSkill.createMany({
       data: userSkillsData,
+      skipDuplicates: true, // Skip records with duplicate userId + skillId combination
     });
 
     console.log(`${userSkillsData.length} user skills assigned`);
@@ -168,6 +172,7 @@ async function main() {
 
     await prisma.availability.createMany({
       data: availabilitiesData,
+      skipDuplicates: true, // Skip records with duplicate userId + day combination
     });
 
     console.log(`${availabilitiesData.length} availabilities created`);
@@ -186,6 +191,7 @@ async function main() {
 
     await prisma.conversation.createMany({
       data: conversationsData,
+      skipDuplicates: true, // Skip records with duplicate creatorId + partnerId combination
     });
 
     // Fetch created conversations to get their IDs
@@ -221,6 +227,7 @@ async function main() {
 
     await prisma.message.createMany({
       data: messagesData,
+      // No skipDuplicates for messages as they should all be unique
     });
 
     console.log(`${messagesData.length} messages created`);
