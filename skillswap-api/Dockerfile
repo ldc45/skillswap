@@ -1,12 +1,12 @@
 FROM node:lts-alpine AS base
 
-# Étape 1 : Dépendances de développement
+# Step 1: Development dependencies
 FROM base AS deps
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
 
-# Étape 2 : Environnement de développement
+# Step 2: Development environment
 FROM deps AS dev
 WORKDIR /usr/src/app
 COPY --from=deps /usr/src/app/node_modules ./node_modules
@@ -16,7 +16,7 @@ COPY . .
 EXPOSE 4000
 CMD ["npm", "run", "docker:dev"]
 
-# Étape 3 : Construction pour la production
+# Step 3: Build for production
 FROM deps AS build
 WORKDIR /usr/src/app
 COPY --from=deps /usr/src/app/node_modules ./node_modules
@@ -25,7 +25,7 @@ RUN npx prisma generate
 COPY . .
 RUN npm run build
 
-# Étape 4 : Image de production
+# Step 4: Production image
 FROM base AS prod
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
