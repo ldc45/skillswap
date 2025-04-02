@@ -1,0 +1,45 @@
+name: Build SkillSwap API Docker Image 🐳
+
+# This workflow is triggered when changes are pushed to the main branch
+# and specifically when files in the skillswap-api directory are modified
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'skillswap-api/**'
+
+jobs:
+  build:
+    # Use the latest Ubuntu runner provided by GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository code to the runner
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Docker Buildx for optimized Docker image building
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Log in to Docker Hub using credentials stored in GitHub secrets
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Build the Docker image and push it to Docker Hub
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          # Set the build context to the skillswap-api directory
+          context: ./skillswap-api
+          # Specify the Dockerfile location
+          file: ./skillswap-api/Dockerfile
+          # Use the 'prod' target from the multi-stage Dockerfile
+          target: prod
+          # Push the image to Docker Hub after building
+          push: true
+          # Tag the image as 'latest'
+          tags: ldc45/skillswap-api:latest
