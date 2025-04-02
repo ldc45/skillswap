@@ -38,7 +38,7 @@ export class UserService {
     });
   }
 
-  findOneByMail(email: string) {
+  findOneByMail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: {
         email: email,
@@ -67,8 +67,13 @@ export class UserService {
     }
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
+    return this.prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: updateUserDto,
+    });
   }
 
   remove(id: string) {
