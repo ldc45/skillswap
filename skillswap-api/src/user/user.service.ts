@@ -1,14 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { Request } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from '../auth/types/jwt-payload';
 
 @Injectable()
 export class UserService {
   private saltRounds = 10;
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     createUserDto.password = await bcrypt.hash(
@@ -38,6 +44,27 @@ export class UserService {
         email: email,
       },
     });
+  }
+
+  async findMe(request: Request) {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    if (type === 'Bearer' && token) {
+      try {
+        const payload = this.jwtService.verify<JwtPayload>(token);
+        const user = await this.findOne(payload.id);
+        if (user) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { password, ...data } = user;
+          return data;
+        } else {
+          throw new UnauthorizedException();
+        }
+      } catch {
+        throw new UnauthorizedException();
+      }
+    } else {
+      throw new UnauthorizedException();
+    }
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
