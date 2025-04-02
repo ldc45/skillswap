@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker';
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
-// Configuration des quantités
+
 const CATEGORY_COUNT = 15;
 const SKILL_MIN_PER_CATEGORY = 5;
 const SKILL_MAX_PER_CATEGORY = 10;
