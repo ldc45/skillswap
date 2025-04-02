@@ -26,8 +26,26 @@ export class UserService {
     });
   }
 
-  findAll(): Promise<User[]> {
-    return this.prisma.user.findMany();
+  async findAll(randomNum: number = 0): Promise<User[]> {
+    const users = await this.prisma.user.findMany();
+    if (randomNum > 0) {
+      const randomUsers: User[] = [];
+      const usedIndexes: number[] = [];
+      for (let i = 0; i < randomNum; i++) {
+        let isPicked = false;
+        while (!isPicked) {
+          const randomIndex = Math.round(Math.random() * (users.length - 1));
+          if (!usedIndexes.includes(randomIndex)) {
+            usedIndexes.push(randomIndex);
+            randomUsers.push(users[randomIndex]);
+            isPicked = true;
+          }
+        }
+      }
+      return randomUsers;
+    } else {
+      return users;
+    }
   }
 
   findOne(id: string): Promise<User | null> {

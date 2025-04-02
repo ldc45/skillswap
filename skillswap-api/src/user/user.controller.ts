@@ -8,6 +8,7 @@ import {
   Delete,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,8 +26,12 @@ export class UserController {
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() query: { random: number }) {
+    let randomNum = 0;
+    if (query.random) {
+      randomNum = query.random;
+    }
+    return this.userService.findAll(randomNum);
   }
 
   @UseGuards(AuthGuard)
