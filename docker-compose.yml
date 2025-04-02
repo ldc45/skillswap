@@ -13,6 +13,7 @@ services:
     build:
       context: ./skillswap-api
       dockerfile: Dockerfile
+      target: dev
     ports:
       - "4000:4000"
     depends_on:
