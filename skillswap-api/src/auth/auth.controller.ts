@@ -5,10 +5,13 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  UnauthorizedException,
+  Res,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @Controller('auth')
@@ -17,20 +20,45 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+  signIn(
+    @Body() signInDto: SignInDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.signIn(
+      signInDto.email,
+      signInDto.password,
+      response,
+    );
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post('register')
+  signUp(
+    @Body() signUpDto: CreateUserDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.signUp(signUpDto, response);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('register')
-  signUp(@Body() signUpDto: CreateUserDto) {
-    return this.authService.signUp(signUpDto);
+  @Post('refresh')
+  refresh(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    // Récupérer le refresh token depuis les cookies
+    const refreshToken = request.cookies['refresh_token'];
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token manquant');
+    }
+
+    return this.authService.refreshToken(refreshToken, response);
   }
 
-  @Post('refresh')
-  refresh(@Req() request: Request) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const refreshToken: string = request.cookies['refreshToken'];
-    return this.authService.refreshToken(refreshToken);
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  logout(@Res({ passthrough: true }) response: Response) {
+    return this.authService.logout(response);
   }
 }

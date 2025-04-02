@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import Login from "../auth/Login";
 import Register from "../auth/Register";
 import { useAuthStore } from "@/lib/stores/authStore";
+import { apiService } from "@/lib/services/apiService";
 import logo from "@/public/logo.png";
 
 const Header = () => {
@@ -16,7 +17,7 @@ const Header = () => {
   const [showLogin, setShowLogin] = useState(true);
 
   // Utilisation du store Zustand au lieu de l'état local
-  const { isAuthenticated, logout, login } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   // Effet pour bloquer le défilement du body quand le menu est ouvert
   useEffect(() => {
@@ -35,15 +36,20 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Simulation du logout
-  const handleLogout = () => {
-    logout();
-    setIsMenuOpen(false);
+  // Gestion de la déconnexion avec le service API
+  const handleLogout = async () => {
+    try {
+      // Utilise le service API qui va appeler l'endpoint de déconnexion
+      // et mettre à jour le store local
+      await apiService.logout();
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+    }
   };
 
   const handleLogin = () => {
-    // Simule un utilisateur connecté
-    login({ id: 1, first_name: "John", last_name: "Doe" });
+    // Ferme simplement le menu après la connexion
     setIsMenuOpen(false);
   };
 
