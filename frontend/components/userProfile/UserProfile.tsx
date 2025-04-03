@@ -3,7 +3,6 @@
 import { useAuthStore } from "@/lib/stores/authStore";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
-import { useEffect } from "react";
 
 export default function UserProfile() {
   const { user } = useAuthStore();
