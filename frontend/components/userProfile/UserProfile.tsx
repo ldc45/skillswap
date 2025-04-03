@@ -3,15 +3,26 @@
 import { useAuthStore } from "@/lib/stores/authStore";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
+import { UseFormReturn } from "react-hook-form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
 
-export default function UserProfile() {
+interface UserProfileProps {
+  isEditing: boolean;
+  userForm: UseFormReturn<{
+    firstName: string;
+    lastName: string;
+  }>;
+}
+
+export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
   const { user } = useAuthStore();
-  const fakeUser = {
-    id: user?.id || "1",
-    first_name: user?.firstName || "John",
-    last_name: user?.lastName || "Doe",
-    avatar_url: user?.avatarUrl || "https://github.com/shadcn.png",
-  };
 
   const fakeSkills = [
     {
@@ -36,15 +47,51 @@ export default function UserProfile() {
     },
   ];
 
+  if (!user) return null;
+
   return (
     <div className="basis-1/2 p-4 flex flex-col gap-y-4 items-center">
       <div className="flex flex-col gap-y-2 items-center">
         <Avatar className="w-20 h-20">
-          <AvatarImage src={fakeUser.avatar_url} />
+          <AvatarImage src={user.avatarUrl} />
         </Avatar>
-        <h3 className="text-xl font-medium md:text-2xl lg:text-3xl">
-          {fakeUser.first_name} {fakeUser.last_name.charAt(0)}.
-        </h3>
+        {!isEditing ? (
+          <h3 className="text-xl font-medium md:text-2xl lg:text-3xl">
+            {user.firstName} {user.lastName?.charAt(0)}.
+          </h3>
+        ) : (
+          <div className="flex flex-col gap-y-2">
+            <FormField
+              control={userForm.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Prénom</FormLabel>
+                  <FormControl>
+                    <Input placeholder={user.firstName} {...field} />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={userForm.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nom</FormLabel>
+                  <FormControl>
+                    <Input placeholder={user.lastName} {...field} />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-row md:gap-x-2 lg:gap-x-3 gap-x-1 wrap">
