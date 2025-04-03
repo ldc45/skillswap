@@ -117,7 +117,7 @@ export class AuthService {
     response.cookie('access_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 15 * 60 * 1000, // 15 minutes en milliseconds
     });
   }
@@ -127,7 +127,7 @@ export class AuthService {
     response.cookie('refresh_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours en milliseconds
     });
   }
