@@ -2,13 +2,39 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import * as cookieParser from 'cookie-parser';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
-  // Utilisation du middleware cookie-parser
+  // Use cookie-parser middleware
   app.use(cookieParser());
+
+  // Enable ValidationPipe globally
+  app.useGlobalPipes(new ValidationPipe());
+
+  // Swagger Configuration
+  const config = new DocumentBuilder()
+    .setTitle('SkillSwap API')
+    .setDescription('API for the SkillSwap skills exchange platform')
+    .setVersion('1.0')
+    .addTag('auth', 'Authentication endpoints')
+    .addTag('users', 'User management')
+    .addTag('skills', 'Skill management')
+    .addTag('categories', 'Skill categories management')
+    .addTag('conversations', 'Conversation management')
+    .addCookieAuth('access_token', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'access_token',
+      description: 'JWT token stored in HTTP-only cookie for authentication',
+    })
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
 
   // Determine allowed origins
   let allowedOrigins: string[] = [];
@@ -46,8 +72,8 @@ async function bootstrap() {
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true, // Permet l'envoi de cookies
-    exposedHeaders: ['Set-Cookie'], // Permet d'exposer les en-têtes Set-Cookie au frontend
+    credentials: true, // Allow sending cookies
+    exposedHeaders: ['Set-Cookie'], // Allow exposing Set-Cookie headers to frontend
   };
   app.enableCors(corsOptions);
   await app.listen(process.env.PORT ?? 4000);

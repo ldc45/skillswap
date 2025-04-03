@@ -7,6 +7,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
+import type { User } from "@/lib/stores/authStore"; // Importation du type User
 
 interface LoginProps {
   onSwitchToRegister?: () => void;
@@ -18,7 +19,6 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Utilisation du store d'authentification
   const login = useAuthStore((state) => state.login);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,16 +27,34 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
 
     try {
       // Appel API avec credentials: include pour envoyer/recevoir les cookies
-      const responseData = await apiService.post("/auth/login", {
+      const loginResponse = await apiService.post("/auth/login", {
         email,
         password,
       });
 
-      // Mise à jour du store local - Les cookies sont gérés automatiquement par le navigateur
-      login({});
+      // On s'assure que la connexion a réussi avant de faire la requête suivante
+      if (loginResponse) {
+        try {
+          // Récupération des informations de l'utilisateur connecté
+          const userResponse = await apiService.get<User>("/users/me");
+          console.log("userResponse", userResponse);
 
-      if (handleLogin) {
-        handleLogin();
+          // Mise à jour du store avec les données de l'utilisateur
+          login({ user: userResponse });
+
+          if (handleLogin) {
+            handleLogin();
+          }
+        } catch (userError) {
+          console.error(
+            "Erreur lors de la récupération des infos utilisateur:",
+            userError
+          );
+
+          if (handleLogin) {
+            handleLogin();
+          }
+        }
       }
     } catch (err) {
       console.error("Erreur de connexion:", err);

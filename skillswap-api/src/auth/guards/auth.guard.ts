@@ -14,24 +14,28 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractTokenFromCookie(request);
+
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Aucun token trouvé dans les cookies');
     }
 
     try {
-      await this.jwtService.verifyAsync<JwtPayload>(token, {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: process.env.JWT_SECRET,
       });
-    } catch {
-      throw new UnauthorizedException();
+      
+      // Ajouter le payload décodé à la requête pour une utilisation ultérieure
+      request['user'] = payload;
+    } catch (error) {
+      console.error('Erreur de vérification du token dans AuthGuard:', error.message);
+      throw new UnauthorizedException('Token invalide ou expiré');
     }
 
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+  private extractTokenFromCookie(request: Request): string | undefined {
+    return request.cookies?.access_token;
   }
 }

@@ -2,7 +2,15 @@
 
 import { Button } from "../ui/button";
 
-export default function UserAvailabilities() {
+interface UserAvailabilitiesProps {
+  isEditing: boolean;
+  setIsEditing: (isEditing: boolean) => void;
+}
+
+export default function UserAvailabilities({
+  isEditing,
+  setIsEditing,
+}: UserAvailabilitiesProps) {
   const days = [
     {
       id: 0,
@@ -41,6 +49,7 @@ export default function UserAvailabilities() {
     },
   ];
 
+  // TODO: Get the availabilities from the user
   const availabilities = [
     { id: 1, day: 2, start_time: "14:00:00", end_time: "19:00:00" },
     { id: 2, day: 0, start_time: "10:00:00", end_time: "12:00:00" },
@@ -76,9 +85,29 @@ export default function UserAvailabilities() {
           </div>
         ))}
       </div>
-      <Button className="w-fit lg:self-end self-center md:text-lg">
-        Contacter
-      </Button>
+
+      {!isEditing ? (
+        <Button
+          onClick={() => setIsEditing(true)}
+          className="w-fit lg:self-end self-center md:text-lg"
+        >
+          Modifier
+        </Button>
+      ) : (
+        <div className="flex flex-basis grow">
+          <Button
+            type="button"
+            onClick={() => setIsEditing(false)}
+            variant="secondary"
+            className="basis-1/2"
+          >
+            Annuler
+          </Button>
+          <Button type="submit" className="basis-1/2">
+            Enregistrer
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
