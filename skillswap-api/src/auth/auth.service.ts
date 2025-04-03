@@ -85,11 +85,19 @@ export class AuthService {
     }
   }
 
-  // Méthode pour déconnecter l'utilisateur
+  // Methode for logout
   logout(response: Response) {
-    // Effacer les cookies
-    response.clearCookie('access_token');
-    response.clearCookie('refresh_token');
+    // Clear the cookies for access and refresh tokens
+    response.clearCookie('access_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'none',
+    });
+    response.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'none',
+    });
 
     return { message: 'Déconnexion réussie' };
   }
