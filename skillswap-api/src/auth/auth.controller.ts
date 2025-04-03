@@ -7,12 +7,12 @@ import {
   Req,
   UnauthorizedException,
   Res,
-  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { Request, Response } from 'express';
 import { CreateUserDto } from '../user/dto/create-user.dto';
+import { RequestCookies } from './types/request-cookies';
 
 @Controller('auth')
 export class AuthController {
@@ -47,7 +47,8 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     // Récupérer le refresh token depuis les cookies
-    const refreshToken = request.cookies['refresh_token'];
+    const requestCookies = request.cookies as RequestCookies;
+    const refreshToken = requestCookies.refresh_token;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token manquant');
