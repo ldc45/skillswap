@@ -65,23 +65,30 @@ export class UserService {
   }
 
   async findMe(request: Request) {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    if (type === 'Bearer' && token) {
-      try {
-        const payload = this.jwtService.verify<JwtPayload>(token);
-        const user = await this.findOne(payload.id);
-        if (user) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { password, ...data } = user;
-          return data;
-        } else {
-          throw new UnauthorizedException();
-        }
-      } catch {
-        throw new UnauthorizedException();
+    const token = request.cookies?.access_token;
+
+    if (!token) {
+      throw new UnauthorizedException('Aucun token trouvé dans les cookies');
+    }
+
+    try {
+      const payload = this.jwtService.verify<JwtPayload>(token, {
+        secret: process.env.JWT_SECRET,
+      });
+      const user = await this.findOne(payload.id);
+      if (user) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, ...data } = user;
+        return data;
+      } else {
+        throw new UnauthorizedException('Utilisateur non trouvé');
       }
-    } else {
-      throw new UnauthorizedException();
+    } catch (error) {
+      console.error(
+        'Erreur de vérification du token dans findMe:',
+        error.message,
+      );
+      throw new UnauthorizedException('Token invalide ou expiré');
     }
   }
 

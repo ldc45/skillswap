@@ -1,14 +1,17 @@
 "use client";
 
+import { useAuthStore } from "@/lib/stores/authStore";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
+import { useEffect } from "react";
 
 export default function UserProfile() {
+  const { user } = useAuthStore();
   const fakeUser = {
-    id: 1,
-    first_name: "Marie",
-    last_name: "Dupont",
-    avatar_url: "https://github.com/shadcn.png",
+    id: user?.id || "1",
+    first_name: user?.firstName || "John",
+    last_name: user?.lastName || "Doe",
+    avatar_url: user?.avatarUrl || "https://github.com/shadcn.png",
   };
 
   const fakeSkills = [

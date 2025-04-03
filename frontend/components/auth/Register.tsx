@@ -7,6 +7,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
+import type { User } from "@/lib/stores/authStore";
 
 interface RegisterProps {
   onSwitchToLogin?: () => void;
@@ -21,7 +22,6 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Utilisation du store d'authentification
   const login = useAuthStore((state) => state.login);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,19 +35,35 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
     }
 
     try {
-      // Utilisation du service d'API pour l'inscription
-      const responseData = await apiService.post("/auth/register", {
+      const registerResponse = await apiService.post("/auth/register", {
         email,
         password,
         firstName,
         lastName,
       });
 
-      // Mise à jour du store local - Les cookies sont gérés automatiquement par le navigateur
-      login({});
+      // On s'assure que l'inscription a réussi avant de faire la requête suivante
+      if (registerResponse) {
+        try {
+          // Récupération des informations de l'utilisateur connecté
+          const userResponse = await apiService.get<User>("/users/me");
 
-      if (handleLogin) {
-        handleLogin();
+          // Mise à jour du store avec les données de l'utilisateur
+          login({ user: userResponse });
+
+          if (handleLogin) {
+            handleLogin();
+          }
+        } catch (userError) {
+          console.error(
+            "Erreur lors de la récupération des infos utilisateur:",
+            userError
+          );
+
+          if (handleLogin) {
+            handleLogin();
+          }
+        }
       }
     } catch (err) {
       console.error("Erreur d'inscription:", err);
