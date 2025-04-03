@@ -1,0 +1,35 @@
+name: Auto-Merge Develop to Main
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - develop
+
+jobs:
+  merge-to-main:
+    runs-on: ubuntu-latest
+    # Execute only if the pull request is merged
+    if: github.event.pull_request.merged == true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          # Fetch history
+          fetch-depth: 0
+          # Provide the GITHUB_TOKEN to the action
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+
+      - name: Merge develop into main
+        # Fetch the latest changes with history
+        run: |
+          git checkout main
+          git merge --no-ff develop -m "Auto-merge develop into main"
+          git push origin main
