@@ -1,6 +1,6 @@
 import { useAuthStore } from "../stores/authStore";
 
-const API_URL = "http://localhost:4000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Variable pour suivre si une demande de rafraîchissement est en cours
 let isRefreshing = false;
@@ -31,13 +31,11 @@ export const apiService = {
         },
         credentials: "include", // Important pour inclure les cookies
       });
-      
+
       if (!response.ok) {
         throw new Error("Échec du rafraîchissement du token");
       }
-      
-      // Nous n'avons plus besoin de gérer le token manuellement
-      // il est dans les cookies HttpOnly
+
       return true;
     } catch (error) {
       console.error("Erreur lors du rafraîchissement du token:", error);
@@ -53,37 +51,35 @@ export const apiService = {
     options: RequestInit = {}
   ): Promise<T> {
     // Inclure les cookies dans chaque requête
-    const config = {
+    const config: RequestInit = {
       ...options,
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
       },
-      credentials: "include", // Important pour inclure les cookies
+      credentials: "include" as RequestCredentials, // Important pour inclure les cookies
     };
-    
+
     // Première tentative de requête
     let response = await fetch(`${API_URL}${endpoint}`, config);
-    
+
     // Si le token est expiré (401 Unauthorized)
     if (response.status === 401) {
       // Si un rafraîchissement est déjà en cours, on met cette requête en file d'attente
       if (isRefreshing) {
         return new Promise<T>((resolve, reject) => {
           refreshQueue.push(() => {
-            this.fetch<T>(endpoint, options)
-              .then(resolve)
-              .catch(reject);
+            this.fetch<T>(endpoint, options).then(resolve).catch(reject);
           });
         });
       }
-      
+
       // Sinon on lance le processus de rafraîchissement
       isRefreshing = true;
-      
+
       try {
         const refreshSuccess = await this.refreshToken();
-        
+
         if (!refreshSuccess) {
           // Si le rafraîchissement échoue, on déconnecte l'utilisateur
           const { logout } = useAuthStore.getState();
@@ -91,11 +87,11 @@ export const apiService = {
           isRefreshing = false;
           throw new Error("Session expirée, veuillez vous reconnecter");
         }
-        
+
         // Rafraîchissement réussi, on traite la file d'attente
         isRefreshing = false;
         processQueue();
-        
+
         // On réessaie la requête originale
         response = await fetch(`${API_URL}${endpoint}`, config);
       } catch (error) {
@@ -103,7 +99,7 @@ export const apiService = {
         throw error;
       }
     }
-    
+
     // Vérifier si la réponse est OK
     if (!response.ok) {
       const error = await response.json().catch(() => ({
@@ -127,7 +123,7 @@ export const apiService = {
     return this.fetch<T>(endpoint, { ...options, method: "GET" });
   },
 
-  post<T>(endpoint: string, data?: any, options: RequestInit = {}): Promise<T> {
+  post<T, U = unknown>(endpoint: string, data?: U, options: RequestInit = {}): Promise<T> {
     return this.fetch<T>(endpoint, {
       ...options,
       method: "POST",
@@ -135,7 +131,7 @@ export const apiService = {
     });
   },
 
-  put<T>(endpoint: string, data?: any, options: RequestInit = {}): Promise<T> {
+  put<T, U = unknown>(endpoint: string, data?: U, options: RequestInit = {}): Promise<T> {
     return this.fetch<T>(endpoint, {
       ...options,
       method: "PUT",
@@ -143,7 +139,7 @@ export const apiService = {
     });
   },
 
-  patch<T>(endpoint: string, data?: any, options: RequestInit = {}): Promise<T> {
+  patch<T, U = unknown>(endpoint: string, data?: U, options: RequestInit = {}): Promise<T> {
     return this.fetch<T>(endpoint, {
       ...options,
       method: "PATCH",
