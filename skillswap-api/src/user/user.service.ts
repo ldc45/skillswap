@@ -24,7 +24,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     const emailUser = await this.findOneByMail(createUserDto.email);
     if (emailUser) {
-      throw new BadRequestException('Cet adresse email est déjà utilisée.');
+      throw new BadRequestException('Email is already used.');
     }
 
     createUserDto.password = await bcrypt.hash(
@@ -79,7 +79,7 @@ export class UserService {
     const token = requestCookies?.access_token;
 
     if (!token) {
-      throw new UnauthorizedException('Aucun token trouvé dans les cookies');
+      throw new UnauthorizedException('No token found in cookies.');
     }
 
     try {
@@ -91,11 +91,11 @@ export class UserService {
         delete user.password;
         return user;
       } else {
-        throw new UnauthorizedException('Utilisateur non trouvé');
+        throw new UnauthorizedException('User not found.');
       }
     } catch (error) {
-      console.error('Erreur de vérification du token dans findMe:', error);
-      throw new UnauthorizedException('Token invalide ou expiré');
+      console.error("Couldn't verify token in method findMe:", error);
+      throw new UnauthorizedException('Invalid or expired token.');
     }
   }
 
