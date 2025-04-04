@@ -21,7 +21,6 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'John',
     description: 'User first name',
-    required: false,
   })
   @IsOptional()
   @IsString()
@@ -30,7 +29,6 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'Doe',
     description: 'User last name',
-    required: false,
   })
   @IsOptional()
   @IsString()
