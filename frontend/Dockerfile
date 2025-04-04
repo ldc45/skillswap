@@ -10,4 +10,4 @@ RUN npm install
 
 COPY . .
 
-CMD npm run update:api && npm run dev
+CMD npm run dev
