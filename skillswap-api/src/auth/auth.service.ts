@@ -85,11 +85,19 @@ export class AuthService {
     }
   }
 
-  // Méthode pour déconnecter l'utilisateur
+  // Methode for logout
   logout(response: Response) {
-    // Effacer les cookies
-    response.clearCookie('access_token');
-    response.clearCookie('refresh_token');
+    // Clear the cookies for access and refresh tokens
+    response.clearCookie('access_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'none',
+    });
+    response.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'none',
+    });
 
     return { message: 'Déconnexion réussie' };
   }
@@ -109,7 +117,7 @@ export class AuthService {
     response.cookie('access_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 15 * 60 * 1000, // 15 minutes en milliseconds
     });
   }
@@ -119,7 +127,7 @@ export class AuthService {
     response.cookie('refresh_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours en milliseconds
     });
   }
