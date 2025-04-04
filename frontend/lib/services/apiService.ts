@@ -2,26 +2,20 @@ import { useAuthStore } from "../stores/authStore";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Variable pour suivre si une demande de rafraîchissement est en cours
+// Track if a refresh request is in progress
 let isRefreshing = false;
-// File d'attente des requêtes en attente pendant le rafraîchissement du token
+// Queue of pending requests during token refresh
 let refreshQueue: Array<() => void> = [];
 
-/**
- * Traite la file d'attente des requêtes avec le nouveau token
- */
+// Process the queue of requests with the new token
 const processQueue = () => {
   refreshQueue.forEach((callback) => callback());
   refreshQueue = [];
 };
 
-/**
- * Service pour gérer les appels API avec authentification
- */
+// Service to handle API calls with authentication
 export const apiService = {
-  /**
-   * Rafraîchit le token d'accès en utilisant le refresh token stocké dans les cookies
-   */
+  // Refresh the access token using the refresh token stored in cookies
   async refreshToken(): Promise<boolean> {
     try {
       const response = await fetch(`${API_URL}/auth/refresh`, {
@@ -29,43 +23,41 @@ export const apiService = {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Important pour inclure les cookies
+        credentials: "include", // Important for including cookies
       });
 
       if (!response.ok) {
-        throw new Error("Échec du rafraîchissement du token");
+        throw new Error("Token refresh failed");
       }
 
       return true;
     } catch (error) {
-      console.error("Erreur lors du rafraîchissement du token:", error);
+      console.error("Error refreshing token:", error);
       return false;
     }
   },
 
-  /**
-   * Effectue une requête API avec authentification par cookies
-   */
+  // Perform an API request with cookie authentication
   async fetch<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    // Inclure les cookies dans chaque requête
+    // Include cookies in each request
     const config: RequestInit = {
       ...options,
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
       },
-      credentials: "include" as RequestCredentials, // Important pour inclure les cookies
+      credentials: "include" as RequestCredentials, // Important for including cookies
     };
 
-    // Première tentative de requête
+    // First request attempt
     let response = await fetch(`${API_URL}${endpoint}`, config);
 
-    // Si le token est expiré (401 Unauthorized)
+    // If token is expired (401 Unauthorized)
     if (response.status === 401) {
-      // Si un rafraîchissement est déjà en cours, on met cette requête en file d'attente
+      // If refresh is already in progress, queue this request
       if (isRefreshing) {
         return new Promise<T>((resolve, reject) => {
           refreshQueue.push(() => {
@@ -74,25 +66,25 @@ export const apiService = {
         });
       }
 
-      // Sinon on lance le processus de rafraîchissement
+      // Start the refresh process
       isRefreshing = true;
 
       try {
         const refreshSuccess = await this.refreshToken();
 
         if (!refreshSuccess) {
-          // Si le rafraîchissement échoue, on déconnecte l'utilisateur
+          // If refresh fails, log out the user
           const { logout } = useAuthStore.getState();
           logout();
           isRefreshing = false;
-          throw new Error("Session expirée, veuillez vous reconnecter");
+          throw new Error("Session expired, please log in again");
         }
 
-        // Rafraîchissement réussi, on traite la file d'attente
+        // Refresh successful, process the queue
         isRefreshing = false;
         processQueue();
 
-        // On réessaie la requête originale
+        // Retry the original request
         response = await fetch(`${API_URL}${endpoint}`, config);
       } catch (error) {
         isRefreshing = false;
@@ -100,15 +92,15 @@ export const apiService = {
       }
     }
 
-    // Vérifier si la réponse est OK
+    // Check if the response is OK
     if (!response.ok) {
       const error = await response.json().catch(() => ({
-        message: "Une erreur s'est produite",
+        message: "An error occurred",
       }));
-      throw new Error(error.message || `Erreur ${response.status}`);
+      throw new Error(error.message || `Error ${response.status}`);
     }
 
-    // Si la réponse est No Content (204)
+    // If the response is No Content (204)
     if (response.status === 204) {
       return {} as T;
     }
@@ -116,9 +108,7 @@ export const apiService = {
     return await response.json();
   },
 
-  /**
-   * Méthodes HTTP
-   */
+  // HTTP methods
   get<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     return this.fetch<T>(endpoint, { ...options, method: "GET" });
   },
@@ -151,13 +141,11 @@ export const apiService = {
     return this.fetch<T>(endpoint, { ...options, method: "DELETE" });
   },
   
-  /**
-   * Déconnexion - efface les cookies côté serveur
-   */
+  // Logout - clear cookies on server side
   logout(): Promise<void> {
     return this.post('/auth/logout')
       .then(() => {
-        // Mise à jour du store local après déconnexion du serveur
+        // Update local store after server logout
         const { logout } = useAuthStore.getState();
         logout();
       });

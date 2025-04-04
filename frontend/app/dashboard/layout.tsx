@@ -12,7 +12,7 @@ export default function DashboardLayout({
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
 
-  // Redirection si l'utilisateur n'est pas authentifié
+  // Redirect if user is not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/");
@@ -21,9 +21,5 @@ export default function DashboardLayout({
 
   if (!isAuthenticated) return null;
 
-  return (
-    <div>
-      {children}
-    </div>
-  );
+  return <div>{children}</div>;
 }
