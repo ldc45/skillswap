@@ -2,14 +2,7 @@ name: Build SkillSwap API Docker Image 🐳
 
 # This workflow is triggered when changes are pushed to the main branch
 # and specifically when files in the skillswap-api directory are modified
-# OR when the Auto-Merge workflow completes successfully
 on:
-  workflow_run:
-    workflows: ["Auto-Merge Develop to Main"]
-    types:
-      - completed
-    branches:
-      - main
   push:
     branches: [ main ]
     paths:
@@ -17,9 +10,6 @@ on:
 
 jobs:
   build:
-    # Only run this job if the auto-merge workflow succeeded or if there was a direct push to main
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
-
     # Use the latest Ubuntu runner provided by GitHub
     runs-on: ubuntu-latest
 
