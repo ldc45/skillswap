@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -22,7 +28,6 @@ export class CreateUserDto {
     example: 'John',
     description: 'User first name',
   })
-  @IsOptional()
   @IsString()
   firstName: string;
 
@@ -30,7 +35,6 @@ export class CreateUserDto {
     example: 'Doe',
     description: 'User last name',
   })
-  @IsOptional()
   @IsString()
   lastName: string;
 
@@ -42,6 +46,14 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   biography: string;
+
+  @ApiProperty({
+    example: false,
+    description: 'Indicates if the user account is archived',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isArchived: boolean;
 
   @ApiProperty({
     example: 'https://example.com/avatar.jpg',
