@@ -41,6 +41,11 @@ export class User implements PrismaUser {
   })
   avatarUrl: string | null;
   @ApiProperty({
+    example: false,
+    description: 'Indicates if the user account is archived',
+  })
+  isArchived: boolean;
+  @ApiProperty({
     example: '2023-10-01T12:00:00Z',
     description: 'Date when the user was created',
   })
