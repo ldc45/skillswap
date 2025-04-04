@@ -1,25 +1,21 @@
 name: Auto-Merge Develop to Main
-
 on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - develop
+  schedule:
+    # Run every 3 hours
+    - cron: '0 */3 * * *'
+  # Allow manual triggering if needed
+  workflow_dispatch:
 
 jobs:
   merge-to-main:
     runs-on: ubuntu-latest
-    # Execute only if the pull request is merged
-    if: github.event.pull_request.merged == true
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          # Fetch history
+          # Fetch complete history
           fetch-depth: 0
-          # Provide the GITHUB_TOKEN to the action
+          # Provide GitHub token to the action
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
@@ -27,9 +23,22 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
 
+      - name: Check for changes in develop
+        id: check_changes
+        # Fetch the latest state of the develop branch
+        # Count how many commits exist in develop that aren't in main
+        # This will be 0 if there are no new changes to merge
+        # Save this count as an output variable for use in later steps
+        run: |
+          git fetch origin develop
+          DIFF_COUNT=$(git rev-list --count main..origin/develop)
+          echo "diff_count=$DIFF_COUNT" >> $GITHUB_OUTPUT
+
       - name: Merge develop into main
-        # Fetch the latest changes with history
+        # Only proceed with merge if there are differences between branches
+        # This prevents creating empty merge commits every 3 hours
+        if: steps.check_changes.outputs.diff_count != '0'
         run: |
           git checkout main
-          git merge --no-ff develop -m "Auto-merge develop into main"
+          git merge --no-ff origin/develop -m "Auto-merge develop into main (scheduled)"
           git push origin main
