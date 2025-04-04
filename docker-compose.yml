@@ -6,14 +6,20 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - swagger-data:/app/public/docs
     ports:
       - 3000:3000
+    depends_on:
+      skill-swap-api:
+        condition: service_healthy
 
   skill-swap-api:
     build:
       context: ./skillswap-api
       dockerfile: Dockerfile
       target: dev
+    volumes:
+      - swagger-data:/swagger
     ports:
       - "4000:4000"
     depends_on:
@@ -59,12 +65,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       start_period: 10s
       interval: 20s
       timeout: 10s
       retries: 10
-
 
   adminer:
     image: adminer
@@ -75,3 +80,4 @@ services:
 
 volumes:
   postgres_data:
+  swagger-data:
