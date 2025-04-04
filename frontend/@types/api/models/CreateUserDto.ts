@@ -50,6 +50,12 @@ export interface CreateUserDto {
      */
     biography?: string;
     /**
+     * Indicates if the user account is archived
+     * @type {boolean}
+     * @memberof CreateUserDto
+     */
+    isArchived: boolean;
+    /**
      * User avatar URL
      * @type {string}
      * @memberof CreateUserDto
@@ -65,6 +71,7 @@ export function instanceOfCreateUserDto(value: object): value is CreateUserDto {
     if (!('password' in value) || value['password'] === undefined) return false;
     if (!('firstName' in value) || value['firstName'] === undefined) return false;
     if (!('lastName' in value) || value['lastName'] === undefined) return false;
+    if (!('isArchived' in value) || value['isArchived'] === undefined) return false;
     return true;
 }
 
@@ -83,6 +90,7 @@ export function CreateUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
         'firstName': json['firstName'],
         'lastName': json['lastName'],
         'biography': json['biography'] == null ? undefined : json['biography'],
+        'isArchived': json['isArchived'],
         'avatarUrl': json['avatarUrl'] == null ? undefined : json['avatarUrl'],
     };
 }
@@ -103,6 +111,7 @@ export function CreateUserDtoToJSONTyped(value?: CreateUserDto | null, ignoreDis
         'firstName': value['firstName'],
         'lastName': value['lastName'],
         'biography': value['biography'],
+        'isArchived': value['isArchived'],
         'avatarUrl': value['avatarUrl'],
     };
 }

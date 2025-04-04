@@ -50,6 +50,12 @@ export interface UpdateUserDto {
      */
     biography?: string;
     /**
+     * Indicates if the user account is archived
+     * @type {boolean}
+     * @memberof UpdateUserDto
+     */
+    isArchived?: boolean;
+    /**
      * User avatar URL
      * @type {string}
      * @memberof UpdateUserDto
@@ -79,6 +85,7 @@ export function UpdateUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
         'firstName': json['firstName'] == null ? undefined : json['firstName'],
         'lastName': json['lastName'] == null ? undefined : json['lastName'],
         'biography': json['biography'] == null ? undefined : json['biography'],
+        'isArchived': json['isArchived'] == null ? undefined : json['isArchived'],
         'avatarUrl': json['avatarUrl'] == null ? undefined : json['avatarUrl'],
     };
 }
@@ -99,6 +106,7 @@ export function UpdateUserDtoToJSONTyped(value?: UpdateUserDto | null, ignoreDis
         'firstName': value['firstName'],
         'lastName': value['lastName'],
         'biography': value['biography'],
+        'isArchived': value['isArchived'],
         'avatarUrl': value['avatarUrl'],
     };
 }

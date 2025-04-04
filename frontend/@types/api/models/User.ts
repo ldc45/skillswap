@@ -42,7 +42,7 @@ export interface User {
      * @type {string}
      * @memberof User
      */
-    firstName?: string;
+    firstName: string;
     /**
      * User last name
      * @type {string}
@@ -51,16 +51,22 @@ export interface User {
     lastName: string;
     /**
      * User biography
-     * @type {object}
+     * @type {string}
      * @memberof User
      */
-    biography: object;
+    biography?: string;
     /**
      * User avatar URL
-     * @type {object}
+     * @type {string}
      * @memberof User
      */
-    avatarUrl?: object;
+    avatarUrl?: string;
+    /**
+     * Indicates if the user account is archived
+     * @type {boolean}
+     * @memberof User
+     */
+    isArchived: boolean;
     /**
      * Date when the user was created
      * @type {Date}
@@ -82,8 +88,9 @@ export function instanceOfUser(value: object): value is User {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('email' in value) || value['email'] === undefined) return false;
     if (!('password' in value) || value['password'] === undefined) return false;
+    if (!('firstName' in value) || value['firstName'] === undefined) return false;
     if (!('lastName' in value) || value['lastName'] === undefined) return false;
-    if (!('biography' in value) || value['biography'] === undefined) return false;
+    if (!('isArchived' in value) || value['isArchived'] === undefined) return false;
     if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
     if (!('updatedAt' in value) || value['updatedAt'] === undefined) return false;
     return true;
@@ -102,10 +109,11 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'id': json['id'],
         'email': json['email'],
         'password': json['password'],
-        'firstName': json['firstName'] == null ? undefined : json['firstName'],
+        'firstName': json['firstName'],
         'lastName': json['lastName'],
-        'biography': json['biography'],
+        'biography': json['biography'] == null ? undefined : json['biography'],
         'avatarUrl': json['avatarUrl'] == null ? undefined : json['avatarUrl'],
+        'isArchived': json['isArchived'],
         'createdAt': (new Date(json['createdAt'])),
         'updatedAt': (new Date(json['updatedAt'])),
     };
@@ -129,6 +137,7 @@ export function UserToJSONTyped(value?: User | null, ignoreDiscriminator: boolea
         'lastName': value['lastName'],
         'biography': value['biography'],
         'avatarUrl': value['avatarUrl'],
+        'isArchived': value['isArchived'],
         'createdAt': ((value['createdAt']).toISOString()),
         'updatedAt': ((value['updatedAt']).toISOString()),
     };
