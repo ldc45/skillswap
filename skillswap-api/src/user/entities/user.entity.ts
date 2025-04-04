@@ -64,6 +64,7 @@ export class User implements PrismaUser {
     this.lastName = user.lastName;
     this.biography = user.biography;
     this.avatarUrl = user.avatarUrl;
+    this.isArchived = user.isArchived;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
   }
