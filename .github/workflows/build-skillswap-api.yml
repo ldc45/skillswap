@@ -3,10 +3,7 @@ name: Build SkillSwap API Docker Image 🐳
 # This workflow is triggered when changes are pushed to the main branch
 # and specifically when files in the skillswap-api directory are modified
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'skillswap-api/**'
+  workflow_dispatch:
 
 jobs:
   build:
