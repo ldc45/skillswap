@@ -1,4 +1,4 @@
-import MemberCard from "@/components/MemberCard/MemberCard";
+import MemberCard from "@/components/memberCard/MemberCard";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
