@@ -1,12 +1,5 @@
+import { User } from "@/@types/api/models/User";
 import { create } from "zustand";
-
-export interface User {
-  id: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  avatarUrl?: string;
-}
 
 interface AuthState {
   isAuthenticated: boolean;
