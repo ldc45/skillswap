@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../auth/types/jwt-payload';
+import { RequestCookies } from '../auth/types/request-cookies';
 
 @Injectable()
 export class UserService {
@@ -65,7 +66,8 @@ export class UserService {
   }
 
   async findMe(request: Request) {
-    const token = request.cookies?.access_token;
+    const requestCookies = request.cookies as RequestCookies;
+    const token = requestCookies?.access_token;
 
     if (!token) {
       throw new UnauthorizedException('Aucun token trouvé dans les cookies');
@@ -75,19 +77,15 @@ export class UserService {
       const payload = this.jwtService.verify<JwtPayload>(token, {
         secret: process.env.JWT_SECRET,
       });
-      const user = await this.findOne(payload.id);
+      const user = (await this.findOne(payload.id)) as Partial<User>;
       if (user) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...data } = user;
-        return data;
+        delete user.password;
+        return user;
       } else {
         throw new UnauthorizedException('Utilisateur non trouvé');
       }
     } catch (error) {
-      console.error(
-        'Erreur de vérification du token dans findMe:',
-        error.message,
-      );
+      console.error('Erreur de vérification du token dans findMe:', error);
       throw new UnauthorizedException('Token invalide ou expiré');
     }
   }

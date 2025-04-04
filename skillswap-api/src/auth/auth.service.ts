@@ -80,7 +80,7 @@ export class AuthService {
       return {
         access_token: accessToken,
       };
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Token de rafraîchissement invalide');
     }
   }
