@@ -28,7 +28,6 @@ export class CreateUserDto {
     example: 'John',
     description: 'User first name',
   })
-  @IsOptional()
   @IsString()
   firstName: string;
 
@@ -36,7 +35,6 @@ export class CreateUserDto {
     example: 'Doe',
     description: 'User last name',
   })
-  @IsOptional()
   @IsString()
   lastName: string;
 
