@@ -4,8 +4,8 @@ export class User implements PrismaUser {
   id: string;
   email: string;
   password: string;
-  firstName: string | null;
-  lastName: string | null;
+  firstName: string;
+  lastName: string;
   biography: string | null;
   avatarUrl: string | null;
   createdAt: Date;
