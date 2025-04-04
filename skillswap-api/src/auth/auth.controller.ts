@@ -88,7 +88,7 @@ export class AuthController {
     const refreshToken = requestCookies.refresh_token;
 
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token manquant');
+      throw new UnauthorizedException('Missing refresh token.');
     }
 
     return this.authService.refreshToken(refreshToken, response);
