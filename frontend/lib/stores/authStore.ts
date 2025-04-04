@@ -20,8 +20,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
   isAuthenticated: false,
   user: null,
   login: (userData) => {
-    // Si l'utilisateur n'est pas fourni dans les données, on garde juste le status authentifié
-    // Les cookies s'occupent de la session authentifiée
+    // If user is not provided in data, keep authenticated status only
+    // Cookies handle the authenticated session
     set({
       isAuthenticated: true,
       user: userData.user || null,

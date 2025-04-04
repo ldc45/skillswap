@@ -16,10 +16,10 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
 
-  // Utilisation du store Zustand au lieu de l'état local
+  // Using Zustand store instead of local state
   const { isAuthenticated } = useAuthStore();
 
-  // Effet pour bloquer le défilement du body quand le menu est ouvert
+  // Effect to block body scrolling when menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -36,24 +36,24 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Gestion de la déconnexion avec le service API
+  // Handle logout with API service
   const handleLogout = async () => {
     try {
-      // Utilise le service API qui va appeler l'endpoint de déconnexion
-      // et mettre à jour le store local
+      // Use API service to call logout endpoint
+      // and update local store
       await apiService.logout();
       setIsMenuOpen(false);
     } catch (error) {
-      console.error("Erreur lors de la déconnexion:", error);
+      console.error("Error during logout:", error);
     }
   };
 
   const handleLogin = () => {
-    // Ferme simplement le menu après la connexion
+    // Simply close the menu after login
     setIsMenuOpen(false);
   };
 
-  // Ferme le menu lors de la navigation
+  // Close the menu during navigation
   const handleNavigation = () => {
     setIsMenuOpen(false);
   };
