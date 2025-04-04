@@ -80,8 +80,8 @@ export class AuthService {
       return {
         access_token: accessToken,
       };
-    } catch (error) {
-      throw new UnauthorizedException('Token de rafraîchissement invalide');
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token.');
     }
   }
 
@@ -99,7 +99,7 @@ export class AuthService {
       sameSite: 'none',
     });
 
-    return { message: 'Déconnexion réussie' };
+    return { message: 'Logout successful.' };
   }
 
   // Méthode utilitaire pour définir les cookies de token

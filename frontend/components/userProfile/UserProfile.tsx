@@ -12,16 +12,24 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { UpdateUserDto } from "@/@types/api";
 
 interface UserProfileProps {
   isEditing: boolean;
+  userDefaultValues: UpdateUserDto;
   userForm: UseFormReturn<{
     firstName: string;
     lastName: string;
+    biography: string;
   }>;
 }
 
-export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
+export default function UserProfile({
+  userForm,
+  userDefaultValues,
+  isEditing,
+}: UserProfileProps) {
   const { user } = useAuthStore();
 
   const fakeSkills = [
@@ -53,7 +61,9 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
     <div className="basis-1/2 p-4 flex flex-col gap-y-4 items-center">
       <div className="flex flex-col gap-y-2 items-center">
         <Avatar className="w-20 h-20">
-          <AvatarImage src={user.avatarUrl} />
+          <AvatarImage
+            src={user.avatarUrl || "https://github.com/shadcn.png"}
+          />
         </Avatar>
         {!isEditing ? (
           <h3 className="text-xl font-medium md:text-2xl lg:text-3xl">
@@ -68,7 +78,10 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
                 <FormItem>
                   <FormLabel>Prénom</FormLabel>
                   <FormControl>
-                    <Input placeholder={user.firstName} {...field} />
+                    <Input
+                      placeholder={userForm.getValues("firstName")}
+                      {...field}
+                    />
                   </FormControl>
 
                   <FormMessage />
@@ -110,10 +123,26 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
         <h4 className="text-lg md:text-xl lg:text-2xl font-medium">
           Biographie
         </h4>
-        <p className="text-sm md:text-base">
-          Bonjour, passionnée de design, si vous avez besoin d&apos;aide
-          n&apos;hésitez pas à mecontacter !
-        </p>
+        {!isEditing ? (
+          <p className="text-sm md:text-base">{userDefaultValues.biography}</p>
+        ) : (
+          <FormField
+            control={userForm.control}
+            name="biography"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Textarea
+                    placeholder={userDefaultValues.biography}
+                    {...field}
+                  />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,12 +1,5 @@
+import { User } from "@/@types/api/models/User";
 import { create } from "zustand";
-
-export interface User {
-  id: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  avatarUrl?: string;
-}
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -20,8 +13,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
   isAuthenticated: false,
   user: null,
   login: (userData) => {
-    // Si l'utilisateur n'est pas fourni dans les données, on garde juste le status authentifié
-    // Les cookies s'occupent de la session authentifiée
+    // If user is not provided in data, keep authenticated status only
+    // Cookies handle the authenticated session
     set({
       isAuthenticated: true,
       user: userData.user || null,

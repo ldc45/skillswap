@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { JwtPayload } from '../types/jwt-payload';
+import { RequestCookies } from '../types/request-cookies';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,11 +25,11 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: process.env.JWT_SECRET,
       });
-      
+
       // Ajouter le payload décodé à la requête pour une utilisation ultérieure
       request['user'] = payload;
     } catch (error) {
-      console.error('Erreur de vérification du token dans AuthGuard:', error.message);
+      console.error('Erreur de vérification du token dans AuthGuard:', error);
       throw new UnauthorizedException('Token invalide ou expiré');
     }
 
@@ -36,6 +37,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromCookie(request: Request): string | undefined {
-    return request.cookies?.access_token;
+    const requestCookies = request.cookies as RequestCookies;
+    return requestCookies?.access_token;
   }
 }

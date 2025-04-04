@@ -34,5 +34,5 @@ RUN npm ci --omit=dev
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/prisma ./prisma
 RUN npx prisma generate
-EXPOSE 400
+EXPOSE 4000
 CMD ["npm", "run", "start:prod"]

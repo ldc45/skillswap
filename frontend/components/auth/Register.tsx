@@ -28,7 +28,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
     e.preventDefault();
     setError("");
 
-    // Vérifier que les mots de passe correspondent
+    // Check if passwords match
     if (password !== confirmPassword) {
       setError("Les mots de passe ne correspondent pas");
       return;
@@ -42,23 +42,20 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
         lastName,
       });
 
-      // On s'assure que l'inscription a réussi avant de faire la requête suivante
+      // Ensure registration was successful before making the next request
       if (registerResponse) {
         try {
-          // Récupération des informations de l'utilisateur connecté
+          // Fetch connected user information
           const userResponse = await apiService.get<User>("/users/me");
 
-          // Mise à jour du store avec les données de l'utilisateur
+          // Update store with user data
           login({ user: userResponse });
 
           if (handleLogin) {
             handleLogin();
           }
         } catch (userError) {
-          console.error(
-            "Erreur lors de la récupération des infos utilisateur:",
-            userError
-          );
+          console.error("Error retrieving user information:", userError);
 
           if (handleLogin) {
             handleLogin();
@@ -66,8 +63,8 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
         }
       }
     } catch (err) {
-      console.error("Erreur d'inscription:", err);
-      setError(err instanceof Error ? err.message : "Erreur d'inscription");
+      console.error("Registration error:", err);
+      setError(err instanceof Error ? err.message : "Registration error");
     }
   };
 

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -7,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../auth/types/jwt-payload';
+import { RequestCookies } from '../auth/types/request-cookies';
 
 @Injectable()
 export class UserService {
@@ -17,6 +22,11 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const emailUser = await this.findOneByMail(createUserDto.email);
+    if (emailUser) {
+      throw new BadRequestException('Email is already used.');
+    }
+
     createUserDto.password = await bcrypt.hash(
       createUserDto.password,
       this.saltRounds,
@@ -65,30 +75,27 @@ export class UserService {
   }
 
   async findMe(request: Request) {
-    const token = request.cookies?.access_token;
+    const requestCookies = request.cookies as RequestCookies;
+    const token = requestCookies?.access_token;
 
     if (!token) {
-      throw new UnauthorizedException('Aucun token trouvé dans les cookies');
+      throw new UnauthorizedException('No token found in cookies.');
     }
 
     try {
       const payload = this.jwtService.verify<JwtPayload>(token, {
         secret: process.env.JWT_SECRET,
       });
-      const user = await this.findOne(payload.id);
+      const user = (await this.findOne(payload.id)) as Partial<User>;
       if (user) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...data } = user;
-        return data;
+        delete user.password;
+        return user;
       } else {
-        throw new UnauthorizedException('Utilisateur non trouvé');
+        throw new UnauthorizedException('User not found.');
       }
     } catch (error) {
-      console.error(
-        'Erreur de vérification du token dans findMe:',
-        error.message,
-      );
-      throw new UnauthorizedException('Token invalide ou expiré');
+      console.error("Couldn't verify token in method findMe:", error);
+      throw new UnauthorizedException('Invalid or expired token.');
     }
   }
 
