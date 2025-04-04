@@ -30,8 +30,9 @@ jobs:
         # This will be 0 if there are no new changes to merge
         # Save this count as an output variable for use in later steps
         run: |
+          git fetch origin main
           git fetch origin develop
-          DIFF_COUNT=$(git rev-list --count main..origin/develop)
+          DIFF_COUNT=$(git rev-list --count origin/main..origin/develop)
           echo "diff_count=$DIFF_COUNT" >> $GITHUB_OUTPUT
 
       - name: Merge develop into main
