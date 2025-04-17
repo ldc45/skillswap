@@ -1,26 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { Conversation } from './entities/conversation.entity';
 
 @Injectable()
 export class ConversationService {
+  constructor(private prisma: PrismaService) {}
+
   create(createConversationDto: CreateConversationDto) {
     return 'This action adds a new conversation';
   }
 
   findAll() {
-    return `This action returns all conversation`;
+    return this.prisma.conversation.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} conversation`;
+  findOne(id: string): Promise<Conversation | null> {
+    return this.prisma.conversation.findUnique({
+      where: {
+        id: id,
+      },
+    });
   }
 
-  update(id: number, updateConversationDto: UpdateConversationDto) {
-    return `This action updates a #${id} conversation`;
+  async update(
+    id: string,
+    updateConversationDto: UpdateConversationDto,
+  ): Promise<Conversation> {
+    const existingConversation = await this.prisma.conversation.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!existingConversation) {
+      throw new Error('Conversation not found');
+    }
+
+    // Les seules propriétés qui peuvent être mises à jour sont des metadata
+    // comme un titre, statut, etc. si vous en ajoutez plus tard
+    return this.prisma.conversation.update({
+      where: {
+        id: id,
+      },
+      data: updateConversationDto,
+    });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} conversation`;
   }
 }
