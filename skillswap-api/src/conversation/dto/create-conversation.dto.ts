@@ -1,7 +1,7 @@
-import { Message } from '@prisma/client';
+import { Message } from '../../message/entities/message.entity';
 
 export class CreateConversationDto {
-  messages: Message[];
+  messages?: Message[];
   creatorId: string;
   partnerId: string;
 }
