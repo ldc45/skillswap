@@ -64,6 +64,11 @@ export class ConversationService {
     try {
       const conversation = await this.prisma.conversation.findUnique({
         where: { id },
+        include: {
+          messages: true,
+          creator: true,
+          partner: true,
+        },
       });
 
       if (!conversation) {
