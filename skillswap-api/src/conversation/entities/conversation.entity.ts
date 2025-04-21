@@ -27,4 +27,11 @@ export class Conversation implements prismaConversation {
     example: '2025-04-17T12:00:00Z',
   })
   createdAt: Date;
+
+  constructor(conversation: prismaConversation) {
+    this.id = conversation.id;
+    this.creatorId = conversation.creatorId;
+    this.partnerId = conversation.partnerId;
+    this.createdAt = conversation.createdAt;
+  }
 }
