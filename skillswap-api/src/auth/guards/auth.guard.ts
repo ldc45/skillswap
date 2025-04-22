@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromCookie(request);
 
     if (!token) {
-      throw new UnauthorizedException('Aucun token trouvé dans les cookies');
+      throw new UnauthorizedException('No token found in cookies.');
     }
 
     try {
@@ -29,8 +29,11 @@ export class AuthGuard implements CanActivate {
       // Ajouter le payload décodé à la requête pour une utilisation ultérieure
       request['user'] = payload;
     } catch (error) {
-      console.error('Erreur de vérification du token dans AuthGuard:', error);
-      throw new UnauthorizedException('Token invalide ou expiré');
+      console.error(
+        'An error occurred while verifying token in AuthGuard:',
+        error,
+      );
+      throw new UnauthorizedException('Invalid or expired token.');
     }
 
     return true;
