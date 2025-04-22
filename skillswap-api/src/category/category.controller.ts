@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -29,7 +30,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Create a new category' })
   @ApiCookieAuth('access_token')
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'Category created successfully',
     type: Category,
   })
@@ -41,7 +42,7 @@ export class CategoryController {
 
   @ApiOperation({ summary: 'Get all categories' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'List of categories retrieved successfully',
     type: [Category],
   })
@@ -53,12 +54,12 @@ export class CategoryController {
   @ApiOperation({ summary: 'Get a category by ID' })
   @ApiParam({ name: 'id', description: 'Category ID' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Category retrieved successfully',
     type: Category,
   })
   @ApiResponse({
-    status: 404,
+    status: HttpStatus.NOT_FOUND,
     description: 'Category not found',
   })
   @Get(':id')
@@ -70,12 +71,12 @@ export class CategoryController {
   @ApiCookieAuth('access_token')
   @ApiParam({ name: 'id', description: 'Category ID' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Category updated successfully',
     type: Category,
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(
@@ -89,11 +90,14 @@ export class CategoryController {
   @ApiCookieAuth('access_token')
   @ApiParam({ name: 'id', description: 'Category ID' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Category deleted successfully',
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Category not found' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Category not found',
+  })
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Max, Min } from 'class-validator';
+import { IsInt, IsUUID, Max, Min } from 'class-validator';
 
 export class CreateAvailabilityDto {
   @ApiProperty({
@@ -28,5 +28,6 @@ export class CreateAvailabilityDto {
     example: 'aaa11bbb-2222-cccc-3333-ddddd4444eee',
     description: 'Unique identifier for the user',
   })
+  @IsUUID()
   userId: string;
 }

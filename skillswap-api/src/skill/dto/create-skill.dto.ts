@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateSkillDto {
   @ApiProperty({
@@ -21,5 +21,6 @@ export class CreateSkillDto {
     example: 'aaa11bbb-2222-cccc-3333-ddddd4444eee',
     description: 'Unique identifier for the category',
   })
+  @IsUUID()
   categoryId: string;
 }
