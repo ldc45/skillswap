@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -15,12 +16,14 @@ export class ConversationService {
   async create(
     createConversationDto: CreateConversationDto,
   ): Promise<Conversation> {
+    // Extract initial message if provided in the DTO
     const initialMessage =
       createConversationDto.messages &&
       createConversationDto.messages.length > 0
         ? createConversationDto.messages[0]
         : null;
     try {
+      // Create conversation with Prisma, connecting the creator and partner users
       return await this.prisma.conversation.create({
         data: {
           creator: {
@@ -29,6 +32,7 @@ export class ConversationService {
           partner: {
             connect: { id: createConversationDto.partnerId },
           },
+          // Conditionally create an initial message if provided
           ...(initialMessage
             ? {
                 messages: {
@@ -43,9 +47,7 @@ export class ConversationService {
             : {}),
         },
         include: {
-          messages: true,
-          creator: true,
-          partner: true,
+          messages: true, // Include all messages in the response
         },
       });
     } catch (error) {
@@ -61,51 +63,57 @@ export class ConversationService {
   }
 
   async findOne(id: string): Promise<Conversation> {
-    try {
-      const conversation = await this.prisma.conversation.findUnique({
-        where: { id },
-        include: {
-          messages: true,
-          creator: true,
-          partner: true,
-        },
-      });
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id },
+      include: {
+        messages: true, // Include all messages
+        creator: true, // Include creator user details
+        partner: true, // Include partner user details
+      },
+    });
 
-      if (!conversation) {
-        throw new NotFoundException('Conversation not found');
-      }
-
-      return conversation;
-    } catch (error) {
-      console.error('Error while retrieving the conversation', error);
-      throw new InternalServerErrorException(
-        'Failed to retrieve the conversation',
-      );
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
     }
+
+    return conversation;
   }
 
   async update(
     id: string,
     updateConversationDto: UpdateConversationDto,
   ): Promise<Conversation> {
+    // Validate that messages are provided
+    if (
+      !updateConversationDto.messages ||
+      updateConversationDto.messages.length === 0
+    ) {
+      throw new BadRequestException('No messages provided');
+    }
+    const senderId = updateConversationDto.messages[0].senderId;
+
+    // Verify that the conversation exists and the sender is either the creator or partner
+    const existingConversation = await this.prisma.conversation.findFirst({
+      where: {
+        id,
+        OR: [{ creatorId: senderId }, { partnerId: senderId }],
+      },
+    });
+
+    if (!existingConversation) {
+      throw new NotFoundException('Conversation not found');
+    }
     try {
-      const existingConversation = await this.prisma.conversation.findUnique({
-        where: { id },
-      });
-
-      if (!existingConversation) {
-        throw new NotFoundException('Conversation not found');
-      }
-
+      // Add the new messages to the conversation
       return await this.prisma.conversation.update({
         where: { id },
         data: {
           messages: {
-            create: updateConversationDto.messages,
+            create: updateConversationDto.messages, // Create all new messages
           },
         },
         include: {
-          messages: true,
+          messages: true, // Include all messages in the response
         },
       });
     } catch (error) {

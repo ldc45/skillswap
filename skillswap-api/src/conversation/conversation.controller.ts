@@ -7,18 +7,27 @@ import {
   Param,
   Delete,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 import { ConversationService } from './conversation.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
 import { Conversation } from './entities/conversation.entity';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @ApiTags('conversations')
+@ApiCookieAuth('access_token')
+@UseGuards(AuthGuard)
 @Controller('conversations')
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
-  // TODO: Add AuthGuard to all endpoints and implement the logic to delete a conversation
   @Post()
   @ApiOperation({ summary: 'Create a new conversation' })
   @ApiResponse({
