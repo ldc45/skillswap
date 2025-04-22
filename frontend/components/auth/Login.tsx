@@ -7,7 +7,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
-import type { User } from "@/lib/stores/authStore"; // Import User type
+import type { User } from "@/@types/api/models/User";
 
 interface LoginProps {
   onSwitchToRegister?: () => void;

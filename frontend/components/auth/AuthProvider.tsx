@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiService } from "@/lib/services/apiService";
 import { useAuthStore } from "@/lib/stores/authStore";
-import type { User } from "@/lib/stores/authStore";
+import type { User } from "@/@types/api/models/User";
 
 export default function AuthProvider({
   children,

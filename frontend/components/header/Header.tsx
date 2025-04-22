@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut, Menu, X } from "lucide-react";
 import { Separator } from "../ui/separator";
@@ -16,7 +15,7 @@ import logo from "@/public/logo.png";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
-  // État pour suivre si la navigation est en cours
+  // State to manage navigation status
   const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
 
