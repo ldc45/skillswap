@@ -27,11 +27,13 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @ApiOperation({ summary: 'Create a new category' })
+  @ApiCookieAuth('access_token')
   @ApiResponse({
     status: 201,
     description: 'Category created successfully',
     type: Category,
   })
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
