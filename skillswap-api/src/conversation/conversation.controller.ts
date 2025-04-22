@@ -18,7 +18,7 @@ import { Conversation } from './entities/conversation.entity';
 @Controller('conversations')
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
-
+  // TODO: Add AuthGuard to all endpoints and implement the logic to delete a conversation
   @Post()
   @ApiOperation({ summary: 'Create a new conversation' })
   @ApiResponse({
