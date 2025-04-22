@@ -43,6 +43,6 @@ export class UserSkillController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userSkillService.remove(+id);
+    return this.userSkillService.removeSkillFromUser(id);
   }
 }

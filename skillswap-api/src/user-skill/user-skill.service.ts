@@ -9,7 +9,8 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UserSkillService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {
+  }
 
   async addSkillToUser(userId: string, createUserSkillDto: CreateUserSkillDto) {
     const user = await this.prisma.user.findUnique({
@@ -100,7 +101,31 @@ export class UserSkillService {
     return `This action updates a #${id} userSkill`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} userSkill`;
+  async removeSkillFromUser(userId: string, skillId: string) {
+    // Vérifier si la relation existe
+    const userSkill = await this.prisma.userSkill.findUnique({
+      where: {
+        userId_skillId: {
+          userId: userId,
+          skillId: skillId,
+        },
+      },
+    });
+
+    if (!userSkill) {
+      throw new NotFoundException(
+        `User with ID ${userId} does not have skill with ID ${skillId}`,
+      );
+    }
+
+    // Supprimer la relation
+    return this.prisma.userSkill.delete({
+      where: {
+        userId_skillId: {
+          userId: userId,
+          skillId: skillId,
+        },
+      },
+    });
   }
 }
