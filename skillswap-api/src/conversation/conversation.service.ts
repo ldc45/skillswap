@@ -3,11 +3,15 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Conversation } from './entities/conversation.entity';
+import { Request } from 'express';
+import { RequestCookies } from '../auth/types/request-cookies';
+import { JwtPayload } from '../auth/types/jwt-payload';
 
 @Injectable()
 export class ConversationService {
@@ -60,6 +64,45 @@ export class ConversationService {
 
   async findAll(): Promise<Conversation[]> {
     return this.prisma.conversation.findMany();
+  }
+
+  async findAllUserConversation(userId: string): Promise<any[]> {
+    try {
+      // Fetch all conversations with all messages
+      const conversations = await this.prisma.conversation.findMany({
+        where: {
+          OR: [{ creatorId: userId }, { partnerId: userId }],
+        },
+        include: {
+          messages: {
+            orderBy: {
+              createdAt: 'asc', // Get all messages in reverse chronological order
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      // Transform the result to include lastMessage as a separate property
+      return conversations.map((conversation) => {
+        const messages = [...conversation.messages];
+        // The last message is now the first one in the array since we sorted by desc
+        const lastMessage =
+          messages.length > 0 ? messages[messages.length - 1] : null;
+
+        return {
+          ...conversation,
+          lastMessage, // Add the lastMessage property
+        };
+      });
+    } catch (error) {
+      console.error('Error while fetching user conversations', error);
+      throw new InternalServerErrorException(
+        'Failed to fetch user conversations',
+      );
+    }
   }
 
   async findOne(id: string): Promise<Conversation> {
