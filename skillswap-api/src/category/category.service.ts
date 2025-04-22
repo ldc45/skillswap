@@ -50,6 +50,10 @@ export class CategoryService {
   }
 
   remove(id: string) {
-    return `This action removes a #${id} category`;
+    return this.prisma.category.delete({
+      where: {
+        id: id,
+      },
+    });
   }
 }
