@@ -89,7 +89,7 @@ async function main() {
     // Pre-generate hashed passwords to avoid async issues in map
     const hashedPasswords = await Promise.all(
       Array.from({ length: USER_COUNT }).map(() =>
-        bcrypt.hash(faker.internet.password(), SALT_ROUNDS),
+        bcrypt.hash('fakePassword', SALT_ROUNDS),
       ),
     );
 
