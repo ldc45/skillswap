@@ -6,12 +6,20 @@ import {
   Patch,
   Param,
   Delete,
+  HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { AvailabilityService } from './availability.service';
 import { CreateAvailabilityDto } from './dto/create-availability.dto';
 import { UpdateAvailabilityDto } from './dto/update-availability.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Availability } from './entities/availability.entity';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @ApiTags('availabilities')
 @Controller('availabilities')
@@ -21,11 +29,14 @@ export class AvailabilityController {
   @ApiOperation({
     summary: 'Create a new availability for a user',
   })
+  @ApiCookieAuth('access_token')
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'Availability created successfully',
     type: Availability,
   })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createAvailabilityDto: CreateAvailabilityDto) {
     return this.availabilityService.create(createAvailabilityDto);
@@ -35,7 +46,7 @@ export class AvailabilityController {
     summary: 'Get all availabilities',
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'List of availabilities retrieved successfully',
     type: [Availability],
   })
@@ -48,12 +59,12 @@ export class AvailabilityController {
     summary: 'Get an availability by ID',
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Availability retrieved successfully',
     type: Availability,
   })
   @ApiResponse({
-    status: 404,
+    status: HttpStatus.NOT_FOUND,
     description: 'Availability not found',
   })
   @Get(':id')
@@ -64,15 +75,18 @@ export class AvailabilityController {
   @ApiOperation({
     summary: 'Update an availability by ID',
   })
+  @ApiCookieAuth('access_token')
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Availability updated successfully',
     type: Availability,
   })
   @ApiResponse({
-    status: 404,
+    status: HttpStatus.NOT_FOUND,
     description: 'Availability not found',
   })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -84,14 +98,17 @@ export class AvailabilityController {
   @ApiOperation({
     summary: 'Delete an availability by ID',
   })
+  @ApiCookieAuth('access_token')
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Availability deleted successfully',
   })
   @ApiResponse({
-    status: 404,
+    status: HttpStatus.NOT_FOUND,
     description: 'Availability not found',
   })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.availabilityService.remove(id);

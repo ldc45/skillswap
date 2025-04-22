@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
   Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -32,7 +33,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'User created successfully',
     type: User,
   })
@@ -49,7 +50,7 @@ export class UserController {
     description: 'Number of random users to return',
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'List of users retrieved successfully',
     type: [User],
   })
@@ -65,11 +66,11 @@ export class UserController {
   @ApiOperation({ summary: 'Get current user information' })
   @ApiCookieAuth('access_token')
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User information retrieved successfully',
     type: User,
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseGuards(AuthGuard)
   @Get('me')
   findMe(@Req() request: Request) {
@@ -79,11 +80,11 @@ export class UserController {
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User retrieved successfully',
     type: User,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
@@ -93,12 +94,12 @@ export class UserController {
   @ApiCookieAuth('access_token')
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User updated successfully',
     type: User,
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
@@ -109,11 +110,11 @@ export class UserController {
   @ApiCookieAuth('access_token')
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User deleted successfully',
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

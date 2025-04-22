@@ -50,6 +50,7 @@ async function bootstrap() {
     // In development, use localhost
     allowedOrigins = [
       'http://localhost:3000',
+      'http://localhost:4000',
       'http://frontend:3000',
       'http://127.0.0.1:3000',
     ];

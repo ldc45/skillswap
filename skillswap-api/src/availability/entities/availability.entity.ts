@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Availability as PrismaAvailability } from '@prisma/client';
-import { IsDate } from 'class-validator';
+import { IsDate, IsInt, IsUUID } from 'class-validator';
 
 export class Availability implements PrismaAvailability {
   @ApiProperty({
     example: 'aaa11bbb-2222-cccc-3333-ddddd4444eee',
     description: 'Unique identifier for the availability',
   })
+  @IsUUID()
   id: string;
 
   @ApiProperty({
@@ -14,6 +15,7 @@ export class Availability implements PrismaAvailability {
     description:
       'The day of the week (0-6, where 0 is Sunday and 6 is Saturday)',
   })
+  @IsInt()
   day: number;
 
   @ApiProperty({
@@ -46,6 +48,7 @@ export class Availability implements PrismaAvailability {
     example: 'aaa11bbb-2222-cccc-3333-ddddd4444eee',
     description: 'Unique identifier for the user',
   })
+  @IsUUID()
   userId: string;
 
   constructor(availability: PrismaAvailability) {
