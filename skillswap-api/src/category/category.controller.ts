@@ -20,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { Category } from './entities/category.entity';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { Skill } from '../skill/entities/skill.entity';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -64,6 +65,22 @@ export class CategoryController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.categoryService.findOne(id);
+  }
+
+  @ApiOperation({ summary: "Get a category's skills" })
+  @ApiParam({ name: 'id', description: 'Category ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Category skills retrieved successfully',
+    type: Skill,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
+  @Get(':id/skills')
+  getCategorySkills(@Param('id') id: string) {
+    return this.categoryService.getCategorySkills(id);
   }
 
   @ApiOperation({ summary: 'Update a category' })

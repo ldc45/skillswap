@@ -40,6 +40,14 @@ export class CategoryService {
     });
   }
 
+  async getCategorySkills(id: string) {
+    return this.prisma.skill.findMany({
+      where: {
+        categoryId: id,
+      },
+    });
+  }
+
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     return this.prisma.category.update({
       where: {
