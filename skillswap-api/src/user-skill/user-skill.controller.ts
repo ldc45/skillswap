@@ -13,7 +13,8 @@ import { UpdateUserSkillDto } from './dto/update-user-skill.dto';
 
 @Controller('users/:userId/skills')
 export class UserSkillController {
-  constructor(private readonly userSkillService: UserSkillService) {}
+  constructor(private readonly userSkillService: UserSkillService) {
+  }
 
   @Post()
   create(
@@ -41,8 +42,8 @@ export class UserSkillController {
     return this.userSkillService.update(+id, updateUserSkillDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userSkillService.removeSkillFromUser(id);
+  @Delete(':skillId')
+  remove(@Param('skillId') skillId: string, @Param('userId') userId: string) {
+    return this.userSkillService.removeSkillFromUser(userId, skillId);
   }
 }
