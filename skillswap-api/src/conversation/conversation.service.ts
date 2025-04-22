@@ -89,7 +89,8 @@ export class ConversationService {
       return conversations.map((conversation) => {
         const messages = [...conversation.messages];
         // The last message is now the first one in the array since we sorted by desc
-        const lastMessage = messages.length > 0 ? messages[0] : null;
+        const lastMessage =
+          messages.length > 0 ? messages[messages.length - 1] : null;
 
         return {
           ...conversation,
