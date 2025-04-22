@@ -40,7 +40,7 @@ export class CategoryService {
     });
   }
 
-  update(id: string, updateCategoryDto: UpdateCategoryDto) {
+  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     return this.prisma.category.update({
       where: {
         id: id,
@@ -49,7 +49,7 @@ export class CategoryService {
     });
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     return this.prisma.category.delete({
       where: {
         id: id,
