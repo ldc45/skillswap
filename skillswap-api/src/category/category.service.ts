@@ -41,7 +41,12 @@ export class CategoryService {
   }
 
   update(id: string, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+    return this.prisma.category.update({
+      where: {
+        id: id,
+      },
+      data: updateCategoryDto,
+    });
   }
 
   remove(id: string) {
