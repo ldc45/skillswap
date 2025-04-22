@@ -3,11 +3,11 @@ import { UserSkillService } from './user-skill.service';
 import { CreateUserSkillDto } from './dto/create-user-skill.dto';
 //import { UpdateUserSkillDto } from './dto/update-user-skill.dto';
 
-@Controller('users/:userId/skills')
+@Controller('users')
 export class UserSkillController {
   constructor(private readonly userSkillService: UserSkillService) {}
 
-  @Post()
+  @Post(':userId/skills')
   create(
     @Param('userId') userId: string,
     @Body() createUserSkillDto: CreateUserSkillDto,
@@ -15,17 +15,17 @@ export class UserSkillController {
     return this.userSkillService.addSkillToUser(userId, createUserSkillDto);
   }
 
-  @Get()
+  @Get(':userId/skills')
   findAll(@Param('userId') userId: string) {
     return this.userSkillService.findAllUserSkills(userId);
   }
 
-  @Delete(':skillId')
+  @Delete(':userId/skills/:skillId')
   remove(@Param('skillId') skillId: string, @Param('userId') userId: string) {
     return this.userSkillService.removeSkillFromUser(userId, skillId);
   }
 
-  @Get('users-with-skill/:skillId')
+  @Get('/skills/:skillId')
   findUsersWithSameSkill(@Param('skillId') skillId: string) {
     return this.userSkillService.findUsersWithSameSkill(skillId);
   }

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserSkillDto } from './dto/create-user-skill.dto';
-import { UpdateUserSkillDto } from './dto/update-user-skill.dto';
+//import { UpdateUserSkillDto } from './dto/update-user-skill.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserSkill } from './entities/user-skill.entity';
 
@@ -57,7 +57,7 @@ export class UserSkillService {
     });
   }
 
-  async findAllUserSkills(userId: string): Promise<UserSkill[]> {
+  async findAllUserSkills(userId: string) {
     // Vérifier si l'utilisateur existe
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
