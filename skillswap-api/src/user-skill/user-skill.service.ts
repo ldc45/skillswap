@@ -6,11 +6,11 @@ import {
 import { CreateUserSkillDto } from './dto/create-user-skill.dto';
 import { UpdateUserSkillDto } from './dto/update-user-skill.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserSkill } from './entities/user-skill.entity';
 
 @Injectable()
 export class UserSkillService {
-  constructor(private prisma: PrismaService) {
-  }
+  constructor(private prisma: PrismaService) {}
 
   async addSkillToUser(userId: string, createUserSkillDto: CreateUserSkillDto) {
     const user = await this.prisma.user.findUnique({
@@ -57,7 +57,7 @@ export class UserSkillService {
     });
   }
 
-  async findAllUserSkills(userId: string) {
+  async findAllUserSkills(userId: string): Promise<UserSkill[]> {
     // Vérifier si l'utilisateur existe
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -82,23 +82,36 @@ export class UserSkillService {
     });
 
     // Transformer les données pour la réponse
-    return userSkills.map((userSkill) => ({
-      userId: userSkill.userId,
-      skillId: userSkill.skillId,
-      skillName: userSkill.skill.name,
-      skillDiminutive: userSkill.skill.diminutive,
-      categoryId: userSkill.skill.categoryId,
-      categoryName: userSkill.skill.category.name,
-      categoryColor: userSkill.skill.category.color,
-    }));
+    return userSkills;
   }
 
-  findOne(id: number) {
+  /* findOne(id: number) {
     return `This action returns a #${id} userSkill`;
   }
 
   update(id: number, updateUserSkillDto: UpdateUserSkillDto) {
     return `This action updates a #${id} userSkill`;
+  }*/
+
+  async findUsersWithSameSkill(skillId: string): Promise<UserSkill[]> {
+    const skill = await this.prisma.skill.findUnique({
+      where: { id: skillId },
+    });
+
+    if (!skill) {
+      throw new NotFoundException(`Skill with not found`);
+    }
+
+    const userSkills = await this.prisma.userSkill.findMany({
+      where: {
+        skillId: skillId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    return userSkills;
   }
 
   async removeSkillFromUser(userId: string, skillId: string) {
