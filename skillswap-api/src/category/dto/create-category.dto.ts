@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateCategoryDto {
   @ApiProperty({
@@ -11,9 +11,10 @@ export class CreateCategoryDto {
 
   @ApiProperty({
     example: '#ffd700',
-    description: 'The color of the category',
+    description: 'The color of the category in hex code',
   })
   @IsOptional()
   @IsString()
-  color: string | undefined;
+  @MaxLength(7)
+  color: string | null;
 }
