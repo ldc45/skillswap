@@ -8,6 +8,7 @@ import {
   Delete,
   HttpStatus,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,6 +22,8 @@ import { CreateConversationDto } from './dto/create-conversation.dto';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
 import { Conversation } from './entities/conversation.entity';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { Request } from 'express';
+import { JwtPayload } from '../auth/types/jwt-payload';
 
 @ApiTags('conversations')
 @ApiCookieAuth('access_token')
@@ -52,6 +55,21 @@ export class ConversationController {
   })
   findAll() {
     return this.conversationService.findAll();
+  }
+
+  @Get('user/me')
+  @ApiOperation({ summary: 'Get all conversations for the current user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'List of user conversations successfully retrieved',
+    type: [Conversation],
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'User is not authenticated',
+  })
+  findMyConversations(@Req() request: Request & { user: JwtPayload }) {
+    return this.conversationService.findAllUserConversation(request.user.id);
   }
 
   @Get(':id')
