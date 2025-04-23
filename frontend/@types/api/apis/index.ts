@@ -2,7 +2,9 @@
 /* eslint-disable */
 export * from './AppApi';
 export * from './AuthApi';
-export * from './CategoryApi';
-export * from './ConversationApi';
-export * from './SkillApi';
+export * from './AvailabilitiesApi';
+export * from './CategoriesApi';
+export * from './ConversationsApi';
+export * from './SkillsApi';
 export * from './UsersApi';
+export * from './UsersSkillsApi';
