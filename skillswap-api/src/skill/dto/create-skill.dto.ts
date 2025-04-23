@@ -12,6 +12,7 @@ export class CreateSkillDto {
   @ApiProperty({
     example: 'Dev. web',
     description: 'Diminutive of the skill',
+    type: String,
   })
   @IsString()
   @IsOptional()

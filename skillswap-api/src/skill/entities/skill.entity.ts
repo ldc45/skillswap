@@ -20,6 +20,7 @@ export class Skill implements PrismaSkill {
   @ApiProperty({
     example: 'Dev. web',
     description: 'Diminutive of the skill',
+    type: String,
   })
   @IsString()
   @IsOptional()
