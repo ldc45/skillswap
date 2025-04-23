@@ -7,11 +7,15 @@ import { apiService } from "@/lib/services/apiService";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import MemberCard from "@/components/memberCard/MemberCard";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 export default function Home() {
   const [members, setMembers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get authentication state
+  const { isAuthenticated } = useAuthStore();
 
   // Fetch 4 random users from the API
   useEffect(() => {
@@ -68,10 +72,13 @@ export default function Home() {
           </h3>
         </div>
 
-        <Input
-          className="max-w-120 md:min-h-10"
-          placeholder="⌕ Rechercher une compétence..."
-        />
+        {/* Show search bar only if user is authenticated */}
+        {isAuthenticated && (
+          <Input
+            className="max-w-120 md:min-h-10"
+            placeholder="⌕ Rechercher une compétence..."
+          />
+        )}
       </div>
 
       <div className="flex flex-col gap-y-2 lg:gap-y-3">

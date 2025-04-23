@@ -66,6 +66,15 @@ export interface User {
      * @type {boolean}
      * @memberof User
      */
+    skills?: Array<{skill:{
+        id: string;
+        name: string;
+        diminutive?: string;
+        example: string;
+        createdAt: string;
+        updatedAt: string;
+        categoryId: string;
+    }}>;
     isArchived: boolean;
     /**
      * Date when the user was created

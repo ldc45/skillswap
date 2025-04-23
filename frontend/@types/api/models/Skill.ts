@@ -33,10 +33,10 @@ export interface Skill {
     name: string;
     /**
      * Diminutive of the skill
-     * @type {object}
+     * @type {string}
      * @memberof Skill
      */
-    diminutive: object;
+    diminutive: string;
     /**
      * Date when the skill was created
      * @type {Date}

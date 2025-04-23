@@ -79,13 +79,16 @@ export default function ConversationCard({
 
         <div className="flex flex-col items-end gap-2">
 
+<div className="flex gap-2 absolute top-3 right-10">
+
           {partner.skills && partner.skills.length > 0 && partner.skills.map((skill) => {
             return (
-              <Badge key={skill.id} className="absolute top-3 right-10">
-                {skill.diminutive || skill.name || ""}
+              <Badge key={skill.skill.id}>
+                {skill.skill.diminutive || skill.skill.name || ""}
               </Badge>
             );
           })}
+</div>
           <ChevronRight className="h-5 w-5 text-gray-400" />
         </div>
         </>
