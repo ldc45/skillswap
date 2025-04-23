@@ -1,15 +1,15 @@
 "use client";
 
-import { User } from "@/@types/api";
-import { Form } from "@/components/ui/form";
-import UserAvailabilities from "@/components/userAvailabilities/UserAvailabilities";
-import UserProfile from "@/components/userProfile/UserProfile";
-import { apiService } from "@/lib/services/apiService";
-import { useAuthStore } from "@/lib/stores/authStore";
-import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { apiService } from "@/lib/services/apiService";
+import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
+import { Form } from "@/components/ui/form";
+import UserAvailabilities from "@/components/userAvailabilities/UserAvailabilities";
+import UserProfile from "@/components/userProfile/UserProfile";
 
 export default function ProfilePage() {
   const { user, login } = useAuthStore();
@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const defaultValues = {
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
+    skills: user?.skills.map((skill) => skill.id) || [],
     biography:
       user?.biography || "Aucune biographie renseignée pour le moment.",
   };
@@ -33,6 +34,8 @@ export default function ProfilePage() {
       .string()
       .min(2, { message: "Merci de renseigner un nom valide" })
       .max(64),
+    // We store the IDs of the skills in the form
+    skills: z.array(z.string()),
     biography: z
       .string()
       .min(10, {
@@ -52,22 +55,29 @@ export default function ProfilePage() {
   // Data is typed using the schema
   // This ensures that the data passed to the onSubmit function matches the schema
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log("DATA", data);
+    const { skills, ...userData } = data;
+
     if (!user) return;
 
     try {
-      const response: User = await apiService.patch(`/users/${user.id}`, data);
+      const userResponse: UserWithRelations = await apiService.patch(
+        `/users/${user.id}`,
+        userData
+      );
 
-      if (!response) {
+      if (!userResponse) {
         throw new Error("Erreur lors de la mise à jour des données");
       }
 
+      // TODO: Update the UserSkills relation
+      console.log("Skills to update:", skills);
+
       // This updates the user data in the store
       login({
-        user: response,
+        user: userResponse,
       });
     } catch (error) {
-      console.error("Erreur lors de la modification des données", error);
+      console.error(error);
     } finally {
       setIsEditing(false);
     }

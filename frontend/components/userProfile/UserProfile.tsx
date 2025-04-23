@@ -1,19 +1,28 @@
 "use client";
 
-import { useAuthStore } from "@/lib/stores/authStore";
-import { Avatar, AvatarImage } from "../ui/avatar";
-import { Badge } from "../ui/badge";
+import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
+
+import { useAuthStore } from "@/lib/stores/authStore";
+import { apiService } from "@/lib/services/apiService";
+import { Skill, UpdateUserDto } from "@/@types/api";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { UpdateUserDto } from "@/@types/api";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Textarea } from "@/components/ui/textarea";
+
+type Options = {
+  value: string;
+  label: string;
+};
 
 interface UserProfileProps {
   isEditing: boolean;
@@ -21,6 +30,7 @@ interface UserProfileProps {
   userForm: UseFormReturn<{
     firstName: string;
     lastName: string;
+    skills: string[];
     biography: string;
   }>;
 }
@@ -32,30 +42,58 @@ export default function UserProfile({
 }: UserProfileProps) {
   const { user } = useAuthStore();
 
-  const fakeSkills = [
-    {
-      id: 1,
-      label: "Développement web",
-      diminutive: "Dev. web",
-    },
-    {
-      id: 2,
-      label: "Design",
-      diminutive: "Design",
-    },
-    {
-      id: 3,
-      label: "Langues",
-      diminutive: "Langues",
-    },
-    {
-      id: 4,
-      label: "Marketing",
-      diminutive: "Marketing",
-    },
-  ];
+  const [skillOptions, setSkillOptions] = useState<Options[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // This is the format expected by the MultiSelect component
+  // This variable is used as the default value for the MultiSelect component
+  const userSkillOptions = user?.skills?.map((skill) => skill.name) || [];
+
+  // Fetch all skills from the API
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response: Skill[] = await apiService.get("/skills");
+
+        if (!response) {
+          throw new Error("Error fetching skills from API");
+        }
+
+        // We need to map the skills to the format expected by the MultiSelect component
+        const options = response.slice(0, 10).map((skill) => ({
+          value: skill.id,
+          label: skill.name,
+        }));
+
+        setSkillOptions(options);
+      } catch (error) {
+        console.error(error);
+        setError(
+          "Une erreur est survenue lors de la récupération des compétences."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSkills();
+  }, []);
+
+  // This function is called everytime the options of the MultiSelect component change
+  // It updates the value of the skills field in the form
+  const handleOptionsChange = (value: string[]) => {
+    userForm.setValue("skills", value);
+  };
 
   if (!user) return null;
+
+  if (isLoading) {
+    return <p>Chargement...</p>;
+  }
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
     <div className="basis-1/2 p-4 flex flex-col gap-y-4 items-center">
@@ -108,15 +146,28 @@ export default function UserProfile({
       </div>
 
       <div className="flex flex-row md:gap-x-2 lg:gap-x-3 gap-x-1 wrap">
-        {fakeSkills.map((skill) => (
-          <Badge
-            variant="badge"
-            key={skill.id}
-            className="md:text-sm lg:text-base"
-          >
-            {skill.label.length > 8 ? skill.diminutive : skill.label}
-          </Badge>
-        ))}
+        {!isEditing ? (
+          user.skills.length > 0 ? (
+            user.skills.map((skill) => (
+              <Badge
+                variant="badge"
+                key={skill.id}
+                className="md:text-sm lg:text-base"
+              >
+                {skill.name}
+              </Badge>
+            ))
+          ) : (
+            <p>Vous n&apos;avez pas encore de compétences.</p>
+          )
+        ) : (
+          <MultiSelect
+            options={skillOptions}
+            onValueChange={(e) => handleOptionsChange(e)}
+            defaultValue={userSkillOptions}
+            placeholder="Sélectionnez vos compétences"
+          />
+        )}
       </div>
 
       <div className="flex w-full flex-col gap-y-1">

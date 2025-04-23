@@ -1,12 +1,18 @@
+import { Availability, Skill } from "@/@types/api";
 import { User } from "@/@types/api/models/User";
 import { create } from "zustand";
 
+export interface UserWithRelations extends User {
+  skills: Skill[];
+  availabilities: Availability[];
+}
+
 interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
-  login: (userData: { user?: User }) => void;
+  user: UserWithRelations | null;
+  login: (userData: { user?: UserWithRelations }) => void;
   logout: () => void;
-  updateUser: (user: Partial<User>) => void;
+  updateUser: (user: Partial<UserWithRelations>) => void;
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
