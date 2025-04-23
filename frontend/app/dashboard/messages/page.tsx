@@ -7,20 +7,13 @@ import { apiService } from "@/lib/services/apiService";
 
 // Define conversation interface
 interface Conversation {
-  id: number;
-  partner: {
-    id: number;
-    first_name: string;
-    last_name: string;
-    avatar_url: string;
-  };
+  id: string;
+  partnerId: string;
+  creatorId: string;
   lastMessage: {
-    text: string;
-    timestamp: string;
-  };
-  skill: {
-    id: number;
-    name: string;
+    id: string;
+    content: string;
+    createdAt: string;
   };
 }
 
@@ -61,27 +54,13 @@ export default function MessagesPage() {
         <>
           <div className="flex flex-col gap-3">
             {paginatedConversations
-              .sort((a, b) => a.id - b.id)
+              .sort((b, a) => new Date(a.lastMessage.createdAt).getTime() - new Date(b.lastMessage.createdAt).getTime())
               .map((conversation) => (
                 <ConversationCard
                   key={conversation.id}
-                  conversation={{
-                    id: conversation.id,
-                    partner: {
-                      id: 1,
-                      first_name: "Marie",
-                      last_name: "Dupont",
-                      avatar_url: "https://github.com/shadcn.png",
-                    },
-                    lastMessage: {
-                      text: "Bonjour, je suis intéressée par vos compétences en développement web.",
-                      timestamp: new Date(2025, 3, 20).toISOString(),
-                    },
-                    skill: {
-                      id: 1,
-                      name: "Dev. web",
-                    },
-                  }}
+                  id={conversation.id}
+                  partnerId={conversation.partnerId === user?.id ? conversation.partnerId : conversation.partnerId}
+                  lastMessage={conversation.lastMessage}
                 />
               ))}
           </div>
