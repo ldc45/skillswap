@@ -57,6 +57,7 @@ export class UserSkillService {
     });
   }
 
+  // TODO: To be removed if not used
   async findAllUserSkills(userId: string) {
     // Vérifier si l'utilisateur existe
     const user = await this.prisma.user.findUnique({
@@ -85,14 +86,7 @@ export class UserSkillService {
     return userSkills;
   }
 
-  /* findOne(id: number) {
-    return `This action returns a #${id} userSkill`;
-  }
-
-  update(id: number, updateUserSkillDto: UpdateUserSkillDto) {
-    return `This action updates a #${id} userSkill`;
-  }*/
-
+  // TODO: To be removed if not used
   async findUsersWithSameSkill(skillId: string): Promise<UserSkill[]> {
     const skill = await this.prisma.skill.findUnique({
       where: { id: skillId },
