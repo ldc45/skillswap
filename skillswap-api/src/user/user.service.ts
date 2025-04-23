@@ -36,10 +36,34 @@ export class UserService {
     });
   }
 
-  async findAll(randomNum: number = 0): Promise<User[]> {
-    const users: User[] = await this.prisma.user.findMany();
+  async findAll(randomNum: number = 0): Promise<Omit<User, 'password'>[]> {
+    const users = await this.prisma.user.findMany({
+      include: {
+        skills: {
+          select: {
+            skill: {
+              select: {
+                id: true,
+                name: true,
+                diminutive: true,
+                categoryId: true,
+              },
+            },
+          },
+        },
+        availabilities: {
+          select: {
+            id: true,
+            day: true,
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
+    });
+
     if (randomNum > 0) {
-      const randomUsers: User[] = [];
+      const randomUsers: Omit<User, 'password'>[] = [];
       for (let i = 0; i < randomNum; i++) {
         if (users.length <= 0) {
           break;
@@ -53,10 +77,32 @@ export class UserService {
     }
   }
 
-  findOne(id: string): Promise<User | null> {
+  findOne(id: string): Promise<Omit<User, 'password'> | null> {
     return this.prisma.user.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        skills: {
+          select: {
+            skill: {
+              select: {
+                id: true,
+                name: true,
+                diminutive: true,
+                categoryId: true,
+              },
+            },
+          },
+        },
+        availabilities: {
+          select: {
+            id: true,
+            day: true,
+            startTime: true,
+            endTime: true,
+          },
+        },
       },
     });
   }
