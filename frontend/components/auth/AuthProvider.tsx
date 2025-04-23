@@ -24,7 +24,6 @@ export default function AuthProvider({
           // If we receive a valid response, the session token is active
           // We can automatically log in the user
           if (userResponse && userResponse.id) {
-            console.log("Session active détectée, connexion automatique");
             login({ user: userResponse });
           }
         } catch {

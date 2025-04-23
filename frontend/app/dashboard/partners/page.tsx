@@ -26,7 +26,6 @@ export default function PartnersPage() {
     const fetchRandomMembers = async () => {
       try {
         const response: User[] = await apiService.get("/users?random=20");
-        console.log("response", response);
         if (!response) throw new Error("Error fetching members from API");
         setMembers(response);
       } catch (error) {

@@ -52,7 +52,6 @@ export default function ProfilePage() {
   // Data is typed using the schema
   // This ensures that the data passed to the onSubmit function matches the schema
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log("DATA", data);
     if (!user) return;
 
     try {
