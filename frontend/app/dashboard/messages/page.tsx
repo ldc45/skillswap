@@ -27,7 +27,6 @@ export default function MessagesPage() {
     if (isAuthenticated && user) {
       apiService.get("/conversations/user/me")
         .then((convos) => {
-          console.log("Fetched conversations:", convos);
           // Set conversations from API with type check
           setConversations(Array.isArray(convos) ? convos : []);
         })

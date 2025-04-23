@@ -25,17 +25,12 @@ export default function ConversationCard({
   partnerId,
   lastMessage,
 }: ConversationCardProps) {
-  const skill = {
-    id: 1,
-    name: "Dev. web",
-  };
     const [partner, setPartner] = useState<User | null>();
   
     useEffect(() => {
       // Fetch conversations for authenticated user using apiService
         apiService.get(`/users/${partnerId}`)
           .then((newPartner) => {
-            console.log("Fetched partner:", newPartner);
             // Set partner from API with type check
             setPartner(newPartner as User);
           })
@@ -54,7 +49,9 @@ export default function ConversationCard({
   return (
     <Link href={`/dashboard/messages/${id}`}>
       <Card className="flex flex-row items-center justify-between p-4 shadow-md hover:shadow-lg transition-shadow relative">
-        {partner && <div className="flex items-center gap-4 flex-1">
+        {partner &&
+        <>
+        <div className="flex items-center gap-4 flex-1">
           <Avatar>
             <AvatarImage
               src={partner.avatarUrl}
@@ -78,14 +75,21 @@ export default function ConversationCard({
             </p>
             </>}
           </div>
-        </div>}
+        </div>
 
         <div className="flex flex-col items-end gap-2">
-          <Badge className="absolute top-3 right-10">
-            {skill.name}
-          </Badge>
+
+          {partner.skills && partner.skills.length > 0 && partner.skills.map((skill) => {
+            return (
+              <Badge key={skill.id} className="absolute top-3 right-10">
+                {skill.diminutive || skill.name || ""}
+              </Badge>
+            );
+          })}
           <ChevronRight className="h-5 w-5 text-gray-400" />
         </div>
+        </>
+        }
       </Card>
     </Link>
   );
