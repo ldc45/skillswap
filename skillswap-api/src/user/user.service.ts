@@ -37,20 +37,15 @@ export class UserService {
   }
 
   async findAll(randomNum: number = 0): Promise<User[]> {
-    const users = await this.prisma.user.findMany();
+    const users: User[] = await this.prisma.user.findMany();
     if (randomNum > 0) {
       const randomUsers: User[] = [];
-      const usedIndexes: number[] = [];
       for (let i = 0; i < randomNum; i++) {
-        let isPicked = false;
-        while (!isPicked) {
-          const randomIndex = Math.round(Math.random() * (users.length - 1));
-          if (!usedIndexes.includes(randomIndex)) {
-            usedIndexes.push(randomIndex);
-            randomUsers.push(users[randomIndex]);
-            isPicked = true;
-          }
+        if (users.length <= 0) {
+          break;
         }
+        const randomIndex = Math.round(Math.random() * (users.length - 1));
+        randomUsers.push(...users.splice(randomIndex, 1));
       }
       return randomUsers;
     } else {
