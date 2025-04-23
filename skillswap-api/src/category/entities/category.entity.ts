@@ -26,6 +26,7 @@ export class Category {
   @ApiProperty({
     example: '#ffd700',
     description: 'The color of the category in hex code',
+    type: String,
   })
   @IsOptional()
   @IsString()
