@@ -8,6 +8,7 @@ import { SkillModule } from './skill/skill.module';
 import { CategoryModule } from './category/category.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { AvailabilityModule } from './availability/availability.module';
+import { UserSkillModule } from './user-skill/user-skill.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AvailabilityModule } from './availability/availability.module';
     CategoryModule,
     ConversationModule,
     AvailabilityModule,
+    UserSkillModule,
   ],
   controllers: [AppController],
   providers: [AppService],
