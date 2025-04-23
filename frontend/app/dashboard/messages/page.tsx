@@ -2,129 +2,86 @@
 
 import React, { useEffect, useState } from "react";
 import ConversationCard from "@/components/conversationCard/ConversationCard";
+import { useAuthStore } from "@/lib/stores/authStore";
+import { apiService } from "@/lib/services/apiService";
 
 // Define conversation interface
 interface Conversation {
-  id: number;
-  partner: {
-    id: number;
-    first_name: string;
-    last_name: string;
-    avatar_url: string;
-  };
+  id: string;
+  partnerId: string;
+  creatorId: string;
   lastMessage: {
-    text: string;
-    timestamp: string;
-  };
-  skill: {
-    id: number;
-    name: string;
+    id: string;
+    content: string;
+    createdAt: string;
   };
 }
 
 export default function MessagesPage() {
   // Initialize conversations state
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  
+  const { user, isAuthenticated } = useAuthStore();
+
   useEffect(() => {
-    // Load conversations from localStorage or use mock data
-    const storedConversations = localStorage.getItem('conversations');
-    
-    if (storedConversations) {
-      setConversations(JSON.parse(storedConversations));
-    } else {
-      // Mock data for initial display
-      const mockConversations: Conversation[] = [
-        {
-          id: 1,
-          partner: {
-            id: 1,
-            first_name: "Marie",
-            last_name: "Dupont",
-            avatar_url: "https://github.com/shadcn.png",
-          },
-          lastMessage: {
-            text: "Bonjour, je suis intéressée par vos compétences en développement web.",
-            timestamp: new Date(2025, 3, 20).toISOString(),
-          },
-          skill: {
-            id: 1,
-            name: "Dev. web",
-          },
-        },
-        {
-          id: 2,
-          partner: {
-            id: 2,
-            first_name: "Jean",
-            last_name: "Martin",
-            avatar_url: "https://github.com/shadcn.png",
-          },
-          lastMessage: {
-            text: "Merci pour votre aide avec le design de mon site, j'aimerais planifier une autre session.",
-            timestamp: new Date(2025, 3, 21).toISOString(),
-          },
-          skill: {
-            id: 2,
-            name: "Design",
-          },
-        },
-        {
-          id: 3,
-          partner: {
-            id: 3,
-            first_name: "Sophie",
-            last_name: "Lemoine",
-            avatar_url: "https://github.com/shadcn.png",
-          },
-          lastMessage: {
-            text: "Est-ce que vous êtes disponible pour une session d'anglais demain?",
-            timestamp: new Date(2025, 3, 18).toISOString(),
-          },
-          skill: {
-            id: 3,
-            name: "Langues",
-          },
-        },
-        {
-          id: 4,
-          partner: {
-            id: 4,
-            first_name: "Thomas",
-            last_name: "Bernard",
-            avatar_url: "https://github.com/shadcn.png",
-          },
-          lastMessage: {
-            text: "J'ai revu votre stratégie marketing, je vous envoie mes commentaires.",
-            timestamp: new Date(2025, 3, 22).toISOString(),
-          },
-          skill: {
-            id: 4,
-            name: "Marketing",
-          },
-        },
-      ];
-      
-      // Store mock data in localStorage
-      localStorage.setItem('conversations', JSON.stringify(mockConversations));
-      setConversations(mockConversations);
+    // Fetch conversations for authenticated user using apiService
+    if (isAuthenticated && user) {
+      apiService.get("/conversations/user/me")
+        .then((convos) => {
+          // Set conversations from API with type check
+          setConversations(Array.isArray(convos) ? convos : []);
+        })
+        .catch((err) => {
+          // Log fetch error
+          console.error("Error fetching conversations:", err);
+        });
     }
-  }, []);
+  }, [isAuthenticated, user]);
+
+  // Add pagination for conversations display
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+  const totalPages = Math.ceil(conversations.length / pageSize);
+  const paginatedConversations = conversations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="p-4 md:p-6 lg:p-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-6">Mes conversations</h1>
-      
+      {/* Render paginated conversations with static card info except id */}
       {conversations.length === 0 ? (
         <p className="text-gray-600">Vous n&apos;avez pas encore de conversations.</p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {conversations
-            .sort((a, b) => new Date(b.lastMessage.timestamp).getTime() - new Date(a.lastMessage.timestamp).getTime())
-            .map((conversation) => (
-              <ConversationCard key={conversation.id} conversation={conversation} />
-            ))}
-        </div>
+        <>
+          <div className="flex flex-col gap-3">
+            {paginatedConversations
+              .sort((b, a) => new Date(a.lastMessage.createdAt).getTime() - new Date(b.lastMessage.createdAt).getTime())
+              .map((conversation) => (
+                <ConversationCard
+                  key={conversation.id}
+                  id={conversation.id}
+                  partnerId={conversation.partnerId === user?.id ? conversation.partnerId : conversation.partnerId}
+                  lastMessage={conversation.lastMessage}
+                />
+              ))}
+          </div>
+          {/* Render pagination controls */}
+          <div className="flex justify-center items-center gap-2 mt-6">
+            <button
+              className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Précédent
+            </button>
+            <span className="mx-2">Page {currentPage} / {totalPages}</span>
+            <button
+              className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Suivant
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

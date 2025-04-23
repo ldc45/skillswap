@@ -3,17 +3,19 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { apiService } from "@/lib/services/apiService"; // Import apiService for fetching conversation
+import { useAuthStore } from "@/lib/stores/authStore"; // Get current user id from auth store
+import { ApiConversation, ApiMessage } from "@/@types/api/conversation";
 
 // Define message and conversation interfaces
 interface Message {
   id: number;
-  senderId: number;
+  senderId: string;
   text: string;
   timestamp: string;
 }
@@ -37,6 +39,44 @@ interface Conversation {
   messages: Message[];
 }
 
+// Map API conversation to UI conversation shape
+function mapApiConversation(apiConv: ApiConversation): Conversation {
+  return {
+    id: apiConv.id,
+    partner: {
+      id: apiConv.partner.id,
+      first_name: apiConv.partner.firstName,
+      last_name: apiConv.partner.lastName,
+      avatar_url: apiConv.partner.avatarUrl,
+    },
+    lastMessage: {
+      text: apiConv.messages.length > 0 ? apiConv.messages[apiConv.messages.length - 1].content : "",
+      timestamp: apiConv.messages.length > 0 ? apiConv.messages[apiConv.messages.length - 1].createdAt : "",
+    },
+    skill: {
+      id: 1, // Use static skill for now
+      name: "Dev. web",
+    },
+    messages: apiConv.messages.map((msg: ApiMessage) => ({
+      id: msg.id,
+      senderId: String(msg.senderId),
+      text: msg.content,
+      timestamp: msg.createdAt,
+    })),
+  };
+}
+
+// Add runtime type guard for ApiConversation
+function isApiConversation(obj: unknown): obj is ApiConversation {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    "id" in obj &&
+    "partner" in obj &&
+    "messages" in obj
+  );
+}
+
 export default function ConversationPage() {
   // Get conversation id from params
   const params = useParams();
@@ -44,46 +84,21 @@ export default function ConversationPage() {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const currentUserId = 0; // Set current user id (mock)
+  const { user } = useAuthStore(); // Get current user from auth store
+  // Parse currentUserId as string for comparison
+  const currentUserId = user?.id?.toString() ?? "0";
 
   useEffect(() => {
-    // Load conversations from localStorage
-    const stored = localStorage.getItem("conversations");
-    if (stored) {
-      const conversations: Conversation[] = JSON.parse(stored);
-      // Add more detailed mock messages if not present
-      const found = conversations.find((c) => c.id === Number(id));
-      if (found && !found.messages) {
-        found.messages = [
-          {
-            id: 1,
-            senderId: found.partner.id,
-            text: "Bonjour ! Je voulais savoir si tu es dispo pour une session cette semaine ?",
-            timestamp: new Date(2025, 3, 20, 10, 0).toISOString(),
-          },
-          {
-            id: 2,
-            senderId: currentUserId,
-            text: "Salut ! Oui, je suis dispo jeudi ou vendredi.",
-            timestamp: new Date(2025, 3, 20, 10, 5).toISOString(),
-          },
-          {
-            id: 3,
-            senderId: found.partner.id,
-            text: "Parfait, jeudi 18h ça te va ?",
-            timestamp: new Date(2025, 3, 20, 10, 7).toISOString(),
-          },
-          {
-            id: 4,
-            senderId: currentUserId,
-            text: "Oui, c'est parfait ! Merci.",
-            timestamp: new Date(2025, 3, 20, 10, 8).toISOString(),
-          },
-        ];
-        localStorage.setItem("conversations", JSON.stringify(conversations));
-      }
-      setConversation(found || null);
-    }
+    // Fetch conversation by id from API
+    apiService.get(`/conversations/${id}`)
+      .then((apiConv) => {
+        // Check if apiConv is ApiConversation before mapping
+        setConversation(isApiConversation(apiConv) ? mapApiConversation(apiConv) : null);
+      })
+      .catch((err) => {
+        // Log fetch error
+        console.error("Error fetching conversation:", err);
+      });
   }, [id]);
 
   // Scroll to bottom on new message
@@ -92,36 +107,27 @@ export default function ConversationPage() {
   }, [conversation]);
 
   // Handle sending a new message
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim() || !conversation) return;
-    const newMessage: Message = {
-      id: conversation.messages.length + 1,
-      senderId: currentUserId,
-      text: input,
-      timestamp: new Date().toISOString(),
-    };
-    const updatedConversation = {
-      ...conversation,
-      messages: [...conversation.messages, newMessage],
-      lastMessage: { text: input, timestamp: newMessage.timestamp },
-    };
-    setConversation(updatedConversation);
-    // Update localStorage
-    const stored = localStorage.getItem("conversations");
-    if (stored) {
-      const conversations: Conversation[] = JSON.parse(stored);
-      const idx = conversations.findIndex((c) => c.id === updatedConversation.id);
-      if (idx !== -1) {
-        conversations[idx] = updatedConversation;
-        localStorage.setItem("conversations", JSON.stringify(conversations));
-      }
+    // Post new message to API
+    try {
+      await apiService.patch(`/conversations/${id}`, { messages: [{ content: input, senderId: currentUserId }] });
+      // Reload conversation from API after post
+      const apiConv = await apiService.get(`/conversations/${id}`);
+      setConversation(isApiConversation(apiConv) ? mapApiConversation(apiConv) : null);
+      setInput("");
+    } catch (err) {
+      // Log post error
+      console.error("Error sending message:", err);
     }
-    setInput("");
   };
 
   if (!conversation) {
     return <div className="p-4">Conversation introuvable.</div>;
   }
+
+  // Sort messages from oldest to newest before rendering
+  const sortedMessages = [...conversation.messages].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
   return (
     <div className="flex flex-col h-[100dvh]">
@@ -134,13 +140,13 @@ export default function ConversationPage() {
         </Avatar>
         <div className="flex flex-col">
           <span className="font-semibold">{conversation.partner.first_name} {conversation.partner.last_name.charAt(0)}.</span>
-          <Badge className="w-fit mt-1">{conversation.skill.name}</Badge>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto bg-gray-50 px-2 py-4">
-        {conversation.messages.map((msg) => (
+        {sortedMessages.map((msg) => (
           <div
             key={msg.id}
+            // Align message right if sent by current user, left otherwise
             className={`flex ${msg.senderId === currentUserId ? "justify-end" : "justify-start"} mb-2`}
           >
             <Card className={`max-w-[70%] px-4 py-2 ${msg.senderId === currentUserId ? "bg-blue-100" : "bg-white"}`}>
