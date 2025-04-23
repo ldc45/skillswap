@@ -1,8 +1,42 @@
-import MemberCard from "@/components/memberCard/MemberCard";
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { User } from "@/@types/api";
+import { apiService } from "@/lib/services/apiService";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import MemberCard from "@/components/memberCard/MemberCard";
 
 export default function Home() {
+  const [members, setMembers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch 4 random users from the API
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response: User[] = await apiService.get("/users?random=4");
+
+        if (!response) {
+          throw new Error("Error fetching members from API");
+        }
+
+        setMembers(response);
+      } catch (error) {
+        console.error(error);
+        setError(
+          "Une erreur est survenue lors de la récupération des membres."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMembers();
+  }, []);
+
   const mainSkills = [
     {
       id: 1,
@@ -19,33 +53,6 @@ export default function Home() {
     {
       id: 4,
       diminutive: "Marketing",
-    },
-  ];
-
-  const fakeUsers = [
-    {
-      id: 1,
-      first_name: "Marie",
-      last_name: "Dupont",
-      avatar_url: "https://github.com/shadcn.png",
-    },
-    {
-      id: 2,
-      first_name: "Jean",
-      last_name: "Martin",
-      avatar_url: "https://github.com/shadcn.png",
-    },
-    {
-      id: 3,
-      first_name: "Sophie",
-      last_name: "Lemoine",
-      avatar_url: "https://github.com/shadcn.png",
-    },
-    {
-      id: 4,
-      first_name: "Thomas",
-      last_name: "Bernard",
-      avatar_url: "https://github.com/shadcn.png",
     },
   ];
 
@@ -73,21 +80,32 @@ export default function Home() {
         </h2>
         <div className="flex-wrap flex gap-y-1 gap-x-2">
           {mainSkills.map((skill) => (
-            <Badge key={skill.id} className="md:text-base lg:text-lg">
+            <Badge
+              key={skill.id}
+              variant="badge"
+              className="md:text-base px-4 lg:text-lg"
+            >
               {skill.diminutive}
             </Badge>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-col gap-y-2 lg:gap-y-3">
-        <h2 className="text-lg md:text-2xl lg:text-3xl">Nos membres</h2>
-        <div className="grid gap-2 md:gap-3 xl:gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {fakeUsers.map((user) => (
-            <MemberCard key={user.id} user={user} />
-          ))}
+      {!error ? (
+        <div className="flex flex-col gap-y-2 lg:gap-y-3">
+          <h2 className="text-lg md:text-2xl lg:text-3xl">Nos membres</h2>
+          <div className="grid gap-2 md:gap-3 xl:gap-4 md:grid-cols-2">
+            {members.map((user) => (
+              <MemberCard key={user.id} user={user} isLoading={isLoading} />
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col gap-y-2 lg:gap-y-3 justify-center items-center">
+          <h2 className="text-lg md:text-2xl lg:text-3xl">Erreur !</h2>
+          <p className="text-red-500">{error}</p>
+        </div>
+      )}
     </main>
   );
 }
