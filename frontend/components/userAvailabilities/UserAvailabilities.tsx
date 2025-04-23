@@ -6,7 +6,7 @@ import { Pencil } from "lucide-react";
 import { getFormattedDate } from "@/utils/format";
 import { DAYS } from "@/constants";
 import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import EditAvailability from "@/components/editAvailability/EditAvailability";
 
 interface UserAvailabilitiesProps {
@@ -97,8 +97,8 @@ export default function UserAvailabilities({
                   ))}
               </div>
               {isEditing && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
+                <Dialog>
+                  <DialogTrigger asChild>
                     <Button
                       type="button"
                       variant="ghost"
@@ -107,13 +107,13 @@ export default function UserAvailabilities({
                     >
                       <Pencil />
                     </Button>
-                  </AlertDialogTrigger>
+                  </DialogTrigger>
                   <EditAvailability
                     selectedDay={day}
                     availabilities={availabilitiesForDay}
                     setAvailabilities={setAvailabilities}
                   />
-                </AlertDialog>
+                </Dialog>
               )}
             </div>
           );

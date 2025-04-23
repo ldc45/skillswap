@@ -5,14 +5,13 @@ import { X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 import { getFormattedDate } from "@/utils/format";
-import {
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { TimePicker } from "@/components/ui/time-picker";
 import { Day } from "@/constants";
 
@@ -61,28 +60,19 @@ export default function EditAvailability({
   };
 
   return (
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogCancel asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            className="absolute top-4 right-4"
-          >
-            <X />
-          </Button>
-        </AlertDialogCancel>
-      </AlertDialogHeader>
-      <AlertDialogTitle>
-        Vos disponibilités du {selectedDay.label.toLowerCase()}
-      </AlertDialogTitle>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>
+          Vos disponibilités du {selectedDay.label.toLowerCase()}
+        </DialogTitle>
+      </DialogHeader>
 
       {availabilities.length > 0 ? (
-        <ul className="flex py-2 divide-y divide-accent-foreground flex-col gap-y-2">
+        <ul className="flex p-2 divide-y divide-accent-foreground flex-col gap-y-2">
           {availabilities.map((availability) => (
             <li
               key={availability.id}
-              className="flex pb-2 justify-between items-center"
+              className="flex py-2  justify-between items-center"
             >
               <span>
                 {getFormattedDate(availability.startTime)}
@@ -92,6 +82,7 @@ export default function EditAvailability({
               <Button
                 type="button"
                 variant="destructive"
+                className="w-8 h-8"
                 onClick={() => handleDeleteAvailability(availability.id)}
               >
                 <X />
@@ -105,7 +96,7 @@ export default function EditAvailability({
         </div>
       )}
 
-      <AlertDialogFooter className="pt-8 flex !flex-col border-t border-accent-foreground">
+      <DialogFooter className="pt-4 flex !flex-col border-t-2 border-accent-foreground">
         <h5 className="text-sm md:text-base lg:text-lg font-medium py-4">
           Ajouter une disponibilité
         </h5>
@@ -128,7 +119,7 @@ export default function EditAvailability({
             Ajouter
           </Button>
         </div>
-      </AlertDialogFooter>
-    </AlertDialogContent>
+      </DialogFooter>
+    </DialogContent>
   );
 }
