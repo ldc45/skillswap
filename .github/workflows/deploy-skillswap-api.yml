@@ -27,7 +27,7 @@ jobs:
         # This assumes the service "skillswap-api" already exists on Koyeb
         run: |
           curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
-    
+          
           export PATH=$HOME/.koyeb/bin:$PATH
           
           koyeb service redeploy coloured-reina/skillswap-api

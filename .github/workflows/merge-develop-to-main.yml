@@ -1,0 +1,85 @@
+name: Merge Develop to Main
+
+on:
+  # Automatic execution every 3 hours
+  schedule:
+    - cron: '0 */3 * * *'
+  
+  # Also allows manual triggering if needed
+  workflow_dispatch:
+    inputs:
+      confirm_merge:
+        description: 'Confirmer le merge de develop vers main'
+        required: true
+        default: 'oui'
+        type: choice
+        options:
+          - 'oui'
+          - 'non'
+
+# Allow workflow to modify repository content
+permissions:
+  contents: write
+
+jobs:
+  merge-develop-to-main:
+    runs-on: ubuntu-latest
+    outputs:
+      merge_status: ${{ steps.merge_status.outputs.status }}
+    
+    # Add condition for manual triggering
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.confirm_merge == 'oui' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+
+      - name: Check for changes in develop
+        id: check_changes
+        run: |
+          git fetch origin main
+          git fetch origin develop
+          DIFF_COUNT=$(git rev-list --count HEAD..origin/develop)
+          echo "diff_count=$DIFF_COUNT" >> $GITHUB_OUTPUT
+          echo "Nombre de commits à merger: $DIFF_COUNT"
+
+      - name: Merge develop into main
+        id: merge
+        if: steps.check_changes.outputs.diff_count != '0'
+        run: |
+          git merge --no-ff origin/develop -m "Merge develop into main via GitHub Actions"
+          git push origin main
+          echo "Merge réussi!"
+        continue-on-error: true
+
+      - name: Check merge status
+        id: merge_status
+        run: |
+          if [ "${{ steps.merge.outcome }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ La branche développe a été mergée avec succès dans main"
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "❌ Échec du merge. Veuillez vérifier les conflits manuellement."
+          fi
+
+  # Job that triggers the build workflow only after a successful merge
+  trigger-build-workflow:
+    needs: merge-develop-to-main
+    if: needs.merge-develop-to-main.outputs.merge_status == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Build API Workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: build-api-trigger

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiService } from "@/lib/services/apiService";
 import { useAuthStore } from "@/lib/stores/authStore";
-import type { User } from "@/lib/stores/authStore";
+import type { User } from "@/@types/api/models/User";
 
 export default function AuthProvider({
   children,
@@ -24,7 +24,6 @@ export default function AuthProvider({
           // If we receive a valid response, the session token is active
           // We can automatically log in the user
           if (userResponse && userResponse.id) {
-            console.log("Session active détectée, connexion automatique");
             login({ user: userResponse });
           }
         } catch {
