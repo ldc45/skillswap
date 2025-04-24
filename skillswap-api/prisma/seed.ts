@@ -233,6 +233,9 @@ async function main() {
   console.time('Seed execution time');
 
   try {
+    // Password for all users (including test user)
+    const defaultPassword = 'fakePassword';
+
     // Clear existing data in the correct order to avoid foreign key constraint errors
     await prisma.$transaction([
       prisma.message.deleteMany({}),
@@ -292,10 +295,22 @@ async function main() {
 
     // Pre-generate hashed passwords to avoid async issues in map
     const hashedPasswords = await Promise.all(
-      Array.from({ length: USER_COUNT }).map(() =>
-        bcrypt.hash('fakePassword', SALT_ROUNDS),
+      Array.from({ length: USER_COUNT + 1 }).map(() =>
+        // +1 for test user
+        bcrypt.hash(defaultPassword, SALT_ROUNDS),
       ),
     );
+
+    // Create test user
+    userData.push({
+      email: 'test@example.com',
+      password: hashedPasswords[0],
+      firstName: 'Test',
+      lastName: 'User',
+      biography:
+        'Ceci est un utilisateur de test avec des compétences variées.',
+      avatarUrl: 'https://randomuser.me/api/portraits/lego/1.jpg',
+    });
 
     for (let i = 0; i < USER_COUNT; i++) {
       const firstName = faker.person.firstName();
@@ -324,6 +339,37 @@ async function main() {
     // Assign random skills to users using createMany
     const userSkillsData: Prisma.UserSkillCreateManyInput[] = [];
 
+    // Fetch test user to get its ID
+    const testUser = await prisma.user.findUnique({
+      where: { email: 'test@example.com' },
+    });
+
+    // Assign specific skills from different categories to test user
+    if (testUser) {
+      // Get one skill from each of these categories
+      const categories = [
+        'Programmation',
+        'Langues',
+        'Cuisine',
+        'Sport & Fitness',
+        'Design',
+      ];
+
+      for (const categoryName of categories) {
+        const category = await prisma.category.findUnique({
+          where: { name: categoryName },
+          include: { skills: { take: 1 } },
+        });
+
+        if (category && category.skills.length > 0) {
+          userSkillsData.push({
+            userId: testUser.id,
+            skillId: category.skills[0].id,
+          });
+        }
+      }
+    }
+
     for (const user of users) {
       const selectedSkills = faker.helpers.arrayElements(
         skills,
@@ -351,6 +397,31 @@ async function main() {
     // Create availabilities using createMany
     const availabilitiesData: Prisma.AvailabilityCreateManyInput[] = [];
     const days = [0, 1, 2, 3, 4, 5, 6];
+
+    // Add specific availabilities for test user
+    if (testUser) {
+      // Add availability for Monday, Wednesday and Friday (days 1, 3, 5)
+      availabilitiesData.push({
+        userId: testUser.id,
+        day: 1, // Monday
+        startTime: new Date(2025, 0, 1, 9, 0, 0),
+        endTime: new Date(2025, 0, 1, 12, 0, 0),
+      });
+
+      availabilitiesData.push({
+        userId: testUser.id,
+        day: 3, // Wednesday
+        startTime: new Date(2025, 0, 1, 14, 0, 0),
+        endTime: new Date(2025, 0, 1, 17, 0, 0),
+      });
+
+      availabilitiesData.push({
+        userId: testUser.id,
+        day: 5, // Friday
+        startTime: new Date(2025, 0, 1, 10, 0, 0),
+        endTime: new Date(2025, 0, 1, 15, 0, 0),
+      });
+    }
 
     for (const user of users) {
       const selectedDays = faker.helpers.arrayElements(
