@@ -115,6 +115,10 @@ export class UserResponseDto {
   @Type(() => AvailabilityResponseDto) // Uses class-transformer to convert each element to AvailabilityResponseDto
   availabilities: AvailabilityResponseDto[];
 
+  @ApiProperty({
+    type: [SkillResponseDto],
+    description: 'List of user skills',
+  })
   @Expose()
   @Type(() => SkillResponseDto)
   @Transform(
