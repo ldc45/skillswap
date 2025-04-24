@@ -2,6 +2,7 @@
 
 import { UseFormReturn } from "react-hook-form";
 
+import { CreateAvailabilityDto } from "@/@types/api";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useSkillStore } from "@/lib/stores/skillStore";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -29,7 +30,7 @@ interface UserProfileProps {
     lastName: string;
     skills: string[];
     biography: string;
-    availabilities: string[];
+    availabilities: Omit<CreateAvailabilityDto, "userId">[];
   }>;
 }
 
@@ -45,13 +46,13 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
   if (!user) return null;
 
   // The default options are the skills of the user
-  const defaultOptions =
-    user.skills?.map((skill) => skill.diminutive || skill.name) || [];
+  // The prop `defaultOptions` expects an array of 'values' (ids) that are selected by default
+  const defaultOptions = user.skills?.map((skill) => skill.id) || [];
 
   // TODO: Remove the '.slice(0, 10)' which is only used for development
-  const skillOptions: Options[] = skills.slice(0, 10).map((skill) => ({
+  const skillOptions: Options[] = skills.map((skill) => ({
     value: skill.id,
-    label: skill.diminutive || skill.name,
+    label: skill.name,
   }));
 
   // This function is called every time the options change
@@ -143,7 +144,9 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
           Biographie
         </h4>
         {!isEditing ? (
-          <p className="text-sm md:text-base">{user.biography}</p>
+          <p className="text-sm md:text-base">
+            {user.biography || "Vous n'avez pas encore de biographie"}
+          </p>
         ) : (
           <FormField
             control={userForm.control}
