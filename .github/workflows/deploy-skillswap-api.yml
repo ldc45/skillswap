@@ -26,14 +26,9 @@ jobs:
         # Update the existing service on Koyeb with the latest Docker image
         # This assumes the service "skillswap-api" already exists on Koyeb
         run: |
+        
           curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
-          
+    
           export PATH=$HOME/.koyeb/bin:$PATH
           
-          # Check installation
-          echo "Koyeb CLI version:"
-          koyeb --version
-          
-          # Deploy service
-          echo "Deploying API to Koyeb..."
           koyeb service redeploy coloured-reina/skillswap-api
