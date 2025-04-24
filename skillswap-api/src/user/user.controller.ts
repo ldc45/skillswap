@@ -25,6 +25,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -52,10 +53,10 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'List of users retrieved successfully',
-    type: [User],
+    type: [UserResponseDto],
   })
   @Get()
-  findAll(@Query() query: { random: number }) {
+  findAll(@Query() query: { random: number }): Promise<UserResponseDto[]> {
     let randomNum = 0;
     if (query.random) {
       randomNum = query.random;
@@ -68,12 +69,12 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User information retrieved successfully',
-    type: User,
+    type: UserResponseDto,
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseGuards(AuthGuard)
   @Get('me')
-  findMe(@Req() request: Request) {
+  findMe(@Req() request: Request): Promise<UserResponseDto> {
     return this.userService.findMe(request);
   }
 
@@ -82,7 +83,7 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User retrieved successfully',
-    type: User,
+    type: UserResponseDto,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @Get(':id')
