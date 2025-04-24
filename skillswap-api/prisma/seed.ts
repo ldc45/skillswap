@@ -5,10 +5,7 @@ import { faker } from '@faker-js/faker';
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
-
-const CATEGORY_COUNT = 15;
-const SKILL_MIN_PER_CATEGORY = 5;
-const SKILL_MAX_PER_CATEGORY = 10;
+// Constants for seed data generation
 const USER_COUNT = 50;
 const SKILL_MIN_PER_USER = 3;
 const SKILL_MAX_PER_USER = 8;
@@ -18,11 +15,227 @@ const CONVERSATION_COUNT = 100;
 const MESSAGE_MIN_PER_CONVERSATION = 5;
 const MESSAGE_MAX_PER_CONVERSATION = 20;
 
+// Predefined realistic categories with colors
+const CATEGORIES = [
+  { name: 'Programmation', color: '#FF5733' },
+  { name: 'Langues', color: '#33FF57' },
+  { name: 'Arts & Musique', color: '#3357FF' },
+  { name: 'Sport & Fitness', color: '#F3FF33' },
+  { name: 'Cuisine', color: '#FF33F3' },
+  { name: 'Enseignement', color: '#33FFF3' },
+  { name: 'Design', color: '#A233FF' },
+  { name: 'Business', color: '#FF8C33' },
+  { name: 'Bricolage', color: '#33FF8C' },
+  { name: 'Photographie', color: '#8C33FF' },
+  { name: 'Jardinage', color: '#8CFF33' },
+  { name: 'Sciences', color: '#FF338C' },
+  { name: 'Méditation', color: '#338CFF' },
+  { name: 'Littérature', color: '#FFBD33' },
+  { name: 'Santé & Bien-être', color: '#33FFBD' },
+];
+
+// Predefined skills for each category with diminutives
+const SKILLS_BY_CATEGORY = {
+  Programmation: [
+    { name: 'JavaScript', diminutive: 'JS' },
+    { name: 'React', diminutive: 'RCT' },
+    { name: 'Python', diminutive: 'PY' },
+    { name: 'Java', diminutive: 'JAV' },
+    { name: 'TypeScript', diminutive: 'TS' },
+    { name: 'PHP', diminutive: 'PHP' },
+    { name: 'C++', diminutive: 'CPP' },
+    { name: 'Node.js', diminutive: 'NODE' },
+    { name: 'SQL', diminutive: 'SQL' },
+    { name: 'Swift', diminutive: 'SWF' },
+    { name: 'Développement web', diminutive: 'DEV' },
+    { name: 'Développement mobile', diminutive: 'DVM' },
+    { name: 'Intelligence artificielle', diminutive: 'IA' },
+    { name: 'Machine Learning', diminutive: 'ML' },
+    { name: 'Blockchain', diminutive: 'BC' },
+    { name: 'Cybersécurité', diminutive: 'CS' },
+    { name: 'DevOps', diminutive: 'DEV' },
+    { name: 'Cloud Computing', diminutive: 'CC' },
+    { name: 'Big Data', diminutive: 'BD' },
+    { name: 'API REST', diminutive: 'API' },
+  ],
+  Langues: [
+    { name: 'Anglais', diminutive: 'ANG' },
+    { name: 'Espagnol', diminutive: 'ESP' },
+    { name: 'Français', diminutive: 'FRA' },
+    { name: 'Allemand', diminutive: 'ALL' },
+    { name: 'Italien', diminutive: 'ITA' },
+    { name: 'Japonais', diminutive: 'JAP' },
+    { name: 'Chinois', diminutive: 'CHI' },
+    { name: 'Russe', diminutive: 'RUS' },
+    { name: 'Portugais', diminutive: 'POR' },
+    { name: 'Arabe', diminutive: 'ARA' },
+  ],
+  'Arts & Musique': [
+    { name: 'Guitare', diminutive: 'GUI' },
+    { name: 'Piano', diminutive: 'PIA' },
+    { name: 'Dessin', diminutive: 'DES' },
+    { name: 'Peinture', diminutive: 'PNT' },
+    { name: 'Chant', diminutive: 'CHT' },
+    { name: 'Batterie', diminutive: 'BAT' },
+    { name: 'Théâtre', diminutive: 'THE' },
+    { name: 'Danse', diminutive: 'DNS' },
+    { name: 'Sculpture', diminutive: 'SCL' },
+    { name: 'Photographie', diminutive: 'PHO' },
+  ],
+  'Sport & Fitness': [
+    { name: 'Yoga', diminutive: 'YOG' },
+    { name: 'Football', diminutive: 'FTB' },
+    { name: 'Tennis', diminutive: 'TEN' },
+    { name: 'Natation', diminutive: 'NAT' },
+    { name: 'Course à pied', diminutive: 'CAP' },
+    { name: 'Musculation', diminutive: 'MUS' },
+    { name: 'Basketball', diminutive: 'BSK' },
+    { name: 'Boxe', diminutive: 'BOX' },
+    { name: 'Cyclisme', diminutive: 'CYC' },
+    { name: 'Escalade', diminutive: 'ESC' },
+  ],
+  Cuisine: [
+    { name: 'Pâtisserie', diminutive: 'PAT' },
+    { name: 'Cuisine italienne', diminutive: 'CIT' },
+    { name: 'Cuisine asiatique', diminutive: 'CAS' },
+    { name: 'Cuisine française', diminutive: 'CFR' },
+    { name: 'BBQ & Grillades', diminutive: 'BBQ' },
+    { name: 'Cocktails', diminutive: 'COC' },
+    { name: 'Cuisine végétarienne', diminutive: 'VEG' },
+    { name: 'Boulangerie', diminutive: 'BOU' },
+    { name: 'Cuisine mexicaine', diminutive: 'CMX' },
+    { name: 'Sushis', diminutive: 'SUS' },
+  ],
+  Enseignement: [
+    { name: 'Mathématiques', diminutive: 'MAT' },
+    { name: 'Sciences', diminutive: 'SCI' },
+    { name: 'Histoire', diminutive: 'HIS' },
+    { name: 'Littérature', diminutive: 'LIT' },
+    { name: 'Philosophie', diminutive: 'PHI' },
+    { name: 'Tutorat', diminutive: 'TUT' },
+    { name: 'Cours particuliers', diminutive: 'CPA' },
+    { name: 'Enseignement primaire', diminutive: 'EPR' },
+    { name: 'Enseignement secondaire', diminutive: 'ESE' },
+    { name: 'Formation adultes', diminutive: 'FAD' },
+  ],
+  Design: [
+    { name: 'Graphisme', diminutive: 'GRA' },
+    { name: 'UI/UX Design', diminutive: 'UIX' },
+    { name: 'Photoshop', diminutive: 'PSD' },
+    { name: 'Illustrator', diminutive: 'ILL' },
+    { name: 'Web Design', diminutive: 'WEB' },
+    { name: "Design d'intérieur", diminutive: 'DIN' },
+    { name: 'Modélisation 3D', diminutive: 'M3D' },
+    { name: 'Animation', diminutive: 'ANI' },
+    { name: 'Figma', diminutive: 'FIG' },
+    { name: 'Branding', diminutive: 'BRA' },
+  ],
+  Business: [
+    { name: 'Marketing', diminutive: 'MKT' },
+    { name: 'Comptabilité', diminutive: 'CMP' },
+    { name: 'Entrepreneuriat', diminutive: 'ENT' },
+    { name: 'Ventes', diminutive: 'VNT' },
+    { name: 'SEO', diminutive: 'SEO' },
+    { name: 'Gestion de projet', diminutive: 'GDP' },
+    { name: 'Finance', diminutive: 'FIN' },
+    { name: 'Ressources humaines', diminutive: 'RH' },
+    { name: 'Social Media', diminutive: 'SMM' },
+    { name: 'Dropshipping', diminutive: 'DRP' },
+  ],
+  Bricolage: [
+    { name: 'Menuiserie', diminutive: 'MEN' },
+    { name: 'Plomberie', diminutive: 'PLO' },
+    { name: 'Électricité', diminutive: 'ELE' },
+    { name: 'Rénovation', diminutive: 'REN' },
+    { name: 'Peinture maison', diminutive: 'PMN' },
+    { name: 'Construction', diminutive: 'CON' },
+    { name: 'Décoration', diminutive: 'DEC' },
+    { name: 'Travaux manuels', diminutive: 'TMA' },
+    { name: 'Fabrication DIY', diminutive: 'DIY' },
+    { name: 'Réparations', diminutive: 'REP' },
+  ],
+  Photographie: [
+    { name: 'Portrait', diminutive: 'POR' },
+    { name: 'Paysage', diminutive: 'PAY' },
+    { name: 'Photographie de rue', diminutive: 'RUE' },
+    { name: 'Lightroom', diminutive: 'LRM' },
+    { name: 'Photographie de mode', diminutive: 'MOD' },
+    { name: 'Photographie culinaire', diminutive: 'CUL' },
+    { name: 'Photographie animalière', diminutive: 'ANI' },
+    { name: 'Photographie de nuit', diminutive: 'NUI' },
+    { name: 'Photographie de mariage', diminutive: 'MAR' },
+    { name: 'Lightpainting', diminutive: 'LPT' },
+  ],
+  Jardinage: [
+    { name: 'Potager', diminutive: 'POT' },
+    { name: 'Horticulture', diminutive: 'HOR' },
+    { name: 'Compostage', diminutive: 'COM' },
+    { name: 'Permaculture', diminutive: 'PER' },
+    { name: "Plantes d'intérieur", diminutive: 'PIN' },
+    { name: 'Bonsaï', diminutive: 'BON' },
+    { name: 'Jardinage biologique', diminutive: 'BIO' },
+    { name: 'Aménagement paysager', diminutive: 'PAY' },
+    { name: 'Hydroponie', diminutive: 'HYD' },
+    { name: 'Taille et élagage', diminutive: 'TAI' },
+  ],
+  Sciences: [
+    { name: 'Astronomie', diminutive: 'AST' },
+    { name: 'Biologie', diminutive: 'BIO' },
+    { name: 'Chimie', diminutive: 'CHM' },
+    { name: 'Physique', diminutive: 'PHY' },
+    { name: 'Écologie', diminutive: 'ECO' },
+    { name: 'Géologie', diminutive: 'GEO' },
+    { name: 'Météorologie', diminutive: 'MET' },
+    { name: 'Neurosciences', diminutive: 'NEU' },
+    { name: 'Sciences de la Terre', diminutive: 'TER' },
+    { name: 'Génétique', diminutive: 'GEN' },
+  ],
+  Méditation: [
+    { name: 'Méditation pleine conscience', diminutive: 'MPC' },
+    { name: 'Yoga méditatif', diminutive: 'YMD' },
+    { name: 'Méditation guidée', diminutive: 'MGD' },
+    { name: 'Techniques de respiration', diminutive: 'RSP' },
+    { name: 'Relaxation', diminutive: 'RLX' },
+    { name: 'Mindfulness', diminutive: 'MND' },
+    { name: 'Zen', diminutive: 'ZEN' },
+    { name: 'Qi Gong', diminutive: 'QIG' },
+    { name: 'Tai Chi', diminutive: 'TAI' },
+    { name: 'Spiritualité', diminutive: 'SPR' },
+  ],
+  Littérature: [
+    { name: 'Écriture créative', diminutive: 'ECR' },
+    { name: 'Poésie', diminutive: 'POE' },
+    { name: 'Roman', diminutive: 'ROM' },
+    { name: 'Analyse littéraire', diminutive: 'ALT' },
+    { name: 'Journalisme', diminutive: 'JRN' },
+    { name: 'Rédaction web', diminutive: 'RDW' },
+    { name: 'Storytelling', diminutive: 'STY' },
+    { name: 'Copywriting', diminutive: 'CPW' },
+    { name: 'Édition', diminutive: 'EDT' },
+    { name: 'Autobiographie', diminutive: 'AUT' },
+  ],
+  'Santé & Bien-être': [
+    { name: 'Nutrition', diminutive: 'NUT' },
+    { name: 'Massage', diminutive: 'MAS' },
+    { name: 'Aromathérapie', diminutive: 'ARO' },
+    { name: 'Réflexologie', diminutive: 'REF' },
+    { name: 'Premiers secours', diminutive: 'PSC' },
+    { name: 'Médecine naturelle', diminutive: 'MNA' },
+    { name: 'Coaching bien-être', diminutive: 'CBE' },
+    { name: 'Sommeil', diminutive: 'SOM' },
+    { name: 'Gestion du stress', diminutive: 'STR' },
+    { name: 'Sophrologie', diminutive: 'SPH' },
+  ],
+};
+
 async function main() {
   console.log('Starting seed...');
   console.time('Seed execution time');
 
   try {
+    // Password for all users (including test user)
+    const defaultPassword = 'fakePassword';
+
     // Clear existing data in the correct order to avoid foreign key constraint errors
     await prisma.$transaction([
       prisma.message.deleteMany({}),
@@ -36,10 +249,10 @@ async function main() {
 
     console.log('Database cleared');
 
-    // Create categories using createMany
-    const categoryData = Array.from({ length: CATEGORY_COUNT }).map(() => ({
-      name: faker.word.noun(),
-      color: faker.color.rgb(),
+    // Create predefined categories
+    const categoryData = CATEGORIES.map((category) => ({
+      name: category.name,
+      color: category.color,
     }));
 
     await prisma.category.createMany({
@@ -51,24 +264,18 @@ async function main() {
     const categories = await prisma.category.findMany();
     console.log(`${categories.length} categories created`);
 
-    // Create skills for each category using createMany
+    // Create predefined skills for each category
     const skillsData: Prisma.SkillCreateManyInput[] = [];
 
     for (const category of categories) {
-      const skillCount = faker.number.int({
-        min: SKILL_MIN_PER_CATEGORY,
-        max: SKILL_MAX_PER_CATEGORY,
-      });
+      const categorySkills =
+        SKILLS_BY_CATEGORY[category.name as keyof typeof SKILLS_BY_CATEGORY] ||
+        [];
 
-      for (let i = 0; i < skillCount; i++) {
-        const skillName = faker.word.adjective() + ' ' + faker.word.noun();
-
+      for (const skill of categorySkills) {
         skillsData.push({
-          name: skillName,
-          diminutive: skillName
-            .replace(/\s+/g, '')
-            .substring(0, faker.helpers.arrayElement([3, 4]))
-            .toUpperCase(),
+          name: skill.name,
+          diminutive: skill.diminutive,
           categoryId: category.id,
         });
       }
@@ -88,10 +295,22 @@ async function main() {
 
     // Pre-generate hashed passwords to avoid async issues in map
     const hashedPasswords = await Promise.all(
-      Array.from({ length: USER_COUNT }).map(() =>
-        bcrypt.hash('fakePassword', SALT_ROUNDS),
+      Array.from({ length: USER_COUNT + 1 }).map(() =>
+        // +1 for test user
+        bcrypt.hash(defaultPassword, SALT_ROUNDS),
       ),
     );
+
+    // Create test user
+    userData.push({
+      email: 'test@example.com',
+      password: hashedPasswords[0],
+      firstName: 'Test',
+      lastName: 'User',
+      biography:
+        'Ceci est un utilisateur de test avec des compétences variées.',
+      avatarUrl: 'https://randomuser.me/api/portraits/lego/1.jpg',
+    });
 
     for (let i = 0; i < USER_COUNT; i++) {
       const firstName = faker.person.firstName();
@@ -120,6 +339,37 @@ async function main() {
     // Assign random skills to users using createMany
     const userSkillsData: Prisma.UserSkillCreateManyInput[] = [];
 
+    // Fetch test user to get its ID
+    const testUser = await prisma.user.findUnique({
+      where: { email: 'test@example.com' },
+    });
+
+    // Assign specific skills from different categories to test user
+    if (testUser) {
+      // Get one skill from each of these categories
+      const categories = [
+        'Programmation',
+        'Langues',
+        'Cuisine',
+        'Sport & Fitness',
+        'Design',
+      ];
+
+      for (const categoryName of categories) {
+        const category = await prisma.category.findUnique({
+          where: { name: categoryName },
+          include: { skills: { take: 1 } },
+        });
+
+        if (category && category.skills.length > 0) {
+          userSkillsData.push({
+            userId: testUser.id,
+            skillId: category.skills[0].id,
+          });
+        }
+      }
+    }
+
     for (const user of users) {
       const selectedSkills = faker.helpers.arrayElements(
         skills,
@@ -146,7 +396,32 @@ async function main() {
 
     // Create availabilities using createMany
     const availabilitiesData: Prisma.AvailabilityCreateManyInput[] = [];
-    const days = [0, 1, 2, 3, 4, 5, 6]; 
+    const days = [0, 1, 2, 3, 4, 5, 6];
+
+    // Add specific availabilities for test user
+    if (testUser) {
+      // Add availability for Monday, Wednesday and Friday (days 1, 3, 5)
+      availabilitiesData.push({
+        userId: testUser.id,
+        day: 1, // Monday
+        startTime: new Date(2025, 0, 1, 9, 0, 0),
+        endTime: new Date(2025, 0, 1, 12, 0, 0),
+      });
+
+      availabilitiesData.push({
+        userId: testUser.id,
+        day: 3, // Wednesday
+        startTime: new Date(2025, 0, 1, 14, 0, 0),
+        endTime: new Date(2025, 0, 1, 17, 0, 0),
+      });
+
+      availabilitiesData.push({
+        userId: testUser.id,
+        day: 5, // Friday
+        startTime: new Date(2025, 0, 1, 10, 0, 0),
+        endTime: new Date(2025, 0, 1, 15, 0, 0),
+      });
+    }
 
     for (const user of users) {
       const selectedDays = faker.helpers.arrayElements(
