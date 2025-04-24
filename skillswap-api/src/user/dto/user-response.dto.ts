@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import {
+  Exclude,
+  Expose,
+  plainToInstance,
+  Transform,
+  Type,
+} from 'class-transformer';
 import {
   IsDate,
   IsEmail,
@@ -10,6 +16,7 @@ import {
 
 import { AvailabilityResponseDto } from '../../availability/dto/availability-response.dto';
 import { SkillResponseDto } from '../../skill/dto/skill-response.dto';
+import { Skill } from '../../skill/entities/skill.entity';
 
 export class UserResponseDto {
   @ApiProperty({
@@ -111,7 +118,9 @@ export class UserResponseDto {
   @Transform(
     ({ value }) => {
       if (Array.isArray(value)) {
-        return value.map((item: { skill: SkillResponseDto }) => item.skill);
+        return value.map((item: { skill: Skill }) =>
+          plainToInstance(SkillResponseDto, item.skill),
+        );
       }
       return [];
     },
