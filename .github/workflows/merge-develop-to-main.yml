@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       confirm_merge:
-        description: 'Confirmer le merge de développe vers main'
+        description: 'Confirmer le merge de develop vers main'
         required: true
         default: 'oui'
         type: choice
@@ -47,8 +47,8 @@ jobs:
         id: check_changes
         run: |
           git fetch origin main
-          git fetch origin développe
-          DIFF_COUNT=$(git rev-list --count HEAD..origin/développe)
+          git fetch origin develop
+          DIFF_COUNT=$(git rev-list --count HEAD..origin/develop)
           echo "diff_count=$DIFF_COUNT" >> $GITHUB_OUTPUT
           echo "Nombre de commits à merger: $DIFF_COUNT"
 
@@ -56,7 +56,7 @@ jobs:
         id: merge
         if: steps.check_changes.outputs.diff_count != '0'
         run: |
-          git merge --no-ff origin/développe -m "Merge développe into main via GitHub Actions"
+          git merge --no-ff origin/develop -m "Merge develop into main via GitHub Actions"
           git push origin main
           echo "Merge réussi!"
         continue-on-error: true
