@@ -3,7 +3,7 @@ name: Merge Develop to Main
 on:
   # Automatic execution every 3 hours
   schedule:
-    - cron: '0 */3 * * *'
+    - cron: '0 */12 * * *'
   
   # Also allows manual triggering if needed
   workflow_dispatch:
