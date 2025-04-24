@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Pencil } from "lucide-react";
 
+import { CreateAvailabilityDto } from "@/@types/api";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { getFormattedDate } from "@/utils/format";
 import { DAYS } from "@/constants";
@@ -19,7 +20,7 @@ interface UserAvailabilitiesProps {
     lastName: string;
     skills: string[];
     biography: string;
-    availabilities: string[];
+    availabilities: Omit<CreateAvailabilityDto, "userId">[];
   }>;
 }
 
@@ -47,11 +48,22 @@ export default function UserAvailabilities({
 
   // Every time the availabilities change, we update the form values
   useEffect(() => {
-    const availabilityIds = availabilities.map(
-      (availability) => availability.id
-    );
-    userForm.setValue("availabilities", availabilityIds);
+    // We need to map the availabilities to the expected type by the form
+    const newAvailabilities = availabilities.map((availability) => ({
+      day: availability.day,
+      startTime: availability.startTime,
+      endTime: availability.endTime,
+    }));
+    userForm.setValue("availabilities", newAvailabilities);
   }, [availabilities, userForm]);
+
+  // This function is called when the user clicks on the cancel button ("Annuler")
+  const handleCancel = () => {
+    setIsEditing(false);
+    setAvailabilities(user?.availabilities || []);
+  };
+
+  if (!user) return null;
 
   return (
     <div className="basis-1/2 p-4 flex flex-col gap-y-2">
@@ -61,7 +73,7 @@ export default function UserAvailabilities({
 
       <div className="divide-y">
         {DAYS.map((day) => {
-          const availabilitiesForDay = availabilities.filter(
+          const availabilitiesForDay = availabilities?.filter(
             (availability) => availability.day === day.id
           );
           return (
@@ -118,7 +130,7 @@ export default function UserAvailabilities({
         <div className="flex flex-basis grow">
           <Button
             type="button"
-            onClick={() => setIsEditing(false)}
+            onClick={handleCancel}
             variant="secondary"
             className="basis-1/2"
           >
