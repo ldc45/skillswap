@@ -14,6 +14,7 @@ import { JwtPayload } from '../auth/types/jwt-payload';
 import { RequestCookies } from '../auth/types/request-cookies';
 import { UserResponseDto } from './dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { UserWithRelations } from './type/user-with-relations';
 
 @Injectable()
 export class UserService {
@@ -43,14 +44,7 @@ export class UserService {
       include: {
         skills: {
           select: {
-            skill: {
-              select: {
-                id: true,
-                name: true,
-                diminutive: true,
-                categoryId: true,
-              },
-            },
+            skill: true,
           },
         },
         availabilities: {
@@ -65,7 +59,7 @@ export class UserService {
     });
 
     if (randomNum > 0) {
-      const randomUsers: Omit<User, 'password'>[] = [];
+      const randomUsers: UserWithRelations[] = [];
       for (let i = 0; i < randomNum; i++) {
         if (users.length <= 0) {
           break;
