@@ -18,6 +18,7 @@ import type {
   CreateUserDto,
   UpdateUserDto,
   User,
+  UserResponseDto,
 } from '../models/index';
 import {
     CreateUserDtoFromJSON,
@@ -26,6 +27,8 @@ import {
     UpdateUserDtoToJSON,
     UserFromJSON,
     UserToJSON,
+    UserResponseDtoFromJSON,
+    UserResponseDtoToJSON,
 } from '../models/index';
 
 export interface UserControllerCreateRequest {
@@ -93,7 +96,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Get all users
      */
-    async userControllerFindAllRaw(requestParameters: UserControllerFindAllRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<User>>> {
+    async userControllerFindAllRaw(requestParameters: UserControllerFindAllRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<UserResponseDto>>> {
         const queryParameters: any = {};
 
         if (requestParameters['random'] != null) {
@@ -109,13 +112,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(UserFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(UserResponseDtoFromJSON));
     }
 
     /**
      * Get all users
      */
-    async userControllerFindAll(requestParameters: UserControllerFindAllRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<User>> {
+    async userControllerFindAll(requestParameters: UserControllerFindAllRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<UserResponseDto>> {
         const response = await this.userControllerFindAllRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -123,7 +126,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Get current user information
      */
-    async userControllerFindMeRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<User>> {
+    async userControllerFindMeRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserResponseDto>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -135,13 +138,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserResponseDtoFromJSON(jsonValue));
     }
 
     /**
      * Get current user information
      */
-    async userControllerFindMe(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<User> {
+    async userControllerFindMe(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserResponseDto> {
         const response = await this.userControllerFindMeRaw(initOverrides);
         return await response.value();
     }
@@ -149,7 +152,7 @@ export class UsersApi extends runtime.BaseAPI {
     /**
      * Get a user by ID
      */
-    async userControllerFindOneRaw(requestParameters: UserControllerFindOneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<User>> {
+    async userControllerFindOneRaw(requestParameters: UserControllerFindOneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserResponseDto>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -168,13 +171,13 @@ export class UsersApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserResponseDtoFromJSON(jsonValue));
     }
 
     /**
      * Get a user by ID
      */
-    async userControllerFindOne(requestParameters: UserControllerFindOneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<User> {
+    async userControllerFindOne(requestParameters: UserControllerFindOneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserResponseDto> {
         const response = await this.userControllerFindOneRaw(requestParameters, initOverrides);
         return await response.value();
     }

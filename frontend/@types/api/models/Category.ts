@@ -33,10 +33,10 @@ export interface Category {
     name: string;
     /**
      * The color of the category in hex code
-     * @type {object}
+     * @type {string}
      * @memberof Category
      */
-    color: object;
+    color: string;
     /**
      * Date when the category was created
      * @type {Date}

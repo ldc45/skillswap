@@ -27,10 +27,10 @@ export interface UpdateSkillDto {
     name?: string;
     /**
      * Diminutive of the skill
-     * @type {object}
+     * @type {string}
      * @memberof UpdateSkillDto
      */
-    diminutive?: object;
+    diminutive?: string;
     /**
      * Unique identifier for the category
      * @type {string}

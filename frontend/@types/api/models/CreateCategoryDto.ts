@@ -27,10 +27,10 @@ export interface CreateCategoryDto {
     name: string;
     /**
      * The color of the category in hex code
-     * @type {object}
+     * @type {string}
      * @memberof CreateCategoryDto
      */
-    color: object;
+    color: string;
 }
 
 /**

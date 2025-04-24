@@ -15,16 +15,22 @@
 
 import * as runtime from '../runtime';
 import type {
-  CreateUserSkillDto,
+  CreateMultipleUserSkillsDto,
+  UserSkillControllerCreateMultiple200Response,
+  UserSkillControllerCreateMultiple201Response,
 } from '../models/index';
 import {
-    CreateUserSkillDtoFromJSON,
-    CreateUserSkillDtoToJSON,
+    CreateMultipleUserSkillsDtoFromJSON,
+    CreateMultipleUserSkillsDtoToJSON,
+    UserSkillControllerCreateMultiple200ResponseFromJSON,
+    UserSkillControllerCreateMultiple200ResponseToJSON,
+    UserSkillControllerCreateMultiple201ResponseFromJSON,
+    UserSkillControllerCreateMultiple201ResponseToJSON,
 } from '../models/index';
 
-export interface UserSkillControllerCreateRequest {
+export interface UserSkillControllerCreateMultipleRequest {
     userId: string;
-    createUserSkillDto: CreateUserSkillDto;
+    createMultipleUserSkillsDto: CreateMultipleUserSkillsDto;
 }
 
 export interface UserSkillControllerFindAllRequest {
@@ -46,20 +52,20 @@ export interface UserSkillControllerRemoveRequest {
 export class UsersSkillsApi extends runtime.BaseAPI {
 
     /**
-     * Add a skill to a user
+     * Add multiple skills to a user
      */
-    async userSkillControllerCreateRaw(requestParameters: UserSkillControllerCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async userSkillControllerCreateMultipleRaw(requestParameters: UserSkillControllerCreateMultipleRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserSkillControllerCreateMultiple200Response>> {
         if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
                 'userId',
-                'Required parameter "userId" was null or undefined when calling userSkillControllerCreate().'
+                'Required parameter "userId" was null or undefined when calling userSkillControllerCreateMultiple().'
             );
         }
 
-        if (requestParameters['createUserSkillDto'] == null) {
+        if (requestParameters['createMultipleUserSkillsDto'] == null) {
             throw new runtime.RequiredError(
-                'createUserSkillDto',
-                'Required parameter "createUserSkillDto" was null or undefined when calling userSkillControllerCreate().'
+                'createMultipleUserSkillsDto',
+                'Required parameter "createMultipleUserSkillsDto" was null or undefined when calling userSkillControllerCreateMultiple().'
             );
         }
 
@@ -74,17 +80,18 @@ export class UsersSkillsApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateUserSkillDtoToJSON(requestParameters['createUserSkillDto']),
+            body: CreateMultipleUserSkillsDtoToJSON(requestParameters['createMultipleUserSkillsDto']),
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserSkillControllerCreateMultiple200ResponseFromJSON(jsonValue));
     }
 
     /**
-     * Add a skill to a user
+     * Add multiple skills to a user
      */
-    async userSkillControllerCreate(requestParameters: UserSkillControllerCreateRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.userSkillControllerCreateRaw(requestParameters, initOverrides);
+    async userSkillControllerCreateMultiple(requestParameters: UserSkillControllerCreateMultipleRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserSkillControllerCreateMultiple200Response> {
+        const response = await this.userSkillControllerCreateMultipleRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

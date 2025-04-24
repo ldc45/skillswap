@@ -27,10 +27,10 @@ export interface UpdateCategoryDto {
     name?: string;
     /**
      * The color of the category in hex code
-     * @type {object}
+     * @type {string}
      * @memberof UpdateCategoryDto
      */
-    color?: object;
+    color?: string;
 }
 
 /**
