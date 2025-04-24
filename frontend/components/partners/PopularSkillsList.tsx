@@ -1,4 +1,3 @@
-// PopularSkillsList.tsx
 // Render a list of clickable skill badges for filtering
 import React from "react"
 import { Badge } from "@/components/ui/badge"

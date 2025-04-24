@@ -1,69 +1,41 @@
 "use client";
 
-import { Skill, User } from "@/@types/api";
+import { Skill } from "@/@types/api";
 import SkillSearchBar from "@/components/partners/SkillSearchBar";
 import PopularSkillsList from "@/components/partners/PopularSkillsList";
 import MembersListWithPagination from "@/components/partners/MembersListWithPagination";
-import { apiService } from "@/lib/services/apiService";
+import { useSkillStore } from "@/lib/stores/skillStore"
+import { useUserStore } from "@/lib/stores/userStore"
 import React, { useEffect, useState } from "react";
 
 export default function PartnersPage() {
-  const [members, setMembers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [allMembers, setAllMembers] = useState<User[] | null>(null); // Store all members for pagination
-  const [popularSkills, setPopularSkills] = useState<Skill[]>([]); // Store popular skills for display
+  const { users, isLoading: isUsersLoading, error: usersError, fetchUsers } = useUserStore()
+  const { skills, fetchSkills } = useSkillStore()
+  const [popularSkills, setPopularSkills] = useState<Skill[]>([])
   const pageSize = 20; // Set page size for pagination
-  // State for search bar
   const [searchValue, setSearchValue] = useState("")
-  // State for selected skill
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
-  // State for pagination
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
-    // Fetch random sample for immediate display
-    const fetchRandomMembers = async () => {
-      try {
-        const response: User[] = await apiService.get("/users?random=20");
-        if (!response) throw new Error("Error fetching members from API");
-        setMembers(response);
-      } catch (error) {
-        console.error(error);
-        setError("Une erreur est survenue lors de la récupération des membres.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    // Fetch all members for pagination in background
-    const fetchAllMembers = async () => {
-      try {
-        const response: User[] = await apiService.get("/users");
-        if (Array.isArray(response)) setAllMembers(response);
-      } catch (error) {
-        // Log error but do not block UI
-        console.error("Error fetching all members:", error);
-      }
-    };
-    const fetchSkills = async () => {
-      try {
-        const response: Skill[] = await apiService.get("/skills");
-        const popularSkills = response.length > 6
-          ? [...response].sort(() => 0.5 - Math.random()).slice(0, 6)
-          : response;
-        setPopularSkills(popularSkills);
-      } catch (error) {
-        // Log error but do not block UI
-        console.error("Error fetching skills:", error);
-      }
-    };
-    fetchRandomMembers();
-    fetchAllMembers();
-    fetchSkills();
-  }, []);
+    fetchSkills()
+  }, [fetchSkills])
 
-  // Filter logic for members
-  const membersToPaginate = allMembers || members
+  // Fetch 20 random users for immediate display and all users for pagination
+  useEffect(() => {
+    fetchUsers({ random: 20 })
+    fetchUsers({force: true })
+  }, [fetchUsers])
+
+  useEffect(() => {
+    if (skills.length > 6) {
+      setPopularSkills([...skills].sort(() => 0.5 - Math.random()).slice(0, 6))
+    } else {
+      setPopularSkills(skills)
+    }
+  }, [skills])
+
+  const membersToPaginate = users
   const filteredMembers = searchValue.trim().length > 0
     ? membersToPaginate.filter(user =>
         user.skills && user.skills.some(s =>
@@ -96,12 +68,12 @@ export default function PartnersPage() {
           onSelect={setSelectedSkill}
         />
       </div>
-      {!error ? (
+      {!usersError ? (
         <div className="flex flex-col gap-y-2 lg:gap-y-3">
           <h2 className="text-lg md:text-2xl lg:text-3xl">Nos membres</h2>
           <MembersListWithPagination
             members={paginatedMembers}
-            isLoading={isLoading}
+            isLoading={isUsersLoading}
             currentPage={currentPage}
             pageSize={pageSize}
             totalCount={filteredMembers.length}
@@ -111,7 +83,7 @@ export default function PartnersPage() {
       ) : (
         <div className="flex flex-col gap-y-2 lg:gap-y-3 justify-center items-center">
           <h2 className="text-lg md:text-2xl lg:text-3xl">Erreur !</h2>
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500">{usersError}</p>
         </div>
       )}
     </main>

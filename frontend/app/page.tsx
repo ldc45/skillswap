@@ -2,82 +2,89 @@
 
 import { useEffect, useState } from "react";
 
-import { Skill, User } from "@/@types/api";
-import { apiService } from "@/lib/services/apiService";
-import { Badge } from "@/components/ui/badge";
+import { Skill } from "@/@types/api";
 import { useAuthStore } from "@/lib/stores/authStore";
 import SkillSearchBar from "@/components/partners/SkillSearchBar";
 import PopularSkillsList from "@/components/partners/PopularSkillsList";
 import MembersListWithPagination from "@/components/partners/MembersListWithPagination";
 import MemberCard from "@/components/memberCard/MemberCard";
+import { useSkillStore } from "@/lib/stores/skillStore"
+import { useUserStore } from "@/lib/stores/userStore"
 
 export default function Home() {
-  const [members, setMembers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuthStore();
+  const { users, isLoading: isUsersLoading, error: usersError, fetchUsers } = useUserStore()
+  const { skills, fetchSkills } = useSkillStore()
+  
   const [popularSkills, setPopularSkills] = useState<Skill[]>([])
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
   const [searchValue, setSearchValue] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 20
 
-  // Get authentication state
-  const { isAuthenticated } = useAuthStore();
 
-  // Fetch 4 random users from the API
+  // Track previous authentication state to determine if user just logged in
+  const [wasAuthenticated, setWasAuthenticated] = useState(isAuthenticated)
+
+  // Add showAllUsers state for search and filter
+  const [showAllUsers, setShowAllUsers] = useState(false)
+
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const endpoint = isAuthenticated ? "/users" : "/users?random=4"
-        const response: User[] = await apiService.get(endpoint);
-
-        if (!response) {
-          throw new Error("Error fetching members from API");
-        }
-
-        setMembers(response);
-      } catch (error) {
-        console.error(error);
-        setError(
-          "Une erreur est survenue lors de la récupération des membres."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMembers();
-  }, [isAuthenticated]);
-
-  // Fetch skills for both connected and non-connected users
-  useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        const response = await apiService.get("/skills") as Skill[]
-        const popSkills = response.length > 6 ? [...response].sort(() => 0.5 - Math.random()).slice(0, 6) : response
-        setPopularSkills(popSkills)
-      } catch (error) {
-        // Log error but do not block UI
-        console.error("Error fetching skills:", error)
-      }
+    // If just logged in, force refetch all users
+    if (isAuthenticated && !wasAuthenticated) {
+      fetchUsers({ force: true })
+    } else if (!isAuthenticated) {
+      fetchUsers({ random: 4 })
     }
-    fetchSkills()
-  }, [])
+    setWasAuthenticated(isAuthenticated)
+  }, [isAuthenticated, fetchUsers, wasAuthenticated])
 
-  // Connected: filter and paginate members
-  const membersToPaginate = members
-  const filteredMembers = searchValue.trim().length > 0
-    ? membersToPaginate.filter(user =>
-        user.skills && user.skills.some(s =>
-          s.skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          (s.skill.diminutive && s.skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
+  useEffect(() => {
+    fetchSkills()
+  }, [fetchSkills])
+
+  useEffect(() => {
+    if (skills.length > 0) {
+      const popSkills = skills.length > 6 ? [...skills].sort(() => 0.5 - Math.random()).slice(0, 6) : skills
+      setPopularSkills(popSkills)
+    }
+  }, [skills])
+
+  // Watch for search or badge filter to trigger full user fetch
+  useEffect(() => {
+    const hasSearch = searchValue.trim().length > 0
+    const hasBadge = !!selectedSkill
+    if ((hasSearch || hasBadge) && !showAllUsers) {
+      setShowAllUsers(true)
+      fetchUsers({ force: true })
+    }
+    if (!hasSearch && !hasBadge && showAllUsers) {
+      setShowAllUsers(false)
+      fetchUsers({ random: 4 })
+    }
+  }, [searchValue, selectedSkill, showAllUsers, fetchUsers])
+
+  // On mount or auth change, always fetch 4 random users by default
+  useEffect(() => {
+    if (!showAllUsers) {
+      fetchUsers({ random: 4 })
+    }
+  }, [isAuthenticated, fetchUsers, showAllUsers])
+
+  const usersToDisplay = showAllUsers ? users : users.slice(0, 4)
+  const filteredMembers = searchValue.trim().length > 0 || selectedSkill
+    ? usersToDisplay.filter(user =>
+        user.skills && (
+          (searchValue.trim().length > 0 && (
+            user.skills.some(s =>
+              s.skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+              (s.skill.diminutive && s.skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
+            )
+          )) ||
+          (selectedSkill && user.skills.some(s => s.skill.id === selectedSkill.id))
         )
       )
-    : selectedSkill
-      ? membersToPaginate.filter(user =>
-          user.skills && user.skills.some(s => s.skill.id === selectedSkill.id)
-        )
-      : membersToPaginate
+    : usersToDisplay
   const paginatedMembers = filteredMembers.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   return (
@@ -87,44 +94,27 @@ export default function Home() {
           <h2 className="text-lg md:text-2xl lg:text-3xl">Echangez vos compétences</h2>
           <h3 className="text-sm md:text-lg lg:text-xl">Rejoignez notre communauté et partagez vos connaissances</h3>
         </div>
-        {/* Show search bar only if user is authenticated */}
-        {isAuthenticated && (
           <SkillSearchBar
             value={searchValue}
             onChange={setSearchValue}
             className="max-w-120 md:min-h-10"
           />
-        )}
       </div>
       <div className="flex flex-col gap-y-2 lg:gap-y-3">
         <h2 className="text-lg md:text-2xl lg:text-3xl">Compétences populaires</h2>
-        {isAuthenticated ? (
           <PopularSkillsList
             skills={popularSkills}
             selectedSkill={selectedSkill}
             onSelect={setSelectedSkill as (skill: Skill | null) => void}
           />
-        ) : (
-          <div className="flex-wrap flex gap-y-1 gap-x-2">
-            {popularSkills.map((skill) => (
-              <Badge
-                key={skill.id}
-                variant="badge"
-                className="md:text-base px-4 lg:text-lg"
-              >
-                {typeof skill.diminutive === "string" && skill.diminutive ? skill.diminutive : skill.name || ""}
-              </Badge>
-            ))}
-          </div>
-        )}
       </div>
-      {!error ? (
+      {!usersError ? (
         <div className="flex flex-col gap-y-2 lg:gap-y-3">
           <h2 className="text-lg md:text-2xl lg:text-3xl">Nos membres</h2>
           {isAuthenticated ? (
             <MembersListWithPagination
               members={paginatedMembers}
-              isLoading={isLoading}
+              isLoading={isUsersLoading}
               currentPage={currentPage}
               pageSize={pageSize}
               totalCount={filteredMembers.length}
@@ -132,8 +122,8 @@ export default function Home() {
             />
           ) : (
             <div className="grid gap-2 md:gap-3 xl:gap-4 md:grid-cols-2">
-              {members.map((user) => (
-                <MemberCard key={user.id} user={user} isLoading={isLoading} />
+              {paginatedMembers.map((user) => (
+                <MemberCard key={user.id} user={user} isLoading={isUsersLoading} />
               ))}
             </div>
           )}
@@ -141,7 +131,7 @@ export default function Home() {
       ) : (
         <div className="flex flex-col gap-y-2 lg:gap-y-3 justify-center items-center">
           <h2 className="text-lg md:text-2xl lg:text-3xl">Erreur !</h2>
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500">{usersError}</p>
         </div>
       )}
     </main>

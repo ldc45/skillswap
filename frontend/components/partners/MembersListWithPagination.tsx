@@ -1,4 +1,3 @@
-// MembersListWithPagination.tsx
 // Render a paginated list of members with navigation controls
 import React from "react"
 import MemberCard from "@/components/memberCard/MemberCard"

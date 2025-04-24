@@ -1,4 +1,3 @@
-// SkillSearchBar.tsx
 // Render a search input for filtering skills or members
 import React from "react"
 import { Input } from "@/components/ui/input"
