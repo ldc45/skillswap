@@ -16,7 +16,7 @@ import {
   ApiCookieAuth,
 } from '@nestjs/swagger';
 import { UserSkillService } from './user-skill.service';
-import { CreateUserSkillDto } from './dto/create-user-skill.dto';
+import { CreateMultipleUserSkillsDto } from './dto/create-multiple-user-skills.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
 @ApiTags('users-skills')
@@ -26,19 +26,50 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 export class UserSkillController {
   constructor(private readonly userSkillService: UserSkillService) {}
 
-  @ApiOperation({ summary: 'Add a skill to a user' })
+  @ApiOperation({ summary: 'Add multiple skills to a user' })
   @ApiParam({ name: 'userId', description: 'User ID' })
-  @ApiBody({ type: CreateUserSkillDto })
-  @ApiResponse({ status: 201, description: 'Skill successfully added to user' })
-  @ApiResponse({ status: 404, description: 'User or skill not found' })
-  @ApiResponse({ status: 400, description: 'User already has this skill' })
+  @ApiBody({ type: CreateMultipleUserSkillsDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Skills successfully added to user',
+    schema: {
+      type: 'object',
+      properties: {
+        count: {
+          type: 'number',
+          description: 'Number of skills added',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'No new skills were added (user already has all skills)',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'User already has all the valid skills',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found or none of the provided skills were found',
+  })
   @Post(':userId/skills')
-  create(
+  createMultiple(
     @Param('userId') userId: string,
-    @Body() createUserSkillDto: CreateUserSkillDto,
+    @Body() createMultipleUserSkillsDto: CreateMultipleUserSkillsDto,
   ) {
-    return this.userSkillService.addSkillToUser(userId, createUserSkillDto);
+    return this.userSkillService.addMultipleSkillsToUser(
+      userId,
+      createMultipleUserSkillsDto,
+    );
   }
+
   // TODO: To be removed if not used
   @ApiOperation({ summary: 'Get all skills of a user' })
   @ApiParam({ name: 'userId', description: 'User ID' })
