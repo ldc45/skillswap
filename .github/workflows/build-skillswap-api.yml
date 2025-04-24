@@ -7,7 +7,7 @@ on:
   
   # Trigger after successful merge from develop to main
   repository_dispatch:
-    types: [build-api-trigger]
+    types: [ build-api-trigger ]
 
 jobs:
   build:
@@ -46,7 +46,7 @@ jobs:
           # Tag the image as 'latest'
           tags: ldc45/skillswap-api:latest
   
-  # Job séparé qui déclenche le workflow de déploiement après un build réussi
+  # Separate job that triggers the deployment workflow after a successful build
   trigger-deploy-workflow:
     needs: build
     runs-on: ubuntu-latest

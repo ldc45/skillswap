@@ -3,11 +3,11 @@ name: Deploy SkillSwap API to Koyeb 🚀
 # This workflow is triggered when the build workflow completes successfully
 on:
   
-  # Déclenchement direct depuis le workflow de build
+  # Direct trigger from build workflow
   repository_dispatch:
-    types: [deploy-api-trigger]
+    types: [ deploy-api-trigger ]
   
-  # Déclenchement manuel pour tests
+  # Manual trigger for testing
   workflow_dispatch:
 
 jobs:
@@ -30,10 +30,10 @@ jobs:
           
           export PATH=$HOME/.koyeb/bin:$PATH
           
-          # Vérification de l'installation
-          echo "Version de Koyeb CLI:"
+          # Check installation
+          echo "Koyeb CLI version:"
           koyeb --version
           
-          # Déploiement du service
-          echo "Déploiement de l'API sur Koyeb..."
+          # Deploy service
+          echo "Deploying API to Koyeb..."
           koyeb service redeploy coloured-reina/skillswap-api
