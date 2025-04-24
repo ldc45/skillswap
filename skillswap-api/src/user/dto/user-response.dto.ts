@@ -64,6 +64,7 @@ export class UserResponseDto {
     example: 'I am a web developer passionate about new technologies.',
     description: 'User biography',
     required: false,
+    type: String,
   })
   @Expose()
   @IsOptional()
@@ -74,6 +75,7 @@ export class UserResponseDto {
     example: 'https://example.com/avatar.jpg',
     description: 'User avatar URL',
     required: false,
+    type: String,
   })
   @Expose()
   @IsOptional()
