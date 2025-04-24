@@ -37,7 +37,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  writeFileSync('/swagger/swagger.json', JSON.stringify(document, null, 2));
+  if (process.env.NODE_ENV !== 'production') {
+    writeFileSync('/swagger/swagger.json', JSON.stringify(document, null, 2));
+  }
 
   // Determine allowed origins
   let allowedOrigins: string[] = [];
