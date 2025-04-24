@@ -7,9 +7,14 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AvailabilityService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createAvailabilityDto: CreateAvailabilityDto) {
-    return this.prisma.availability.create({
-      data: createAvailabilityDto,
+  async create(createAvailabilityDto: CreateAvailabilityDto[]) {
+    const newAvailabilities = createAvailabilityDto.map((availability) => ({
+      ...availability,
+      startTime: new Date(availability.startTime),
+      endTime: new Date(availability.endTime),
+    }));
+    return this.prisma.availability.createManyAndReturn({
+      data: newAvailabilities,
     });
   }
 
