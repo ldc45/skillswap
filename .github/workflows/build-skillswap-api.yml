@@ -1,9 +1,13 @@
 name: Build SkillSwap API Docker Image 🐳
 
-# This workflow is triggered when changes are pushed to the main branch
-# and specifically when files in the skillswap-api directory are modified
+# This workflow is triggered manually or after a successful merge
 on:
+  # Manual trigger
   workflow_dispatch:
+  
+  # Trigger after successful merge from develop to main
+  repository_dispatch:
+    types: [build-api-trigger]
 
 jobs:
   build:
