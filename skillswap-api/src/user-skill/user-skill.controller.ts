@@ -18,6 +18,7 @@ import {
 import { UserSkillService } from './user-skill.service';
 import { CreateMultipleUserSkillsDto } from './dto/create-multiple-user-skills.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { UserSkillResponseDto } from './dto/user-skill-response.dto';
 
 @ApiTags('users-skills')
 @ApiCookieAuth('access_token')
@@ -63,7 +64,7 @@ export class UserSkillController {
   createMultiple(
     @Param('userId') userId: string,
     @Body() createMultipleUserSkillsDto: CreateMultipleUserSkillsDto,
-  ) {
+  ): Promise<UserSkillResponseDto[] | { message: string }> {
     return this.userSkillService.addMultipleSkillsToUser(
       userId,
       createMultipleUserSkillsDto,

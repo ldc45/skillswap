@@ -60,7 +60,7 @@ export class UserSkillService {
     }
 
     // Create new UserSkill relationships in a single operation
-    const createdUserSkills = await this.prisma.userSkill.createMany({
+    const createdUserSkills = await this.prisma.userSkill.createManyAndReturn({
       data: newSkillIds.map((skillId) => ({
         userId,
         skillId,
