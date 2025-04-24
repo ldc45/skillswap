@@ -2,17 +2,17 @@ name: Deploy SkillSwap API to Koyeb 🚀
 
 # This workflow is triggered when the build workflow completes successfully
 on:
-  workflow_run:
-    workflows: ["Build SkillSwap API Docker Image 🐳"]
-    types:
-      - completed
+  
+  # Direct trigger from build workflow
+  repository_dispatch:
+    types: [ deploy-api-trigger ]
+  
+  # Manual trigger for testing
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Only run this job if the build workflow succeeded or if manually triggered
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
     steps:
       # Combined step to install Koyeb CLI and deploy in a single shell context
       # This ensures the PATH variable is properly set when running the koyeb command
@@ -30,4 +30,10 @@ jobs:
           
           export PATH=$HOME/.koyeb/bin:$PATH
           
+          # Check installation
+          echo "Koyeb CLI version:"
+          koyeb --version
+          
+          # Deploy service
+          echo "Deploying API to Koyeb..."
           koyeb service redeploy coloured-reina/skillswap-api

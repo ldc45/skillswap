@@ -1,47 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
 export class UserSkillResponseDto {
   @ApiProperty({
-    description: 'ID of the user',
-    example: '12345678-1234-1234-1234-123456789012',
+    example: 'aaa11bbb-2222-cccc-3333-ddddd4444eee',
+    description: 'Unique identifier for the user',
   })
+  @Expose()
   userId: string;
 
   @ApiProperty({
-    description: 'ID of the skill',
-    example: '12345678-1234-1234-1234-123456789012',
+    example: 'aaa11bbb-2222-cccc-3333-ddddd4444eee',
+    description: 'Unique identifier for the skill',
   })
+  @Expose()
   skillId: string;
-
-  @ApiProperty({
-    description: 'Name of the skill',
-    example: 'JavaScript',
-  })
-  skillName: string;
-
-  @ApiProperty({
-    description: 'Diminutive of the skill',
-    example: 'JS',
-    required: false,
-  })
-  skillDiminutive?: string;
-
-  @ApiProperty({
-    description: 'ID of the category',
-    example: '12345678-1234-1234-1234-123456789012',
-  })
-  categoryId: string;
-
-  @ApiProperty({
-    description: 'Name of the category',
-    example: 'Programming',
-  })
-  categoryName: string;
-
-  @ApiProperty({
-    description: 'Color of the category',
-    example: '#FF5733',
-    required: false,
-  })
-  categoryColor?: string;
 }

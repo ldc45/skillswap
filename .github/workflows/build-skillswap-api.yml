@@ -7,7 +7,7 @@ on:
   
   # Trigger after successful merge from develop to main
   repository_dispatch:
-    types: [build-api-trigger]
+    types: [ build-api-trigger ]
 
 jobs:
   build:
@@ -32,6 +32,7 @@ jobs:
 
       # Build the Docker image and push it to Docker Hub
       - name: Build and push Docker image
+        id: docker_build
         uses: docker/build-push-action@v4
         with:
           # Set the build context to the skillswap-api directory
@@ -44,3 +45,14 @@ jobs:
           push: true
           # Tag the image as 'latest'
           tags: ldc45/skillswap-api:latest
+  
+  # Separate job that triggers the deployment workflow after a successful build
+  trigger-deploy-workflow:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deploy API Workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: deploy-api-trigger
