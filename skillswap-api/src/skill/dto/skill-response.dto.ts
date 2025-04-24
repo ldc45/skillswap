@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import {Exclude, Expose} from 'class-transformer';
 import { IsString, IsOptional, IsUUID } from 'class-validator';
 
 export class SkillResponseDto {
@@ -35,4 +35,10 @@ export class SkillResponseDto {
   @Expose()
   @IsUUID()
   categoryId: string;
+
+  @Exclude()
+  createdAt: Date;
+
+  @Exclude()
+  updatedAt: Date;
 }
