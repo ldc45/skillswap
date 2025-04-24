@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { UseFormReturn } from "react-hook-form";
 import { Pencil } from "lucide-react";
 
+import { useAuthStore } from "@/lib/stores/authStore";
 import { getFormattedDate } from "@/utils/format";
 import { DAYS } from "@/constants";
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,13 @@ import EditAvailability from "@/components/editAvailability/EditAvailability";
 interface UserAvailabilitiesProps {
   isEditing: boolean;
   setIsEditing: (isEditing: boolean) => void;
+  userForm: UseFormReturn<{
+    firstName: string;
+    lastName: string;
+    skills: string[];
+    biography: string;
+    availabilities: string[];
+  }>;
 }
 
 type Availability = {
@@ -20,52 +29,29 @@ type Availability = {
   startTime: Date;
   endTime: Date;
 };
-// TODO: Get the availabilities from the user
-const fakeAvailabilities = [
-  {
-    id: "1",
-    day: 2,
-    startTime: new Date("1970-01-01T14:00:00.000Z"),
-    endTime: new Date("1970-01-01T19:00:00.000Z"),
-  },
-  {
-    id: "2",
-    day: 0,
-    startTime: new Date("2025-04-20T10:00:00.000Z"),
-    endTime: new Date("2025-04-20T12:00:00.000Z"),
-  },
-  {
-    id: "3",
-    day: 0,
-    startTime: new Date("2025-04-20T12:00:00.000Z"),
-    endTime: new Date("2025-04-20T16:00:00.000Z"),
-  },
-  {
-    id: "4",
-    day: 4,
-    startTime: new Date("2025-04-24T15:00:00.000Z"),
-    endTime: new Date("2025-04-24T19:00:00.000Z"),
-  },
-  {
-    id: "5",
-    day: 6,
-    startTime: new Date("2025-04-26T14:00:00.000Z"),
-    endTime: new Date("2025-04-26T19:00:00.000Z"),
-  },
-  {
-    id: "6",
-    day: 4,
-    startTime: new Date("2025-04-24T12:00:00.000Z"),
-    endTime: new Date("2025-04-24T16:00:00.000Z"),
-  },
-];
 
 export default function UserAvailabilities({
   isEditing,
   setIsEditing,
+  userForm,
 }: UserAvailabilitiesProps) {
-  const [availabilities, setAvailabilities] =
-    useState<Availability[]>(fakeAvailabilities);
+  const { user } = useAuthStore();
+
+  const [availabilities, setAvailabilities] = useState<Availability[]>(
+    user?.availabilities || []
+  );
+
+  // This boolean is used to disable the submit button depending on the form state
+  const isSubmitDisabled =
+    !userForm.formState.isValid || userForm.formState.isSubmitting;
+
+  // Every time the availabilities change, we update the form values
+  useEffect(() => {
+    const availabilityIds = availabilities.map(
+      (availability) => availability.id
+    );
+    userForm.setValue("availabilities", availabilityIds);
+  }, [availabilities, userForm]);
 
   return (
     <div className="basis-1/2 p-4 flex flex-col gap-y-2">
@@ -138,7 +124,13 @@ export default function UserAvailabilities({
           >
             Annuler
           </Button>
-          <Button type="submit" className="basis-1/2">
+          <Button
+            type="submit"
+            disabled={isSubmitDisabled}
+            className={`${
+              isSubmitDisabled ? "cursor-not-allowed" : ""
+            } basis-1/2`}
+          >
             Enregistrer
           </Button>
         </div>
