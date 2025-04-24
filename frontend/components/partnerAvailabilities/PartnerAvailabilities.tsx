@@ -1,6 +1,5 @@
 import { getFormattedDate } from "@/utils/format";
 import { DAYS } from "@/constants";
-import { Button } from "@/components/ui/button";
 
 export default function PartnerAvailabilities() {
   // TODO: Get the availabilities from the partner
@@ -73,15 +72,6 @@ export default function PartnerAvailabilities() {
           );
         })}
       </div>
-
-      <Button
-        type="button"
-        // TODO: Add the function to contact the partner
-        onClick={() => {}}
-        className="w-fit lg:self-end self-center md:text-lg"
-      >
-        Contacter
-      </Button>
     </div>
   );
 }
