@@ -9,13 +9,13 @@ on:
   workflow_dispatch:
     inputs:
       confirm_merge:
-        description: 'Confirm merge from develop to main'
+        description: 'Confirmer le merge de développe vers main'
         required: true
-        default: 'yes'
+        default: 'oui'
         type: choice
         options:
-          - 'yes'
-          - 'no'
+          - 'oui'
+          - 'non'
 
 # Allow workflow to modify repository content
 permissions:
@@ -28,7 +28,7 @@ jobs:
       merge_status: ${{ steps.merge_status.outputs.status }}
     
     # Add condition for manual triggering
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.confirm_merge == 'yes' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.confirm_merge == 'oui' }}
     
     steps:
       - name: Checkout code
@@ -50,7 +50,7 @@ jobs:
           git fetch origin développe
           DIFF_COUNT=$(git rev-list --count HEAD..origin/développe)
           echo "diff_count=$DIFF_COUNT" >> $GITHUB_OUTPUT
-          echo "Number of commits to merge: $DIFF_COUNT"
+          echo "Nombre de commits à merger: $DIFF_COUNT"
 
       - name: Merge develop into main
         id: merge
@@ -58,7 +58,7 @@ jobs:
         run: |
           git merge --no-ff origin/développe -m "Merge développe into main via GitHub Actions"
           git push origin main
-          echo "Merge successful!"
+          echo "Merge réussi!"
         continue-on-error: true
 
       - name: Check merge status
@@ -66,10 +66,10 @@ jobs:
         run: |
           if [ "${{ steps.merge.outcome }}" == "success" ]; then
             echo "status=success" >> $GITHUB_OUTPUT
-            echo "✅ Develop branch was successfully merged into main"
+            echo "✅ La branche développe a été mergée avec succès dans main"
           else
             echo "status=failure" >> $GITHUB_OUTPUT
-            echo "❌ Merge failed. Please check conflicts manually."
+            echo "❌ Échec du merge. Veuillez vérifier les conflits manuellement."
           fi
 
   # Job that triggers the build workflow only after a successful merge

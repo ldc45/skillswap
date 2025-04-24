@@ -7,7 +7,7 @@ on:
   
   # Trigger after successful merge from develop to main
   repository_dispatch:
-    types: [ build-api-trigger ]
+    types: [build-api-trigger]
 
 jobs:
   build:
