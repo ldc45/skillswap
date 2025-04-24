@@ -12,15 +12,16 @@ models/AuthControllerLogout200Response.ts
 models/AuthControllerRefresh200Response.ts
 models/AuthResponseDto.ts
 models/Availability.ts
+models/AvailabilityResponseDto.ts
 models/Category.ts
 models/Conversation.ts
 models/CreateAvailabilityDto.ts
 models/CreateCategoryDto.ts
 models/CreateConversationDto.ts
 models/CreateMessageDto.ts
+models/CreateMultipleUserSkillsDto.ts
 models/CreateSkillDto.ts
 models/CreateUserDto.ts
-models/CreateUserSkillDto.ts
 models/SignInDto.ts
 models/Skill.ts
 models/UpdateAvailabilityDto.ts
@@ -29,5 +30,8 @@ models/UpdateConversationDto.ts
 models/UpdateSkillDto.ts
 models/UpdateUserDto.ts
 models/User.ts
+models/UserResponseDto.ts
+models/UserSkillControllerCreateMultiple200Response.ts
+models/UserSkillControllerCreateMultiple201Response.ts
 models/index.ts
 runtime.ts
