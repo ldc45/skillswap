@@ -1,61 +1,64 @@
 "use client";
 
-import { useAuthStore } from "@/lib/stores/authStore";
-import { Avatar, AvatarImage } from "../ui/avatar";
-import { Badge } from "../ui/badge";
 import { UseFormReturn } from "react-hook-form";
+
+import { useAuthStore } from "@/lib/stores/authStore";
+import { useSkillStore } from "@/lib/stores/skillStore";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { UpdateUserDto } from "@/@types/api";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Textarea } from "@/components/ui/textarea";
+
+type Options = {
+  value: string;
+  label: string;
+};
 
 interface UserProfileProps {
   isEditing: boolean;
-  userDefaultValues: UpdateUserDto;
   userForm: UseFormReturn<{
     firstName: string;
     lastName: string;
+    skills: string[];
     biography: string;
+    availabilities: string[];
   }>;
 }
 
-export default function UserProfile({
-  userForm,
-  userDefaultValues,
-  isEditing,
-}: UserProfileProps) {
+export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
   const { user } = useAuthStore();
+  const { skills, fetchSkills } = useSkillStore();
 
-  const fakeSkills = [
-    {
-      id: 1,
-      label: "Développement web",
-      diminutive: "Dev. web",
-    },
-    {
-      id: 2,
-      label: "Design",
-      diminutive: "Design",
-    },
-    {
-      id: 3,
-      label: "Langues",
-      diminutive: "Langues",
-    },
-    {
-      id: 4,
-      label: "Marketing",
-      diminutive: "Marketing",
-    },
-  ];
+  // We need to fetch the skills in case they have not been fetched yet
+  if (skills.length === 0) {
+    fetchSkills();
+  }
 
   if (!user) return null;
+
+  // The default options are the skills of the user
+  const defaultOptions =
+    user.skills?.map((skill) => skill.diminutive || skill.name) || [];
+
+  // TODO: Remove the '.slice(0, 10)' which is only used for development
+  const skillOptions: Options[] = skills.slice(0, 10).map((skill) => ({
+    value: skill.id,
+    label: skill.diminutive || skill.name,
+  }));
+
+  // This function is called every time the options change
+  // It updates the form values with the selected options
+  const handleOptionsChange = (values: string[]) => {
+    userForm.setValue("skills", values);
+  };
 
   return (
     <div className="basis-1/2 p-4 flex flex-col gap-y-4 items-center">
@@ -108,15 +111,31 @@ export default function UserProfile({
       </div>
 
       <div className="flex flex-row md:gap-x-2 lg:gap-x-3 gap-x-1 wrap">
-        {fakeSkills.map((skill) => (
-          <Badge
-            variant="badge"
-            key={skill.id}
-            className="md:text-sm lg:text-base"
-          >
-            {skill.label.length > 8 ? skill.diminutive : skill.label}
-          </Badge>
-        ))}
+        {!isEditing ? (
+          user.skills && user.skills.length > 0 ? (
+            user.skills.map((skill) => (
+              <Badge
+                variant="badge"
+                key={skill.id}
+                className="md:text-sm lg:text-base md:px-2 lg:px-4"
+              >
+                {skill.diminutive || skill.name}
+              </Badge>
+            ))
+          ) : (
+            <p className="text-sm md:text-base">
+              Vous n&apos;avez pas encore de compétences
+            </p>
+          )
+        ) : (
+          <MultiSelect
+            options={skillOptions}
+            onValueChange={(e) => handleOptionsChange(e)}
+            defaultValue={defaultOptions}
+            placeholder="Sélectionnez vos compétences"
+            variant="inverted"
+          />
+        )}
       </div>
 
       <div className="flex w-full flex-col gap-y-1">
@@ -124,7 +143,7 @@ export default function UserProfile({
           Biographie
         </h4>
         {!isEditing ? (
-          <p className="text-sm md:text-base">{userDefaultValues.biography}</p>
+          <p className="text-sm md:text-base">{user.biography}</p>
         ) : (
           <FormField
             control={userForm.control}
@@ -132,10 +151,7 @@ export default function UserProfile({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Textarea
-                    placeholder={userDefaultValues.biography}
-                    {...field}
-                  />
+                  <Textarea placeholder={user.biography} {...field} />
                 </FormControl>
 
                 <FormMessage />
