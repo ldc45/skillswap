@@ -37,7 +37,6 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
         try {
           // Fetch connected user information
           const userResponse = await apiService.get<User>("/users/me");
-          console.log("userResponse", userResponse);
 
           // Update store with user data
           login({ user: userResponse });

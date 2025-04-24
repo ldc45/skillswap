@@ -2,108 +2,136 @@
 
 import { useEffect, useState } from "react";
 
-import { User } from "@/@types/api";
-import { apiService } from "@/lib/services/apiService";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Skill } from "@/@types/api";
+import { useAuthStore } from "@/lib/stores/authStore";
+import SkillSearchBar from "@/components/partners/SkillSearchBar";
+import PopularSkillsList from "@/components/partners/PopularSkillsList";
+import MembersListWithPagination from "@/components/partners/MembersListWithPagination";
 import MemberCard from "@/components/memberCard/MemberCard";
+import { useSkillStore } from "@/lib/stores/skillStore"
+import { useUserStore } from "@/lib/stores/userStore"
 
 export default function Home() {
-  const [members, setMembers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuthStore();
+  const { users, isLoading: isUsersLoading, error: usersError, fetchUsers } = useUserStore()
+  const { skills, fetchSkills } = useSkillStore()
+  
+  const [popularSkills, setPopularSkills] = useState<Skill[]>([])
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
+  const [searchValue, setSearchValue] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 20
 
-  // Fetch 4 random users from the API
+
+  // Track previous authentication state to determine if user just logged in
+  const [wasAuthenticated, setWasAuthenticated] = useState(isAuthenticated)
+
+  // Add showAllUsers state for search and filter
+  const [showAllUsers, setShowAllUsers] = useState(false)
+
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const response: User[] = await apiService.get("/users?random=4");
+    // If just logged in, force refetch all users
+    if (isAuthenticated && !wasAuthenticated) {
+      fetchUsers({ force: true })
+    } else if (!isAuthenticated) {
+      fetchUsers({ random: 4 })
+    }
+    setWasAuthenticated(isAuthenticated)
+  }, [isAuthenticated, fetchUsers, wasAuthenticated])
 
-        if (!response) {
-          throw new Error("Error fetching members from API");
-        }
+  useEffect(() => {
+    fetchSkills()
+  }, [fetchSkills])
 
-        setMembers(response);
-      } catch (error) {
-        console.error(error);
-        setError(
-          "Une erreur est survenue lors de la récupération des membres."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  useEffect(() => {
+    if (skills.length > 0) {
+      const popSkills = skills.length > 6 ? [...skills].sort(() => 0.5 - Math.random()).slice(0, 6) : skills
+      setPopularSkills(popSkills)
+    }
+  }, [skills])
 
-    fetchMembers();
-  }, []);
+  // Watch for search or badge filter to trigger full user fetch
+  useEffect(() => {
+    const hasSearch = searchValue.trim().length > 0
+    const hasBadge = !!selectedSkill
+    if ((hasSearch || hasBadge) && !showAllUsers) {
+      setShowAllUsers(true)
+      fetchUsers({ force: true })
+    }
+    if (!hasSearch && !hasBadge && showAllUsers) {
+      setShowAllUsers(false)
+      fetchUsers({ random: 4 })
+    }
+  }, [searchValue, selectedSkill, showAllUsers, fetchUsers])
 
-  const mainSkills = [
-    {
-      id: 1,
-      diminutive: "Dev. web",
-    },
-    {
-      id: 2,
-      diminutive: "Design",
-    },
-    {
-      id: 3,
-      diminutive: "Langues",
-    },
-    {
-      id: 4,
-      diminutive: "Marketing",
-    },
-  ];
+  // On mount or auth change, always fetch 4 random users by default
+  useEffect(() => {
+    if (!showAllUsers) {
+      fetchUsers({ random: 4 })
+    }
+  }, [isAuthenticated, fetchUsers, showAllUsers])
+
+  const usersToDisplay = showAllUsers ? users : users.slice(0, 4)
+  const filteredMembers = searchValue.trim().length > 0 || selectedSkill
+    ? usersToDisplay.filter(user =>
+        user.skills && (
+          (searchValue.trim().length > 0 && (
+            user.skills.some(s =>
+              s.skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+              (s.skill.diminutive && s.skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
+            )
+          )) ||
+          (selectedSkill && user.skills.some(s => s.skill.id === selectedSkill.id))
+        )
+      )
+    : usersToDisplay
+  const paginatedMembers = filteredMembers.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   return (
     <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-4 md:gap-y-6 lg:gap-y-8">
       <div className="flex-col gap-y-4 flex lg:min-h-[20vh] lg:flex-row-reverse lg:justify-between">
         <div className="flex flex-col gap-y-2 lg:gap-y-6">
-          <h2 className="text-lg md:text-2xl lg:text-3xl">
-            Echangez vos compétences
-          </h2>
-          <h3 className="text-sm md:text-lg lg:text-xl">
-            Rejoignez notre communauté et partagez vos connaissances
-          </h3>
+          <h2 className="text-lg md:text-2xl lg:text-3xl">Echangez vos compétences</h2>
+          <h3 className="text-sm md:text-lg lg:text-xl">Rejoignez notre communauté et partagez vos connaissances</h3>
         </div>
-
-        <Input
-          className="max-w-120 md:min-h-10"
-          placeholder="⌕ Rechercher une compétence..."
-        />
+          <SkillSearchBar
+            value={searchValue}
+            onChange={setSearchValue}
+            className="max-w-120 md:min-h-10"
+          />
       </div>
-
       <div className="flex flex-col gap-y-2 lg:gap-y-3">
-        <h2 className="text-lg md:text-2xl lg:text-3xl">
-          Compétences populaires
-        </h2>
-        <div className="flex-wrap flex gap-y-1 gap-x-2">
-          {mainSkills.map((skill) => (
-            <Badge
-              key={skill.id}
-              variant="badge"
-              className="md:text-base px-4 lg:text-lg"
-            >
-              {skill.diminutive}
-            </Badge>
-          ))}
-        </div>
+        <h2 className="text-lg md:text-2xl lg:text-3xl">Compétences populaires</h2>
+          <PopularSkillsList
+            skills={popularSkills}
+            selectedSkill={selectedSkill}
+            onSelect={setSelectedSkill as (skill: Skill | null) => void}
+          />
       </div>
-
-      {!error ? (
+      {!usersError ? (
         <div className="flex flex-col gap-y-2 lg:gap-y-3">
           <h2 className="text-lg md:text-2xl lg:text-3xl">Nos membres</h2>
-          <div className="grid gap-2 md:gap-3 xl:gap-4 md:grid-cols-2">
-            {members.map((user) => (
-              <MemberCard key={user.id} user={user} isLoading={isLoading} />
-            ))}
-          </div>
+          {isAuthenticated ? (
+            <MembersListWithPagination
+              members={paginatedMembers}
+              isLoading={isUsersLoading}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              totalCount={filteredMembers.length}
+              onPageChange={setCurrentPage}
+            />
+          ) : (
+            <div className="grid gap-2 md:gap-3 xl:gap-4 md:grid-cols-2">
+              {paginatedMembers.map((user) => (
+                <MemberCard key={user.id} user={user} isLoading={isUsersLoading} />
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-y-2 lg:gap-y-3 justify-center items-center">
           <h2 className="text-lg md:text-2xl lg:text-3xl">Erreur !</h2>
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500">{usersError}</p>
         </div>
       )}
     </main>
