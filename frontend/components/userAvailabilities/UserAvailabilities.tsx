@@ -51,8 +51,8 @@ export default function UserAvailabilities({
     // We need to map the availabilities to the expected type by the form
     const newAvailabilities = availabilities.map((availability) => ({
       day: availability.day,
-      startTime: availability.startTime,
-      endTime: availability.endTime,
+      startTime: new Date(availability.startTime),
+      endTime: new Date(availability.endTime),
     }));
     userForm.setValue("availabilities", newAvailabilities);
   }, [availabilities, userForm]);
