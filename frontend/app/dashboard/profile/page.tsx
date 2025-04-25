@@ -13,6 +13,12 @@ import { Form } from "@/components/ui/form";
 import UserAvailabilities from "@/components/userAvailabilities/UserAvailabilities";
 import UserProfile from "@/components/userProfile/UserProfile";
 
+// TODO: Replace with the generated type from the API
+type UserSkillResponseDto = {
+  userId: string;
+  skillId: string;
+};
+
 export default function ProfilePage() {
   const { user, login } = useAuthStore();
 
@@ -81,7 +87,7 @@ export default function ProfilePage() {
         throw new Error("Erreur lors de la mise à jour des données");
       }
 
-      let skillsResponse: Skill[] | null = null;
+      const skillsResponse: Skill[] = [];
       if (!skills.length) {
         toast.warning(
           "Nous vous conseillons de renseigner au moins une compétence",
@@ -91,8 +97,28 @@ export default function ProfilePage() {
         );
       } else {
         try {
-          skillsResponse = await apiService.post(`/users/${user.id}/skills`, {
-            skillIds: skills,
+          const userSkillsResponse: UserSkillResponseDto[] =
+            await apiService.post(`/users/${user.id}/skills`, {
+              skillIds: skills,
+            });
+
+          if (!userSkillsResponse) {
+            throw new Error("Erreur lors de la mise à jour des compétences");
+          }
+
+          // TODO: Fetch only the new skills
+          for (const id of skills) {
+            const response: Skill = await apiService.get(`/skills/${id}`);
+            if (!response) {
+              throw new Error(
+                "Erreur lors de la récupération de la compétence"
+              );
+            }
+            skillsResponse.push(response);
+          }
+
+          toast.success("Compétences mises à jour", {
+            position: "top-center",
           });
         } catch (err) {
           console.error(err);
@@ -104,6 +130,7 @@ export default function ProfilePage() {
 
       let availabilitiesResponse: Availability[] | null = null;
       if (!availabilities.length) {
+        availabilitiesResponse = user.availabilities;
         toast.warning(
           "Nous vous conseillons de renseigner vos disponibilités",
           {
@@ -112,11 +139,15 @@ export default function ProfilePage() {
         );
       } else {
         try {
+          const data = availabilities.map((availability) => ({
+            ...availability,
+            userId: user.id,
+          }));
           availabilitiesResponse = await apiService.post("/availabilities", {
-            availabilities: availabilities.map((availability) => ({
-              ...availability,
-              userId: user.id,
-            })),
+            data,
+          });
+          toast.success("Disponibilités mises à jour", {
+            position: "top-center",
           });
         } catch (err) {
           console.error(err);
@@ -126,14 +157,13 @@ export default function ProfilePage() {
         }
       }
 
-      // TODO: Fetch the skills again to update the store
-      console.log("Skills response", skillsResponse);
-      // TOODO: Fetch the availabilities again to update the store
-      console.log("Availabilities response", availabilitiesResponse);
-
       // This updates the user data in the store
       login({
-        user: userResponse,
+        user: {
+          ...userResponse,
+          skills: skillsResponse,
+          availabilities: availabilitiesResponse,
+        },
       });
     } catch (error) {
       console.error("Erreur lors de la modification des données", error);
