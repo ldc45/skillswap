@@ -91,7 +91,7 @@ const Header = () => {
           <li>
             <Button
             variant={"ghost"}
-              className="block text-xl hover:text-blue-500"
+              className="block text-xl mx-auto"
               onClick={() => handleNavigation('/dashboard/profile')}
             >
               Profil
@@ -100,7 +100,7 @@ const Header = () => {
           <li>
             <Button
               variant="ghost"
-              className="block text-xl hover:text-blue-500"
+              className="block text-xl mx-auto"
               onClick={() => handleNavigation('/dashboard/messages')}
             >
               Messages
@@ -108,7 +108,7 @@ const Header = () => {
           </li>
           <li>
             <Button
-              className="block text-xl hover:text-blue-500"
+              className="block text-xl mx-auto"
               variant={"ghost"}
               onClick={() => handleNavigation('/dashboard/partners')}
             >
