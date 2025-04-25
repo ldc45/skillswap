@@ -51,8 +51,8 @@ export default function UserAvailabilities({
     // We need to map the availabilities to the expected type by the form
     const newAvailabilities = availabilities.map((availability) => ({
       day: availability.day,
-      startTime: availability.startTime,
-      endTime: availability.endTime,
+      startTime: new Date(availability.startTime),
+      endTime: new Date(availability.endTime),
     }));
     userForm.setValue("availabilities", newAvailabilities);
   }, [availabilities, userForm]);
@@ -76,23 +76,28 @@ export default function UserAvailabilities({
           const availabilitiesForDay = availabilities?.filter(
             (availability) => availability.day === day.id
           );
+          // Sort availabilities by startTime ascending
+          const sortedAvailabilities = availabilitiesForDay
+            ? [...availabilitiesForDay].sort(
+                (a, b) =>
+                  new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+              )
+            : [];
           return (
             <div key={day.id} className="py-4 flex gap-x-2">
               <div className="text-sm lg:text-lg md:text-base font-semibold whitespace-nowrap">
                 {day.label} :
               </div>
-              <div className="md:divide-x-2 flex flex-col md:flex-row divide-black">
-                {availabilities
-                  .filter((availability) => availability.day === day.id)
-                  .map((availability) => (
-                    <span
-                      className="px-1 text-sm lg:text-lg md:text-base"
-                      key={availability.id}
-                    >
-                      {getFormattedDate(availability.startTime)} -{" "}
-                      {getFormattedDate(availability.endTime)}
-                    </span>
-                  ))}
+              <div className="md:divide-x-2 flex flex-col md:flex-row divide-gray-300 md:space-x-2">
+                {sortedAvailabilities.map((availability) => (
+                  <span
+                    className="px-1 text-sm lg:text-lg md:text-base pe-3 last:pe-0"
+                    key={availability.id}
+                  >
+                    {getFormattedDate(availability.startTime)} -{" "}
+                    {getFormattedDate(availability.endTime)}
+                  </span>
+                ))}
               </div>
               {isEditing && (
                 <Dialog>

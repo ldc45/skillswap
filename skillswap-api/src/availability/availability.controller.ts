@@ -20,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { Availability } from './entities/availability.entity';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { AvailabilityResponseDto } from './dto/availability-response.dto';
 
 @ApiTags('availabilities')
 @Controller('availabilities')
@@ -27,18 +28,20 @@ export class AvailabilityController {
   constructor(private readonly availabilityService: AvailabilityService) {}
 
   @ApiOperation({
-    summary: 'Create a new availability for a user',
+    summary: 'Create new availabilities for a user',
   })
   @ApiCookieAuth('access_token')
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Availability created successfully',
-    type: Availability,
+    type: [AvailabilityResponseDto],
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createAvailabilityDto: CreateAvailabilityDto) {
+  create(
+    @Body() createAvailabilityDto: CreateAvailabilityDto[],
+  ): Promise<AvailabilityResponseDto[]> {
     return this.availabilityService.create(createAvailabilityDto);
   }
 

@@ -16,6 +16,8 @@ export default function Home() {
   const { users, isLoading: isUsersLoading, error: usersError, fetchUsers } = useUserStore()
   const { skills, fetchSkills } = useSkillStore()
   
+  const defaultMembersCount = 9
+  
   const [popularSkills, setPopularSkills] = useState<Skill[]>([])
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
   const [searchValue, setSearchValue] = useState("")
@@ -28,16 +30,15 @@ export default function Home() {
 
   // Add showAllUsers state for search and filter
   const [showAllUsers, setShowAllUsers] = useState(false)
-
   useEffect(() => {
     // If just logged in, force refetch all users
     if (isAuthenticated && !wasAuthenticated) {
       fetchUsers({ force: true })
     } else if (!isAuthenticated) {
-      fetchUsers({ random: 4 })
+      fetchUsers({ random: defaultMembersCount })
     }
     setWasAuthenticated(isAuthenticated)
-  }, [isAuthenticated, fetchUsers, wasAuthenticated])
+  }, [isAuthenticated, fetchUsers, wasAuthenticated, defaultMembersCount])
 
   useEffect(() => {
     fetchSkills()
@@ -51,8 +52,7 @@ export default function Home() {
   }, [skills])
 
   // Watch for search or badge filter to trigger full user fetch
-  useEffect(() => {
-    const hasSearch = searchValue.trim().length > 0
+  useEffect(() => {    const hasSearch = searchValue.trim().length > 0
     const hasBadge = !!selectedSkill
     if ((hasSearch || hasBadge) && !showAllUsers) {
       setShowAllUsers(true)
@@ -60,28 +60,26 @@ export default function Home() {
     }
     if (!hasSearch && !hasBadge && showAllUsers) {
       setShowAllUsers(false)
-      fetchUsers({ random: 4 })
+      fetchUsers({ random: defaultMembersCount })
     }
-  }, [searchValue, selectedSkill, showAllUsers, fetchUsers])
-
+  }, [searchValue, selectedSkill, showAllUsers, fetchUsers, defaultMembersCount])
   // On mount or auth change, always fetch 4 random users by default
   useEffect(() => {
     if (!showAllUsers) {
-      fetchUsers({ random: 4 })
-    }
-  }, [isAuthenticated, fetchUsers, showAllUsers])
+      fetchUsers({ random: defaultMembersCount })
+    }  }, [isAuthenticated, fetchUsers, showAllUsers, defaultMembersCount])
 
-  const usersToDisplay = showAllUsers ? users : users.slice(0, 4)
+  const usersToDisplay = showAllUsers ? users : users.slice(0, defaultMembersCount)
   const filteredMembers = searchValue.trim().length > 0 || selectedSkill
     ? usersToDisplay.filter(user =>
         user.skills && (
           (searchValue.trim().length > 0 && (
-            user.skills.some(s =>
-              s.skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-              (s.skill.diminutive && s.skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
+            user.skills.some(skill =>
+              skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+              (skill.diminutive && skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
             )
           )) ||
-          (selectedSkill && user.skills.some(s => s.skill.id === selectedSkill.id))
+          (selectedSkill && user.skills.some(skill => skill.id === selectedSkill.id))
         )
       )
     : usersToDisplay

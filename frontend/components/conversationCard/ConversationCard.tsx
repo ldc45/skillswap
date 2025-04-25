@@ -7,7 +7,7 @@ import { Card } from "../ui/card";
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { apiService } from "@/lib/services/apiService";
-import type { User } from "@/@types/api/models/User";
+import { UserWithRelations } from "@/lib/stores/authStore";
 
 // Define conversation card props interface
 interface ConversationCardProps {
@@ -25,14 +25,14 @@ export default function ConversationCard({
   partnerId,
   lastMessage,
 }: ConversationCardProps) {
-    const [partner, setPartner] = useState<User | null>();
+    const [partner, setPartner] = useState<UserWithRelations | null>();
   
     useEffect(() => {
       // Fetch conversations for authenticated user using apiService
         apiService.get(`/users/${partnerId}`)
           .then((newPartner) => {
             // Set partner from API with type check
-            setPartner(newPartner as User);
+            setPartner(newPartner as UserWithRelations);
           })
           .catch((err) => {
             // Log fetch error
@@ -83,8 +83,8 @@ export default function ConversationCard({
 
           {partner.skills && partner.skills.length > 0 && partner.skills.map((skill) => {
             return (
-              <Badge key={skill.skill.id}>
-                {skill.skill.diminutive || skill.skill.name || ""}
+              <Badge key={skill.id}>
+                {skill.diminutive || skill.name || ""}
               </Badge>
             );
           })}

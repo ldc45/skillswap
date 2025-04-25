@@ -1,10 +1,10 @@
 // Render a paginated list of members with navigation controls
 import React from "react"
 import MemberCard from "@/components/memberCard/MemberCard"
-import { User } from "@/@types/api"
+import { UserWithRelations } from "@/lib/stores/authStore"
 
 interface MembersListWithPaginationProps {
-  members: User[]
+  members: UserWithRelations[]
   isLoading: boolean
   currentPage: number
   pageSize: number

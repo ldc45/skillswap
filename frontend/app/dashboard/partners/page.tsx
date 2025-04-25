@@ -38,14 +38,14 @@ export default function PartnersPage() {
   const membersToPaginate = users
   const filteredMembers = searchValue.trim().length > 0
     ? membersToPaginate.filter(user =>
-        user.skills && user.skills.some(s =>
-          s.skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          (s.skill.diminutive && s.skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
+        user.skills && user.skills.some(skill =>
+          skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          (skill.diminutive && skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
         )
       )
     : selectedSkill
       ? membersToPaginate.filter(user =>
-          user.skills && user.skills.some(s => s.skill.id === selectedSkill.id)
+          user.skills && user.skills.some(skill => skill.id === selectedSkill.id)
         )
       : membersToPaginate
   const paginatedMembers = filteredMembers.slice((currentPage - 1) * pageSize, currentPage * pageSize)

@@ -49,7 +49,6 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
   // The prop `defaultOptions` expects an array of 'values' (ids) that are selected by default
   const defaultOptions = user.skills?.map((skill) => skill.id) || [];
 
-  // TODO: Remove the '.slice(0, 10)' which is only used for development
   const skillOptions: Options[] = skills.map((skill) => ({
     value: skill.id,
     label: skill.name,
@@ -113,21 +112,23 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
 
       <div className="flex flex-row md:gap-x-2 lg:gap-x-3 gap-x-1 wrap">
         {!isEditing ? (
-          user.skills && user.skills.length > 0 ? (
-            user.skills.map((skill) => (
-              <Badge
-                variant="badge"
-                key={skill.id}
-                className="md:text-sm lg:text-base md:px-2 lg:px-4"
-              >
-                {skill.diminutive || skill.name}
-              </Badge>
-            ))
-          ) : (
-            <p className="text-sm md:text-base">
-              Vous n&apos;avez pas encore de compétences
-            </p>
-          )
+          <div className="flex flex-wrap gap-2 w-full">
+            {user.skills && user.skills.length > 0 ? (
+              user.skills.map((skill) => (
+                <Badge
+                  variant="badge"
+                  key={skill.id}
+                  className="md:text-sm lg:text-base md:px-2 lg:px-4"
+                >
+                  {skill.diminutive || skill.name}
+                </Badge>
+              ))
+            ) : (
+              <p className="text-sm md:text-base">
+                Vous n&apos;avez pas encore de compétences
+              </p>
+            )}
+          </div>
         ) : (
           <MultiSelect
             options={skillOptions}

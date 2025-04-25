@@ -105,19 +105,19 @@ export default function PartnerDetailPage() {
   }
 
   return (
-    <div className="flex flex-col md:p-4 lg:p-8 lg:flex-row">
-      <div className="flex flex-col gap-4 flex-1">
+    <div className="flex flex-col lg:flex-row gap-8 p-4 lg:p-8">
+      <div className="flex flex-col flex-1 gap-4">
         <PartnerProfile partner={partner} />
       </div>
       <div className="flex flex-col flex-1 gap-4">
         <PartnerAvailabilities />
-          <Button
-            onClick={handleContact}
-            disabled={isContacting}
-            className="w-fit self-center md:text-lg"
-          >
-            {isContacting ? "Contact en cours..." : "Contacter"}
-          </Button>
+        <Button
+          onClick={handleContact}
+          disabled={isContacting}
+          className="w-fit self-center md:text-lg"
+        >
+          {isContacting ? "Contact en cours..." : "Contacter"}
+        </Button>
         {contactError && (
           <span className="text-red-500 text-sm self-end">{contactError}</span>
         )}
