@@ -10,8 +10,8 @@ export class AvailabilityService {
   async create(createAvailabilityDto: CreateAvailabilityDto[]) {
     const newAvailabilities = createAvailabilityDto.map((availability) => ({
       ...availability,
-      startTime: new Date(availability.startTime),
-      endTime: new Date(availability.endTime),
+      startTime: availability.startTime,
+      endTime: availability.endTime,
     }));
     return this.prisma.availability.createManyAndReturn({
       data: newAvailabilities,
