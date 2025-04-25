@@ -76,12 +76,12 @@ export default function Home() {
     ? usersToDisplay.filter(user =>
         user.skills && (
           (searchValue.trim().length > 0 && (
-            user.skills.some(s =>
-              s.skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-              (s.skill.diminutive && s.skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
+            user.skills.some(skill =>
+              skill.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+              (skill.diminutive && skill.diminutive.toLowerCase().includes(searchValue.toLowerCase()))
             )
           )) ||
-          (selectedSkill && user.skills.some(s => s.skill.id === selectedSkill.id))
+          (selectedSkill && user.skills.some(skill => skill.id === selectedSkill.id))
         )
       )
     : usersToDisplay

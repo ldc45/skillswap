@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiService } from "@/lib/services/apiService";
-import { useAuthStore } from "@/lib/stores/authStore";
-import type { User } from "@/@types/api/models/User";
+import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
 
 export default function AuthProvider({
   children,
@@ -19,7 +18,7 @@ export default function AuthProvider({
       if (!isAuthenticated) {
         try {
           // Attempt to fetch the user profile to verify if the session is active
-          const userResponse = await apiService.get<User>("/users/me");
+          const userResponse = await apiService.get<UserWithRelations>("/users/me");
           
           // If we receive a valid response, the session token is active
           // We can automatically log in the user

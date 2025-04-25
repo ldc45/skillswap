@@ -38,7 +38,7 @@ export class AvailabilityController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createAvailabilityDto: CreateAvailabilityDto) {
+  create(@Body() createAvailabilityDto: CreateAvailabilityDto[]) {
     return this.availabilityService.create(createAvailabilityDto);
   }
 
