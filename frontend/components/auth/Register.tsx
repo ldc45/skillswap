@@ -5,9 +5,8 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useAuthStore } from "@/lib/stores/authStore";
+import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
-import type { User } from "@/@types/api/models/User";
 
 interface RegisterProps {
   onSwitchToLogin?: () => void;
@@ -46,7 +45,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
       if (registerResponse) {
         try {
           // Fetch connected user information
-          const userResponse = await apiService.get<User>("/users/me");
+          const userResponse = await apiService.get<UserWithRelations>("/users/me");
 
           // Update store with user data
           login({ user: userResponse });

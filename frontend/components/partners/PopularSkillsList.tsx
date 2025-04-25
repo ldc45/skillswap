@@ -16,8 +16,8 @@ export default function PopularSkillsList({ skills, selectedSkill, onSelect, cla
       {skills.map((skill) => (
         <Badge
           key={skill.id}
-          variant="badge"
-          className={`md:text-base px-4 lg:text-lg cursor-pointer ${selectedSkill?.id === skill.id ? 'bg-blue-500 text-white' : ''}`}
+          variant={`${selectedSkill?.id === skill.id ? 'active' : 'badge'}`}
+          className={`md:text-base px-4 cursor-pointer`}
           onClick={() => onSelect(selectedSkill?.id === skill.id ? null : skill)}
         >
           {typeof skill.diminutive === "string" && skill.diminutive

@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useAuthStore } from "@/lib/stores/authStore";
+import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
 import type { User } from "@/@types/api/models/User";
 
@@ -34,12 +34,11 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
 
       // Ensure login was successful before making the next request
       if (loginResponse) {
-        try {
-          // Fetch connected user information
+        try {          // Fetch connected user information
           const userResponse = await apiService.get<User>("/users/me");
 
-          // Update store with user data
-          login({ user: userResponse });
+          // Update store with user data - userResponse already contains skills and availabilities
+          login({ user: userResponse as unknown as UserWithRelations });
 
           if (handleLogin) {
             handleLogin();
