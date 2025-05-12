@@ -25,19 +25,11 @@ export function isNewSlotAvailable(
   existingSlots: TimeSlot[],
   newSlot: TimeSlot
 ): boolean {
-  console.log("existingSlots", existingSlots);
-  console.log("newSlot", newSlot);
-
   for (const slot of existingSlots) {
     const existingStart = getFormattedTimeSlot(slot.start);
     const existingEnd = getFormattedTimeSlot(slot.end);
     const newStart = getFormattedTimeSlot(newSlot.start);
     const newEnd = getFormattedTimeSlot(newSlot.end);
-
-    console.log("existingStart", existingStart);
-    console.log("existingEnd", existingEnd);
-    console.log("newStart", newStart);
-    console.log("newEnd", newEnd);
 
     if (newStart < existingEnd && newEnd > existingStart) {
       return false;
