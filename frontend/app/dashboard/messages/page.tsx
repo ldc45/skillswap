@@ -10,7 +10,7 @@ interface Conversation {
   id: string;
   partnerId: string;
   creatorId: string;
-  lastMessage: {
+  lastMessage?: {
     id: string;
     content: string;
     createdAt: string;
@@ -53,13 +53,21 @@ export default function MessagesPage() {
         <>
           <div className="flex flex-col gap-3">
             {paginatedConversations
-              .sort((b, a) => new Date(a.lastMessage.createdAt).getTime() - new Date(b.lastMessage.createdAt).getTime())
+              .sort((a, b) => {
+                // Handle cases where conversations don't have lastMessage
+                if (!a.lastMessage && !b.lastMessage) return 0;
+                if (!a.lastMessage) return 1; // b comes first if a has no lastMessage
+                if (!b.lastMessage) return -1; // a comes first if b has no lastMessage
+                
+                // Sort by lastMessage createdAt date
+                return new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime();
+              })
               .map((conversation) => (
                 <ConversationCard
                   key={conversation.id}
                   id={conversation.id}
                   partnerId={conversation.partnerId === user?.id ? conversation.creatorId : conversation.partnerId}
-                  lastMessage={conversation.lastMessage}
+                  lastMessage={conversation.lastMessage || undefined}
                 />
               ))}
           </div>

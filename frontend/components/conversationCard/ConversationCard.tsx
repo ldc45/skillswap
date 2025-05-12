@@ -13,7 +13,7 @@ import { UserWithRelations } from "@/lib/stores/authStore";
 interface ConversationCardProps {
     id: string;
     partnerId: string;
-    lastMessage: {
+    lastMessage?: {
         id: string;
         content: string;
         createdAt: string;
@@ -64,7 +64,7 @@ export default function ConversationCard({
               {partner.firstName}{" "}
               {partner.lastName.charAt(0)}.
             </p>
-            {lastMessage && <>
+            {lastMessage && lastMessage.createdAt && <>
             <p className="text-sm text-gray-600 line-clamp-1">
               {truncateMessage(lastMessage.content)}
             </p>
