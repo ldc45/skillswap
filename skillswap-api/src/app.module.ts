@@ -9,6 +9,7 @@ import { CategoryModule } from './category/category.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { AvailabilityModule } from './availability/availability.module';
 import { UserSkillModule } from './user-skill/user-skill.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserSkillModule } from './user-skill/user-skill.module';
     ConversationModule,
     AvailabilityModule,
     UserSkillModule,
+    CacheModule.register({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [AppService],
