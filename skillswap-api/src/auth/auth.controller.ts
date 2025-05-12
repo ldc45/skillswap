@@ -89,7 +89,7 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    // Récupérer le refresh token depuis les cookies
+    // Get refresh token from cookies
     const requestCookies = request.cookies as RequestCookies;
     const refreshToken = requestCookies.refresh_token;
 
