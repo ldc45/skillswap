@@ -27,7 +27,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     const emailUser = await this.findOneByMail(createUserDto.email);
     if (emailUser) {
-      throw new BadRequestException('Email is already used.');
+      throw new BadRequestException('Cet email est déjà utilisé.');
     }
 
     createUserDto.password = await bcrypt.hash(
