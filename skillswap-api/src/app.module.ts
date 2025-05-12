@@ -9,9 +9,15 @@ import { CategoryModule } from './category/category.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { AvailabilityModule } from './availability/availability.module';
 import { UserSkillModule } from './user-skill/user-skill.module';
+import {ThrottlerModule} from "@nestjs/throttler";
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([{
+      name: 'login', // name of the throttle
+      ttl: 60000,    // 1 minute
+      limit: 5,      // 5 requests per minute
+    }]),
     AuthModule,
     UserModule,
     PrismaModule,
