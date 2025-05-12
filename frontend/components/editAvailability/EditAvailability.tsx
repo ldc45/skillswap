@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
 import { getFormattedDate } from "@/utils/format";
+import { isNewSlotAvailable } from "@/utils/validator";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -39,6 +41,23 @@ export default function EditAvailability({
   // This function add a new availability to the user's availabilities
   const handleAddAvailability = () => {
     if (!startDate || !endDate) return;
+
+    // This constant contains the taken time slots
+    const existingSlots = availabilities.map((availability) => ({
+      start: new Date(availability.startTime),
+      end: new Date(availability.endTime),
+    }));
+
+    // This boolean determines if the new time slot is available
+    const isAvailable = isNewSlotAvailable(existingSlots, {
+      start: new Date(startDate),
+      end: new Date(endDate),
+    });
+
+    if (!isAvailable) {
+      toast.error("Cette disponibilité se chevauche avec une autre.");
+      return;
+    }
 
     const newAvailability: Availability = {
       id: uuidv4(),
