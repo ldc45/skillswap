@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { apiService } from "@/lib/services/apiService"
-import { UserWithRelations } from "./authStore"
+import { UserWithRelations, useAuthStore } from "./authStore"
 
 interface UserState {
   users: UserWithRelations[]
@@ -20,7 +20,14 @@ export const useUserStore = create<UserState>((set, get) => ({
       let endpoint = "/users"
       if (options?.random) endpoint += `?random=${options.random}`
       const response = await apiService.get(endpoint) as UserWithRelations[]
-      set({ users: response, isLoading: false })
+
+      // Get the current user ID from authStore
+      const currentUserId = useAuthStore.getState().user?.id
+
+      // Filter out the current user from the response
+      const filteredUsers = response.filter(user => user.id !== currentUserId)
+
+      set({ users: filteredUsers, isLoading: false })
     } catch {
       set({ error: "Erreur lors du chargement des membres", isLoading: false })
     }
