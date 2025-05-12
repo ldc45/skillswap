@@ -47,7 +47,7 @@ const Header = () => {
       // and update local store
       await apiService.logout();
       setIsMenuOpen(false);
-      // Rediriger vers la page d'accueil après déconnexion
+      // Redirect to home page after logout
       router.push('/');
     } catch (error) {
       console.error("Error during logout:", error);
@@ -67,14 +67,14 @@ const Header = () => {
     setIsMenuOpen(false);
     router.push(path);
     
-    // On simule un délai pour masquer le spinner après la navigation
-    // Cela permet de s'assurer que le spinner est visible pendant la transition
+    // Simulate a delay to mask spinner after navigation
+    // This makes sure the spinner is visible during transition
     setTimeout(() => {
       setIsNavigating(false);
     }, 500);
   };
 
-  // Spinner de chargement
+  // Loading spinner
   const loadingSpinner = (
     <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-50">
       <div className="flex flex-col items-center gap-2">
