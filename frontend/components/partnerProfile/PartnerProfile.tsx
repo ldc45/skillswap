@@ -3,28 +3,6 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 export default function PartnerProfile({ partner }: { partner: User }) {
-  const fakeSkills = [
-    {
-      id: 1,
-      label: "Développement web",
-      diminutive: "Dev. web",
-    },
-    {
-      id: 2,
-      label: "Design",
-      diminutive: "Design",
-    },
-    {
-      id: 3,
-      label: "Langues",
-      diminutive: "Langues",
-    },
-    {
-      id: 4,
-      label: "Marketing",
-      diminutive: "Marketing",
-    },
-  ];
 
   return (
     <div className="basis-1/2 p-4 flex flex-col gap-y-4 items-center">
@@ -39,14 +17,16 @@ export default function PartnerProfile({ partner }: { partner: User }) {
         </h3>
       </div>
 
-      <div className="flex flex-row md:gap-x-2 lg:gap-x-3 gap-x-1 wrap">
-        {fakeSkills.map((skill) => (
+      <div className="flex-wrap flex gap-y-1 gap-x-2">
+        {partner.skills && partner.skills.length > 0 && partner.skills.map((skill) => (
           <Badge
             variant="badge"
             key={skill.id}
             className="md:text-sm lg:text-base md:px-2 lg:px-4"
           >
-            {skill.label.length > 8 ? skill.diminutive : skill.label}
+            {skill.name && skill.name.length > 8
+              ? skill.diminutive || skill.name
+              : skill.name || skill.diminutive}
           </Badge>
         ))}
       </div>

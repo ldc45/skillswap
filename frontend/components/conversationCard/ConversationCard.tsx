@@ -81,13 +81,19 @@ export default function ConversationCard({
 
 <div className="flex gap-2 absolute top-3 right-10">
 
-          {partner.skills && partner.skills.length > 0 && partner.skills.map((skill) => {
-            return (
-              <Badge key={skill.id}>
-                {skill.diminutive || skill.name || ""}
-              </Badge>
-            );
-          })}
+          {partner.skills && partner.skills.length > 0 && (
+            <>
+              {/* Display up to 2 skill badges, then a +x badge if needed */}
+              {partner.skills.slice(0, 1).map((skill) => (
+                <Badge key={skill.id}>
+                  {skill.diminutive || skill.name || ""}
+                </Badge>
+              ))}
+              {partner.skills.length > 1 && (
+                <Badge key="more-skills">+{partner.skills.length - 1}</Badge>
+              )}
+            </>
+          )}
 </div>
           <ChevronRight className="h-5 w-5 text-gray-400" />
         </div>
