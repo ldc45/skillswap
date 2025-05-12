@@ -21,7 +21,7 @@ export default function MessagesPage() {
   // Initialize conversations state
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const { user, isAuthenticated } = useAuthStore();
-
+  
   useEffect(() => {
     // Fetch conversations for authenticated user using apiService
     if (isAuthenticated && user) {
@@ -58,7 +58,7 @@ export default function MessagesPage() {
                 <ConversationCard
                   key={conversation.id}
                   id={conversation.id}
-                  partnerId={conversation.partnerId === user?.id ? conversation.partnerId : conversation.partnerId}
+                  partnerId={conversation.partnerId === user?.id ? conversation.creatorId : conversation.partnerId}
                   lastMessage={conversation.lastMessage}
                 />
               ))}
