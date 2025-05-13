@@ -3,7 +3,7 @@ import {
   IsBoolean,
   IsEmail,
   IsOptional,
-  IsString,
+  IsString, Matches,
   MinLength,
 } from 'class-validator';
 
@@ -15,13 +15,21 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  // https://cyber.gouv.fr/bonnes-pratiques-protegez-vous#:~:text=Cr%C3%A9ez%20un%20mot%20de%20passe,chiffres%20et%20des%20caract%C3%A8res%20sp%C3%A9ciaux.
   @ApiProperty({
-    example: 'password123',
-    description: 'User password (minimum 8 characters)',
+    example: 'Password123!@#',
+    description: 'User password (minimum 12 characters, must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character)',
   })
   @IsString()
-  @MinLength(8)
+  @MinLength(12, {
+    message: 'Le mot de passe doit contenir au moins 12 caractères'
+  })
+  @Matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+      {
+        message:
+            'Le mot de passe doit contenir au moins 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial',
+      }
+  )
   password: string;
 
   @ApiProperty({

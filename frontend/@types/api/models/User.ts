@@ -13,12 +13,26 @@
  */
 
 import { mapValues } from "../runtime";
+import type { Skill } from "./Skill";
+import type { Availability } from "./Availability";
 /**
  *
  * @export
  * @interface User
  */
 export interface User {
+  /**
+   * List of user skills
+   * @type {Skill[]}
+   * @memberof User
+   */
+  skills?: Skill[];
+  /**
+   * List of user availabilities
+   * @type {Availability[]}
+   * @memberof User
+   */
+  availabilities?: Availability[];
   /**
    * Unique identifier for the user
    * @type {string}

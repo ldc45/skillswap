@@ -110,7 +110,7 @@ export default function PartnerDetailPage() {
         <PartnerProfile partner={partner} />
       </div>
       <div className="flex flex-col flex-1 gap-4">
-        <PartnerAvailabilities />
+        {partner && <PartnerAvailabilities partner={partner} />}
         <Button
           onClick={handleContact}
           disabled={isContacting}

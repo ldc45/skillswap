@@ -4,13 +4,14 @@ import { Skill } from "@/@types/api";
 import SkillSearchBar from "@/components/partners/SkillSearchBar";
 import PopularSkillsList from "@/components/partners/PopularSkillsList";
 import MembersListWithPagination from "@/components/partners/MembersListWithPagination";
-import { useSkillStore } from "@/lib/stores/skillStore"
+// import { useSkillStore } from "@/lib/stores/skillStore"
 import { useUserStore } from "@/lib/stores/userStore"
 import React, { useEffect, useState } from "react";
+import { useSkillStore } from "@/lib/stores/skillStore";
 
 export default function PartnersPage() {
   const { users, isLoading: isUsersLoading, error: usersError, fetchUsers } = useUserStore()
-  const { skills, fetchSkills } = useSkillStore()
+  const { fetchSkills } = useSkillStore()
   const [popularSkills, setPopularSkills] = useState<Skill[]>([])
   const pageSize = 20; // Set page size for pagination
   const [searchValue, setSearchValue] = useState("")
@@ -28,12 +29,26 @@ export default function PartnersPage() {
   }, [fetchUsers])
 
   useEffect(() => {
-    if (skills.length > 6) {
-      setPopularSkills([...skills].sort(() => 0.5 - Math.random()).slice(0, 6))
-    } else {
-      setPopularSkills(skills)
-    }
-  }, [skills])
+    // Count occurrences of each skill among all users
+    const skillCount: Record<string, { skill: Skill; count: number }> = {}
+    users.forEach(user => {
+      user.skills?.forEach(skill => {
+        if (skill && skill.id) {
+          if (!skillCount[skill.id]) {
+            skillCount[skill.id] = { skill, count: 1 }
+          } else {
+            skillCount[skill.id].count++
+          }
+        }
+      })
+    })
+    // Sort skills by count descending
+    const sortedSkills = Object.values(skillCount)
+      .sort((a, b) => b.count - a.count)
+      .map(entry => entry.skill)
+    // Take top 6 or all if less
+    setPopularSkills(sortedSkills.slice(0, 6))
+  }, [users])
 
   const membersToPaginate = users
   const filteredMembers = searchValue.trim().length > 0
@@ -53,7 +68,7 @@ export default function PartnersPage() {
   return (
     <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-4 md:gap-y-6 lg:gap-y-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-6">Recherchez un partenaire</h1>
-      <div className="flex-col gap-y-4 flex lg:min-h-[20vh] lg:flex-row-reverse lg:justify-between">
+      <div className="flex-col gap-y-4 flex lg:flex-row lg:justify-between">
         <SkillSearchBar
           value={searchValue}
           onChange={setSearchValue}

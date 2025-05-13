@@ -232,7 +232,7 @@ async function main() {
 
   try {
     // Password for all users (including test user)
-    const defaultPassword = 'fakePassword';
+    const defaultPassword = 'f@kePassword123';
 
     // Clear existing data in the correct order to avoid foreign key constraint errors
     await prisma.$transaction([
