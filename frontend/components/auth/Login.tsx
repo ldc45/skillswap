@@ -1,13 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import type { User } from "@/@types/api/models/User";
+import { apiService } from "@/lib/services/apiService";
+import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
-import { apiService } from "@/lib/services/apiService";
-import type { User } from "@/@types/api/models/User";
+import { Form, FormField, FormItem, FormLabel } from "../ui/form";
+
+const defaultValues = {
+  email: "",
+  password: "",
+};
+
+const formSchema = z.object({
+  email: z.string().email("L'email est invalide"),
+  password: z.string().min(12, {
+    message: "Le mot de passe doit contenir au moins 12 caractères",
+  }),
+});
 
 interface LoginProps {
   onSwitchToRegister?: () => void;
@@ -15,15 +31,28 @@ interface LoginProps {
 }
 
 const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    // The zodResolver is inteatgrated to the form
+    resolver: zodResolver(formSchema),
+    defaultValues,
+  });
 
   const login = useAuthStore((state) => state.login);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  // The form is dirty if at least one field has been modified
+  const isFormDirty = Object.keys(form.formState.dirtyFields).length > 0;
+
+  useEffect(() => {
+    // We reset error message when the form is edited again post-submission
+    if (isFormDirty) {
+      setError("");
+    }
+  }, [isFormDirty]);
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const { email, password } = data;
 
     try {
       // Call API with credentials:include to send/receive cookies
@@ -34,7 +63,8 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
 
       // Ensure login was successful before making the next request
       if (loginResponse) {
-        try {          // Fetch connected user information
+        try {
+          // Fetch connected user information
           const userResponse = await apiService.get<User>("/users/me");
 
           // Update store with user data - userResponse already contains skills and availabilities
@@ -54,6 +84,9 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
     } catch (err) {
       console.error("Login error:", err);
       setError(err instanceof Error ? err.message : "Login error");
+    } finally {
+      // Reset the form but keep the values
+      form.reset({}, { keepValues: true, keepDirty: false });
     }
   };
 
@@ -67,35 +100,51 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
         </div>
       )}
 
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="votre@email.com"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+      <Form {...form}>
+        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="space-y-2">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <Input
+                    type="email"
+                    placeholder="votre@email.com"
+                    {...field}
+                  />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password">Mot de passe</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+          <div className="space-y-2">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mot de passe</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="••••••••••••"
+                    {...field}
+                  />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <Button type="submit" className="w-full">
-          Se connecter
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={!form.formState.isValid || form.formState.isSubmitting}
+          >
+            Se connecter
+          </Button>
+        </form>
+      </Form>
 
       {onSwitchToRegister && (
         <>
