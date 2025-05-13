@@ -28,50 +28,65 @@ export class UserService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     const emailUser = await this.findOneByMail(createUserDto.email);
     if (emailUser) {
       throw new BadRequestException('Cet email est déjà utilisé.');
     }
-
-    // Delete users cache to force re-fetch
-    await this.cacheManager.del('users');
-
-    createUserDto.password = await bcrypt.hash(
+    // Hash password
+    const hashedPassword = await bcrypt.hash(
       createUserDto.password,
       this.saltRounds,
     );
-    return this.prisma.user.create({
-      data: createUserDto,
+
+    // Create user with hashed password
+    const createdUser = await this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+      },
+      include: {
+        skills: {
+          select: {
+            skill: true,
+          },
+        },
+        availabilities: true,
+      },
     });
+
+    // Clear user cache after creating a new user
+    await this.cacheManager.del('users');
+
+    // Return the created user as a DTO
+    return plainToInstance(UserResponseDto, createdUser);
   }
 
   async findAll(randomNum: number = 0): Promise<UserResponseDto[]> {
-    // Get users from cache
-    let users: UserWithRelations[] | null =
-      await this.cacheManager.get('users');
+    // Try to get from cache first
+    const cachedUsers = await this.cacheManager.get<UserResponseDto[]>('users');
 
-    // If there is no user cache, fetch from Prisma and set cache
-    if (!users) {
-      users = await this.prisma.user.findMany({
-        include: {
-          skills: {
-            select: {
-              skill: true,
-            },
-          },
-          availabilities: {
-            select: {
-              id: true,
-              day: true,
-              startTime: true,
-              endTime: true,
-            },
+    if (cachedUsers) {
+      return cachedUsers;
+    }
+
+    const users = await this.prisma.user.findMany({
+      include: {
+        skills: {
+          select: {
+            skill: true,
           },
         },
-      });
-      await this.cacheManager.set('users', users, 60 * 1000);
-    }
+        availabilities: {
+          select: {
+            id: true,
+            day: true,
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
+    });
 
     if (randomNum > 0) {
       const randomUsers: UserWithRelations[] = [];
@@ -84,6 +99,8 @@ export class UserService {
       }
       return plainToInstance(UserResponseDto, randomUsers);
     } else {
+      // Store in cache
+      await this.cacheManager.set('users', users);
       return plainToInstance(UserResponseDto, users);
     }
   }
@@ -170,26 +187,56 @@ export class UserService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
-    // Delete users cache to force re-fetch
-    await this.cacheManager.del('users');
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    // Hash password if provided
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(
+        updateUserDto.password,
+        this.saltRounds,
+      );
+    }
 
-    return this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: {
         id: id,
       },
       data: updateUserDto,
+      include: {
+        skills: {
+          select: {
+            skill: true,
+          },
+        },
+        availabilities: true,
+      },
     });
-  }
-
-  async remove(id: string) {
     // Delete users cache to force re-fetch
     await this.cacheManager.del('users');
 
-    return this.prisma.user.delete({
+    // Conversion en DTO de réponse pour exclure le mot de passe
+    return plainToInstance(UserResponseDto, updatedUser);
+  }
+
+  async remove(id: string) {
+    const deletedUser = await this.prisma.user.delete({
       where: {
         id: id,
       },
+      include: {
+        skills: {
+          select: {
+            skill: true,
+          },
+        },
+        availabilities: true,
+      },
     });
+    // Delete users cache to force re-fetch
+    await this.cacheManager.del('users');
+
+    return plainToInstance(UserResponseDto, deletedUser);
   }
 }

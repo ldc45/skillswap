@@ -10,7 +10,6 @@ import { ConversationModule } from './conversation/conversation.module';
 import { AvailabilityModule } from './availability/availability.module';
 import { UserSkillModule } from './user-skill/user-skill.module';
 import { CacheModule } from '@nestjs/cache-manager';
-import { createKeyv } from '@keyv/redis';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
@@ -32,7 +31,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     UserSkillModule,
     CacheModule.register({
       isGlobal: true,
-      stores: [createKeyv(process.env.REDIS_URL)],
+      ttl: 60 * 60, // 1 hour
     }),
   ],
   controllers: [AppController],

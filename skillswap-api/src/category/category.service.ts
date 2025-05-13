@@ -41,7 +41,7 @@ export class CategoryService {
     } else {
       // Otherwise, fetch from Prisma, set cache and return data
       const categories: Category[] = await this.prisma.category.findMany();
-      await this.cacheManager.set('categories', categories, 60 * 60 * 1000);
+      await this.cacheManager.set('categories', categories);
       return categories;
     }
   }
