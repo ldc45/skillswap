@@ -8,44 +8,24 @@ import SkillSearchBar from "@/components/partners/SkillSearchBar";
 import PopularSkillsList from "@/components/partners/PopularSkillsList";
 import MembersListWithPagination from "@/components/partners/MembersListWithPagination";
 import MemberCard from "@/components/memberCard/MemberCard";
-import { useSkillStore } from "@/lib/stores/skillStore"
 import { useUserStore } from "@/lib/stores/userStore"
 
 export default function Home() {
   const { isAuthenticated } = useAuthStore();
   const { users, isLoading: isUsersLoading, error: usersError, fetchUsers } = useUserStore()
-  const { fetchSkills } = useSkillStore()
-  
-  const defaultMembersCount = 9
   
   const [popularSkills, setPopularSkills] = useState<Skill[]>([])
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
   const [searchValue, setSearchValue] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 20
-
-
-  // Track previous authentication state to determine if user just logged in
-  const [wasAuthenticated, setWasAuthenticated] = useState(isAuthenticated)
-
-  // Add showAllUsers state for search and filter
-  const [showAllUsers, setShowAllUsers] = useState(false)
+  
   useEffect(() => {
-    // If just logged in, force refetch all users
-    if (isAuthenticated && !wasAuthenticated) {
-      fetchUsers({ force: true })
-    } else if (!isAuthenticated) {
-      fetchUsers({ random: defaultMembersCount })
-    }
-    setWasAuthenticated(isAuthenticated)
-  }, [isAuthenticated, fetchUsers, wasAuthenticated, defaultMembersCount])
-
+    // Always load all users
+    fetchUsers({ force: true })
+  }, [isAuthenticated, fetchUsers])
   useEffect(() => {
-    fetchSkills()
-  }, [fetchSkills])
-
-  useEffect(() => {
-    // Count occurrences of each skill among all users
+    // Count skill occurrences across all users
     const skillCount: Record<string, { skill: Skill; count: number }> = {}
     users.forEach(user => {
       user.skills?.forEach(skill => {
@@ -58,34 +38,28 @@ export default function Home() {
         }
       })
     })
-    // Sort skills by count descending
+    // Sort skills by popularity
     const sortedSkills = Object.values(skillCount)
       .sort((a, b) => b.count - a.count)
       .map(entry => entry.skill)
-    // Take top 6 or all if less
-    setPopularSkills(sortedSkills.slice(0, 6))
-  }, [users])
-
-  // Watch for search or badge filter to trigger full user fetch
-  useEffect(() => {    const hasSearch = searchValue.trim().length > 0
-    const hasBadge = !!selectedSkill
-    if ((hasSearch || hasBadge) && !showAllUsers) {
-      setShowAllUsers(true)
-      fetchUsers({ force: true })
+    // Select top 6 skills
+    setPopularSkills(sortedSkills.slice(0, 6))  }, [users])
+  
+  // Shuffle array using Fisher-Yates algorithm
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
-    if (!hasSearch && !hasBadge && showAllUsers) {
-      setShowAllUsers(false)
-      fetchUsers({ random: defaultMembersCount })
-    }
-  }, [searchValue, selectedSkill, showAllUsers, fetchUsers, defaultMembersCount])
-  // On mount or auth change, always fetch 4 random users by default
-  useEffect(() => {
-    if (!showAllUsers) {
-      fetchUsers({ random: defaultMembersCount })
-    }  }, [isAuthenticated, fetchUsers, showAllUsers, defaultMembersCount])
-
-  const usersToDisplay = showAllUsers ? users : users.slice(0, defaultMembersCount)
-  const filteredMembers = searchValue.trim().length > 0 || selectedSkill
+    return newArray;
+  };
+  // Display all users
+  const usersToDisplay = users
+  const hasFilters = searchValue.trim().length > 0 || selectedSkill !== null
+  
+  // Filter users based on search criteria
+  const filteredMembers = hasFilters
     ? usersToDisplay.filter(user =>
         user.skills && (
           (searchValue.trim().length > 0 && (
@@ -95,9 +69,9 @@ export default function Home() {
             )
           )) ||
           (selectedSkill && user.skills.some(skill => skill.id === selectedSkill.id))
-        )
-      )
-    : usersToDisplay
+        )      )
+    // Shuffle users when no filters are applied
+    : shuffleArray(usersToDisplay)
   const paginatedMembers = filteredMembers.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   return (
