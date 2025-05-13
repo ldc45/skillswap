@@ -6,7 +6,8 @@ import {
   HttpStatus,
   Req,
   UnauthorizedException,
-  Res, UseGuards,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
@@ -21,7 +22,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/auth-response.dto';
-import {Throttle, ThrottlerGuard} from "@nestjs/throttler";
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('auth')
 @Controller('auth')
