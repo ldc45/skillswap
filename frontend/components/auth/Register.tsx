@@ -1,12 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
+import { apiService } from "@/lib/services/apiService";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
-import { apiService } from "@/lib/services/apiService";
+import { Form, FormField, FormItem, FormLabel } from "../ui/form";
+
+const defaultValues = {
+  email: "",
+  firstName: "",
+  lastName: "",
+  password: "",
+  confirmPassword: "",
+};
+
+const formSchema = z.object({
+  email: z.string().email("L'email est invalide"),
+  firstName: z.string().min(2).max(64),
+  lastName: z.string().min(2).max(64),
+  password: z.string().min(12, {
+    message: "Le mot de passe doit contenir au moins 12 caractères",
+  }),
+  confirmPassword: z.string().min(12, {
+    message: "Le mot de passe doit contenir au moins 12 caractères",
+  }),
+});
+
+const lowercaseRegex = /[a-z]/;
+const uppercaseRegex = /[A-Z]/;
+const numberRegex = /[0-9]/;
+const specialCharRegex = /[!@#$%^&*]/;
 
 interface RegisterProps {
   onSwitchToLogin?: () => void;
@@ -14,26 +43,51 @@ interface RegisterProps {
 }
 
 const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    // The zodResolver is inteatgrated to the form
+    resolver: zodResolver(formSchema),
+    defaultValues,
+  });
 
   const login = useAuthStore((state) => state.login);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  // The form is dirty if at least one field has been modified
+  const isFormDirty = Object.keys(form.formState.dirtyFields).length > 0;
 
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
-      return;
+  useEffect(() => {
+    // We reset error message when the form is edited again post-submission
+    if (isFormDirty) {
+      setError("");
     }
+  }, [isFormDirty]);
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const { email, firstName, lastName, password, confirmPassword } = data;
 
     try {
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        setError("Les mots de passe ne correspondent pas");
+        return;
+      }
+
+      // We check that the password meets the security criteria
+      // The check is made here and not in the schema,
+      // so that the form can be submitted and an error message displayed
+      if (
+        !lowercaseRegex.test(password) ||
+        !uppercaseRegex.test(password) ||
+        !numberRegex.test(password) ||
+        !specialCharRegex.test(password)
+      ) {
+        setError(
+          "Le mot de passe doit contenir au moins : une lettre minuscule, une lettre majuscule, un chiffre et un caractère spécial"
+        );
+        return;
+      }
+
       const registerResponse = await apiService.post("/auth/register", {
         email,
         password,
@@ -45,7 +99,9 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
       if (registerResponse) {
         try {
           // Fetch connected user information
-          const userResponse = await apiService.get<UserWithRelations>("/users/me");
+          const userResponse = await apiService.get<UserWithRelations>(
+            "/users/me"
+          );
 
           // Update store with user data
           login({ user: userResponse });
@@ -64,6 +120,9 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
     } catch (err) {
       console.error("Registration error:", err);
       setError(err instanceof Error ? err.message : "Registration error");
+    } finally {
+      // Reset the form but keep the values
+      form.reset({}, { keepValues: true, keepDirty: false });
     }
   };
 
@@ -79,73 +138,96 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
         </div>
       )}
 
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="votre@email.com"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+      <Form {...form}>
+        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-2">
-            <Label htmlFor="firstName">Prénom</Label>
-            <Input
-              id="firstName"
-              type="text"
-              placeholder="Prénom"
-              required
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <Input
+                    type="email"
+                    placeholder="votre@email.com"
+                    {...field}
+                  />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prénom</FormLabel>
+                    <Input type="text" placeholder="Jean" {...field} />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom</FormLabel>
+                    <Input type="text" placeholder="Dupont" {...field} />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mot de passe</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="••••••••••••"
+                    {...field}
+                  />
+                </FormItem>
+              )}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lastName">Nom</Label>
-            <Input
-              id="lastName"
-              type="text"
-              placeholder="Nom"
-              required
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirmer le mot de passe</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="••••••••••••"
+                    {...field}
+                  />
+                </FormItem>
+              )}
             />
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password">Mot de passe</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            placeholder="••••••••"
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
-
-        <Button type="submit" className="w-full">
-          S&apos;inscrire
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={!form.formState.isValid || form.formState.isSubmitting}
+          >
+            S&apos;inscrire
+          </Button>
+        </form>
+      </Form>
 
       {onSwitchToLogin && (
         <>

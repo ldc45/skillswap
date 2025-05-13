@@ -4,8 +4,8 @@ import { create } from "zustand";
 
 // TODO: Replace with the generated type from the API
 export interface UserWithRelations extends User {
-  skills: Skill[] | null;
-  availabilities: Availability[] | null;
+  skills: Skill[] | undefined;
+  availabilities: Availability[] | undefined;
 }
 
 // TODO: Replace UserWithRelations with the generated type from the API

@@ -14,7 +14,7 @@ import { useUserStore } from "@/lib/stores/userStore"
 export default function Home() {
   const { isAuthenticated } = useAuthStore();
   const { users, isLoading: isUsersLoading, error: usersError, fetchUsers } = useUserStore()
-  const { skills, fetchSkills } = useSkillStore()
+  const { fetchSkills } = useSkillStore()
   
   const defaultMembersCount = 9
   
@@ -45,11 +45,26 @@ export default function Home() {
   }, [fetchSkills])
 
   useEffect(() => {
-    if (skills.length > 0) {
-      const popSkills = skills.length > 6 ? [...skills].sort(() => 0.5 - Math.random()).slice(0, 6) : skills
-      setPopularSkills(popSkills)
-    }
-  }, [skills])
+    // Count occurrences of each skill among all users
+    const skillCount: Record<string, { skill: Skill; count: number }> = {}
+    users.forEach(user => {
+      user.skills?.forEach(skill => {
+        if (skill && skill.id) {
+          if (!skillCount[skill.id]) {
+            skillCount[skill.id] = { skill, count: 1 }
+          } else {
+            skillCount[skill.id].count++
+          }
+        }
+      })
+    })
+    // Sort skills by count descending
+    const sortedSkills = Object.values(skillCount)
+      .sort((a, b) => b.count - a.count)
+      .map(entry => entry.skill)
+    // Take top 6 or all if less
+    setPopularSkills(sortedSkills.slice(0, 6))
+  }, [users])
 
   // Watch for search or badge filter to trigger full user fetch
   useEffect(() => {    const hasSearch = searchValue.trim().length > 0

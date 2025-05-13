@@ -121,7 +121,7 @@ const Header = () => {
       <div className="mt-auto w-full">
         <Separator className="my-6 w-full" />
         <div className="flex items-center justify-center">
-          <Button variant="destructive" onClick={handleLogout}>
+          <Button variant="destructive" onClick={handleLogout} datatype='logout'>
             <LogOut className="mr-2" size={20} />
             <span>Déconnexion</span>
           </Button>
@@ -182,6 +182,7 @@ const Header = () => {
             onClick={toggleMenu}
             className="flex items-center justify-center w-10 h-10"
             aria-label="Menu"
+            datatype='burger'
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>

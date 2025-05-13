@@ -7,19 +7,20 @@ import MembersListWithPagination from "@/components/partners/MembersListWithPagi
 // import { useSkillStore } from "@/lib/stores/skillStore"
 import { useUserStore } from "@/lib/stores/userStore"
 import React, { useEffect, useState } from "react";
+import { useSkillStore } from "@/lib/stores/skillStore";
 
 export default function PartnersPage() {
   const { users, isLoading: isUsersLoading, error: usersError, fetchUsers } = useUserStore()
-  // const { fetchSkills } = useSkillStore()
+  const { fetchSkills } = useSkillStore()
   const [popularSkills, setPopularSkills] = useState<Skill[]>([])
   const pageSize = 20; // Set page size for pagination
   const [searchValue, setSearchValue] = useState("")
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
 
-  // useEffect(() => {
-  //   fetchSkills()
-  // }, [fetchSkills])
+  useEffect(() => {
+    fetchSkills()
+  }, [fetchSkills])
 
   // Fetch 20 random users for immediate display and all users for pagination
   useEffect(() => {
