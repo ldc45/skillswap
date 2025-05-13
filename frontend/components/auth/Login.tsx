@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { User } from "@/@types/api/models/User";
 import { apiService } from "@/lib/services/apiService";
-import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
+import { useAuthStore } from "@/lib/stores/authStore";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
@@ -68,7 +68,7 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
           const userResponse = await apiService.get<User>("/users/me");
 
           // Update store with user data - userResponse already contains skills and availabilities
-          login({ user: userResponse as unknown as UserWithRelations });
+          login({ user: userResponse as unknown as User });
 
           if (handleLogin) {
             handleLogin();
