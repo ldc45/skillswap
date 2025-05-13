@@ -5,10 +5,14 @@ import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
 import { ValidationPipe } from '@nestjs/common';
+import helmet, { hidePoweredBy } from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+
+// Security middleware to set various HTTP headers
+  app.use(helmet({hidePoweredBy: true}));
 
   // Use cookie-parser middleware
   app.use(cookieParser());

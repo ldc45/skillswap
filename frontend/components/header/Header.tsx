@@ -162,13 +162,15 @@ const Header = () => {
           <div className="mr-3">
             <Button 
               variant="ghost"
+              className='cursor-pointer'
               onClick={() => handleNavigation('/')}
             >
               <Image src={logo} alt="SkillSwap Logo" width={40} height={40} />
             </Button>
           </div>
-          <Button 
-          variant="ghost"
+          <Button
+            variant="ghost"
+            className='cursor-pointer'
             onClick={() => handleNavigation('/')}
           >
             <h1 className="text-4xl">SkillSwap</h1>
