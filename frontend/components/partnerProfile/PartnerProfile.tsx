@@ -8,7 +8,7 @@ export default function PartnerProfile({ partner }: { partner: User }) {
       <div className="flex flex-col gap-y-2 items-center">
         <Avatar className="w-20 h-20">
           <AvatarImage
-            src={partner.avatarUrl || "https://github.com/shadcn.png"}
+            src={partner.avatarUrl || "https://github.com/shadcn.png"} alt={`Avatar ${partner.firstName} ${partner.lastName}`}
           />
         </Avatar>
         <h3 className="text-xl font-medium md:text-2xl lg:text-3xl">

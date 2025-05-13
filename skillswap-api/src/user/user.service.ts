@@ -33,11 +33,13 @@ export class UserService {
     if (emailUser) {
       throw new BadRequestException('Cet email est déjà utilisé.');
     }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(
       createUserDto.password,
       this.saltRounds,
     );
+
 
     // Create user with hashed password
     const createdUser = await this.prisma.user.create({
@@ -54,6 +56,7 @@ export class UserService {
         availabilities: true,
       },
     });
+
 
     // Clear user cache after creating a new user
     await this.cacheManager.del('users');
@@ -191,6 +194,7 @@ export class UserService {
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
+
     // Hash password if provided
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(
@@ -213,14 +217,18 @@ export class UserService {
         availabilities: true,
       },
     });
+
     // Delete users cache to force re-fetch
     await this.cacheManager.del('users');
+
 
     // Conversion en DTO de réponse pour exclure le mot de passe
     return plainToInstance(UserResponseDto, updatedUser);
   }
 
-  async remove(id: string) {
+
+  async remove(id: string): Promise<UserResponseDto> {
+
     const deletedUser = await this.prisma.user.delete({
       where: {
         id: id,
@@ -234,6 +242,7 @@ export class UserService {
         availabilities: true,
       },
     });
+
     // Delete users cache to force re-fetch
     await this.cacheManager.del('users');
 

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 
 import Header from "@/components/header/Header";
+import Footer from "@/components/footer/Footer";
 import AuthProvider from "@/components/auth/AuthProvider";
 import "./globals.css";
 
@@ -36,12 +37,15 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased max-w-screen-xl mx-auto`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <AuthProvider>
-          <Header />
-          {children}
-        </AuthProvider>
+        <div className="flex flex-col flex-1 max-w-screen-xl mx-auto w-full min-h-screen">
+          <AuthProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+          </AuthProvider>
+          <Footer />
+        </div>
         <Toaster />
       </body>
     </html>

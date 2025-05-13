@@ -151,7 +151,7 @@ export default function ConversationPage() {
           <ChevronLeft className="h-6 w-6 text-gray-500" />
         </Link>
         <Avatar>
-          <AvatarImage src={conversation.partner.avatar_url} />
+          <AvatarImage src={conversation.partner.avatar_url} alt="Avatar" />
         </Avatar>
         <div className="flex flex-col">
           <span className="font-semibold">

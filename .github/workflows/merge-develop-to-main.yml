@@ -1,7 +1,7 @@
 name: Merge Develop to Main
 
 on:
-  # Automatic execution every 3 hours
+  # Automatic execution every 12 hours
   schedule:
     - cron: '0 */12 * * *'
   
@@ -22,7 +22,29 @@ permissions:
   contents: write
 
 jobs:
+  # Nouveau job pour exécuter les tests
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./skillswap-api
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      # Utilise Node.js préinstallé sur le runner ubuntu-latest
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run:  npm run test -- "user-skill.service|auth.service"
+  
+  # Le job de fusion ne s'exécute maintenant qu'après les tests
   merge-develop-to-main:
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       merge_status: ${{ steps.merge_status.outputs.status }}
