@@ -70,7 +70,7 @@ export class UserService {
           },
         },
       });
-      await this.cacheManager.set('users', users);
+      await this.cacheManager.set('users', users, 60 * 1000);
     }
 
     if (randomNum > 0) {

@@ -32,7 +32,7 @@ export class SkillService {
     } else {
       // Otherwise, fetch from Prisma, set cache and return data
       const skills: Skill[] = await this.prisma.skill.findMany();
-      await this.cacheManager.set('skills', skills);
+      await this.cacheManager.set('skills', skills, 60 * 60 * 1000);
       return skills;
     }
   }
