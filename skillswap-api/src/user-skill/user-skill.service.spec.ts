@@ -7,7 +7,7 @@ import { CreateMultipleUserSkillsDto } from './dto/create-multiple-user-skills.d
 describe('UserSkillService', () => {
   let service: UserSkillService;
 
-  // Mock du PrismaService
+  // Mock of PrismaService to isolate tests from database
   const mockPrismaService = {
     user: {
       findUnique: jest.fn(),
@@ -34,7 +34,7 @@ describe('UserSkillService', () => {
 
     service = module.get<UserSkillService>(UserSkillService);
 
-    // Réinitialiser les mocks avant chaque test
+    // Reset mocks before each test to ensure clean state
     jest.clearAllMocks();
   });
 
@@ -43,16 +43,17 @@ describe('UserSkillService', () => {
   });
 
   describe('addMultipleSkillsToUser', () => {
+    // Test data setup
     const userId = 'user-id-123';
     const createDto: CreateMultipleUserSkillsDto = {
       skillIds: ['skill1', 'skill2', 'skill3'],
     };
 
     it('should throw NotFoundException if user does not exist', async () => {
-      // Arrange
+      // Arrange: Configure mock to return null user
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      // Act & Assert
+      // Act & Assert: Verify the correct exception is thrown
       await expect(
         service.addMultipleSkillsToUser(userId, createDto),
       ).rejects.toThrow(NotFoundException);
@@ -62,11 +63,11 @@ describe('UserSkillService', () => {
     });
 
     it('should throw NotFoundException if no skills are found', async () => {
-      // Arrange
+      // Arrange: User exists but no skills match the provided IDs
       mockPrismaService.user.findUnique.mockResolvedValue({ id: userId });
       mockPrismaService.skill.findMany.mockResolvedValue([]);
 
-      // Act & Assert
+      // Act & Assert: Verify the correct exception is thrown
       await expect(
         service.addMultipleSkillsToUser(userId, createDto),
       ).rejects.toThrow(NotFoundException);
@@ -76,7 +77,7 @@ describe('UserSkillService', () => {
     });
 
     it('should return a message if all skills already exist for the user', async () => {
-      // Arrange
+      // Arrange: User and skills exist, and all skills are already associated with the user
       mockPrismaService.user.findUnique.mockResolvedValue({ id: userId });
       const foundSkills = [
         { id: 'skill1' },
@@ -90,10 +91,10 @@ describe('UserSkillService', () => {
         { userId, skillId: 'skill3' },
       ]);
 
-      // Act
+      // Act: Call the method under test
       const result = await service.addMultipleSkillsToUser(userId, createDto);
 
-      // Assert
+      // Assert: Verify expected result and that no create operation was performed
       expect(result).toEqual({
         message: 'User already has all the valid skills',
       });
@@ -103,7 +104,7 @@ describe('UserSkillService', () => {
     });
 
     it('should successfully add new skills to the user', async () => {
-      // Arrange
+      // Arrange: User and skills exist, but user only has one of the skills
       mockPrismaService.user.findUnique.mockResolvedValue({ id: userId });
       const foundSkills = [
         { id: 'skill1' },
@@ -123,10 +124,10 @@ describe('UserSkillService', () => {
         createdUserSkills,
       );
 
-      // Act
+      // Act: Call the method under test
       const result = await service.addMultipleSkillsToUser(userId, createDto);
 
-      // Assert
+      // Assert: Verify the correct skills were added and return value is as expected
       expect(result).toEqual(createdUserSkills);
       expect(
         mockPrismaService.userSkill.createManyAndReturn,
@@ -141,13 +142,14 @@ describe('UserSkillService', () => {
   });
 
   describe('findAllUserSkills', () => {
+    // Test data setup
     const userId = 'user-id-123';
 
     it('should throw NotFoundException if user does not exist', async () => {
-      // Arrange
+      // Arrange: Configure mock to return null user
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      // Act & Assert
+      // Act & Assert: Verify the correct exception is thrown
       await expect(service.findAllUserSkills(userId)).rejects.toThrow(
         NotFoundException,
       );
@@ -157,7 +159,7 @@ describe('UserSkillService', () => {
     });
 
     it('should return all skills for a user', async () => {
-      // Arrange
+      // Arrange: User exists with multiple skills
       mockPrismaService.user.findUnique.mockResolvedValue({ id: userId });
       const mockUserSkills = [
         {
@@ -181,10 +183,10 @@ describe('UserSkillService', () => {
       ];
       mockPrismaService.userSkill.findMany.mockResolvedValue(mockUserSkills);
 
-      // Act
+      // Act: Call the method under test
       const result = await service.findAllUserSkills(userId);
 
-      // Assert
+      // Assert: Verify the returned data and proper query parameters
       expect(result).toEqual(mockUserSkills);
       expect(mockPrismaService.userSkill.findMany).toHaveBeenCalledWith({
         where: { userId },
@@ -200,13 +202,14 @@ describe('UserSkillService', () => {
   });
 
   describe('findUsersWithSameSkill', () => {
+    // Test data setup
     const skillId = 'skill-id-123';
 
     it('should throw NotFoundException if skill does not exist', async () => {
-      // Arrange
+      // Arrange: Configure mock to return null skill
       mockPrismaService.skill.findUnique.mockResolvedValue(null);
 
-      // Act & Assert
+      // Act & Assert: Verify the correct exception is thrown
       await expect(service.findUsersWithSameSkill(skillId)).rejects.toThrow(
         NotFoundException,
       );
@@ -216,7 +219,7 @@ describe('UserSkillService', () => {
     });
 
     it('should return all users with the same skill', async () => {
-      // Arrange
+      // Arrange: Skill exists and is associated with multiple users
       mockPrismaService.skill.findUnique.mockResolvedValue({ id: skillId });
       const mockUsersWithSkill = [
         {
@@ -234,10 +237,10 @@ describe('UserSkillService', () => {
         mockUsersWithSkill,
       );
 
-      // Act
+      // Act: Call the method under test
       const result = await service.findUsersWithSameSkill(skillId);
 
-      // Assert
+      // Assert: Verify the returned data and proper query parameters
       expect(result).toEqual(mockUsersWithSkill);
       expect(mockPrismaService.userSkill.findMany).toHaveBeenCalledWith({
         where: { skillId },
@@ -249,14 +252,15 @@ describe('UserSkillService', () => {
   });
 
   describe('removeSkillFromUser', () => {
+    // Test data setup
     const userId = 'user-id-123';
     const skillId = 'skill-id-123';
 
     it('should throw NotFoundException if the user-skill relationship does not exist', async () => {
-      // Arrange
+      // Arrange: Configure mock to return null for the user-skill relationship
       mockPrismaService.userSkill.findUnique.mockResolvedValue(null);
 
-      // Act & Assert
+      // Act & Assert: Verify the correct exception is thrown
       await expect(
         service.removeSkillFromUser(userId, skillId),
       ).rejects.toThrow(NotFoundException);
@@ -271,7 +275,7 @@ describe('UserSkillService', () => {
     });
 
     it('should successfully remove a skill from a user', async () => {
-      // Arrange
+      // Arrange: User-skill relationship exists
       mockPrismaService.userSkill.findUnique.mockResolvedValue({
         userId,
         skillId,
@@ -279,10 +283,10 @@ describe('UserSkillService', () => {
       const deletedUserSkill = { userId, skillId };
       mockPrismaService.userSkill.delete.mockResolvedValue(deletedUserSkill);
 
-      // Act
+      // Act: Call the method under test
       const result = await service.removeSkillFromUser(userId, skillId);
 
-      // Assert
+      // Assert: Verify the correct data is returned and proper deletion parameters
       expect(result).toEqual(deletedUserSkill);
       expect(mockPrismaService.userSkill.delete).toHaveBeenCalledWith({
         where: {

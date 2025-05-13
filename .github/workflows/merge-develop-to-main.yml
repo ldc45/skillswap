@@ -39,8 +39,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run UserSkillService tests
-        run: npm run test -- user-skill.service
+      - name: Run tests
+        run:  npm run test -- "user-skill.service|auth.service"
   
   # Le job de fusion ne s'exécute maintenant qu'après les tests
   merge-develop-to-main:
