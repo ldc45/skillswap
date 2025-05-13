@@ -24,19 +24,36 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     const emailUser = await this.findOneByMail(createUserDto.email);
     if (emailUser) {
       throw new BadRequestException('Cet email est déjà utilisé.');
     }
 
-    createUserDto.password = await bcrypt.hash(
+    // Hash du mot de passe
+    const hashedPassword = await bcrypt.hash(
       createUserDto.password,
       this.saltRounds,
     );
-    return this.prisma.user.create({
-      data: createUserDto,
+
+    // Création de l'utilisateur avec le mot de passe hashé
+    const createdUser = await this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+      },
+      include: {
+        skills: {
+          select: {
+            skill: true,
+          },
+        },
+        availabilities: true,
+      },
     });
+
+    // Conversion en DTO de réponse pour exclure le mot de passe
+    return plainToInstance(UserResponseDto, createdUser);
   }
 
   async findAll(randomNum: number = 0): Promise<UserResponseDto[]> {
@@ -139,20 +156,53 @@ export class UserService {
     }
   }
 
-  update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
-    return this.prisma.user.update({
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    // Si le mot de passe est mis à jour, il faut le hasher
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(
+        updateUserDto.password,
+        this.saltRounds,
+      );
+    }
+
+    const updatedUser = await this.prisma.user.update({
       where: {
         id: id,
       },
       data: updateUserDto,
+      include: {
+        skills: {
+          select: {
+            skill: true,
+          },
+        },
+        availabilities: true,
+      },
     });
+
+    // Conversion en DTO de réponse pour exclure le mot de passe
+    return plainToInstance(UserResponseDto, updatedUser);
   }
 
-  remove(id: string) {
-    return this.prisma.user.delete({
+  async remove(id: string): Promise<UserResponseDto> {
+    const deletedUser = await this.prisma.user.delete({
       where: {
         id: id,
       },
+      include: {
+        skills: {
+          select: {
+            skill: true,
+          },
+        },
+        availabilities: true,
+      },
     });
+
+    // Conversion en DTO de réponse pour exclure le mot de passe
+    return plainToInstance(UserResponseDto, deletedUser);
   }
 }
