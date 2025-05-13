@@ -92,7 +92,9 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Se connecter</h2>
+      <h2 className="text-2xl md:text-32xl lg:text-4xl font-semibold mb-6 md:mb-10 lg:mb-12 text-center">
+        Se connecter
+      </h2>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -154,7 +156,7 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
             <Button
               variant="secondary"
               onClick={onSwitchToRegister}
-              className="px-6"
+              className="px-6 cursor-pointer"
             >
               S&apos;inscrire
             </Button>

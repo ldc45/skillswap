@@ -132,22 +132,20 @@ const Header = () => {
   const unauthenticatedMenu = (
     <>
       <div className="w-full flex flex-col items-center mt-6">
-        <div className="w-full max-w-md">
-          {showLogin ? (
-            <div className="p-6">
+        <div className="w-full max-w-md h-full">
+          <div className="p-6 flex w-full h-full flex-col items-center">
+            {showLogin ? (
               <Login
                 onSwitchToRegister={() => setShowLogin(false)}
                 handleLogin={handleLogin}
               />
-            </div>
-          ) : (
-            <div className="p-6">
+            ) : (
               <Register
                 onSwitchToLogin={() => setShowLogin(true)}
                 handleLogin={handleLogin}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </>
