@@ -80,7 +80,8 @@ export default function UserAvailabilities({
           const sortedAvailabilities = availabilitiesForDay
             ? [...availabilitiesForDay].sort(
                 (a, b) =>
-                  new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+                  new Date(a.startTime).getTime() -
+                  new Date(b.startTime).getTime()
               )
             : [];
           return (
@@ -89,15 +90,21 @@ export default function UserAvailabilities({
                 {day.label} :
               </div>
               <div className="md:divide-x-2 flex flex-col md:flex-row divide-gray-300 md:space-x-2">
-                {sortedAvailabilities.map((availability) => (
-                  <span
-                    className="px-1 text-sm lg:text-lg md:text-base pe-3 last:pe-0"
-                    key={availability.id}
-                  >
-                    {getFormattedDate(availability.startTime)} -{" "}
-                    {getFormattedDate(availability.endTime)}
-                  </span>
-                ))}
+                {sortedAvailabilities.length > 0 ? (
+                  sortedAvailabilities.map((availability) => (
+                    <span
+                      className="px-1 text-sm lg:text-lg md:text-base pe-3 last:pe-0"
+                      key={availability.id}
+                    >
+                      {getFormattedDate(availability.startTime)} -{" "}
+                      {getFormattedDate(availability.endTime)}
+                    </span>
+                  ))
+                ) : (
+                  <p className="px-1 text-sm lg:text-lg md:text-base whitespace-nowrap text-gray-400">
+                    Aucune disponibilité
+                  </p>
+                )}
               </div>
               {isEditing && (
                 <Dialog>
@@ -132,7 +139,7 @@ export default function UserAvailabilities({
           Modifier
         </Button>
       ) : (
-        <div className="flex flex-basis grow">
+        <div className="flex flex-basis gap-4 grow">
           <Button
             type="button"
             onClick={handleCancel}

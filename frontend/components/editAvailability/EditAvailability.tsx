@@ -81,7 +81,7 @@ export default function EditAvailability({
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>
+        <DialogTitle className="w-fit">
           Vos disponibilités du {selectedDay.label.toLowerCase()}
         </DialogTitle>
       </DialogHeader>
@@ -110,16 +110,16 @@ export default function EditAvailability({
           ))}
         </ul>
       ) : (
-        <div className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500">
           Vous n&apos;avez pas encore de disponibilités pour ce jour.
-        </div>
+        </p>
       )}
 
       <DialogFooter className="pt-4 flex !flex-col border-t-2 border-accent-foreground">
-        <h5 className="text-sm md:text-base lg:text-lg font-medium py-4">
+        <h5 className="text-base md:text-lg lg:text-xl font-medium py-4">
           Ajouter une disponibilité
         </h5>
-        <div className="flex justify-between items-center">
+        <div className="md:flex-row flex flex-col gap-6 justify-between items-center">
           <div className="flex gap-x-4 items-center">
             <TimePicker date={startDate} setDate={setStartDate} />
             <span className="text-sm md:text-base lg:text-lg font-medium">
@@ -131,7 +131,7 @@ export default function EditAvailability({
           <Button
             type="button"
             variant="outline"
-            className="ml-auto"
+            className="md:ml-auto md:w-fit self-center w-full"
             onClick={handleAddAvailability}
             disabled={!startDate || !endDate}
           >

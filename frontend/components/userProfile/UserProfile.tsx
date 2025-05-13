@@ -5,8 +5,8 @@ import { UseFormReturn } from "react-hook-form";
 import { CreateAvailabilityDto } from "@/@types/api";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useSkillStore } from "@/lib/stores/skillStore";
+import UserSkills from "@/components/userSkills/UserSkills";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import {
   FormField,
   FormItem,
@@ -112,23 +112,7 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
 
       <div className="flex flex-row md:gap-x-2 lg:gap-x-3 gap-x-1 wrap">
         {!isEditing ? (
-          <div className="flex flex-wrap gap-2 w-full">
-            {user.skills && user.skills.length > 0 ? (
-              user.skills.map((skill) => (
-                <Badge
-                  variant="badge"
-                  key={skill.id}
-                  className="md:text-sm lg:text-base md:px-2 lg:px-4"
-                >
-                  {skill.diminutive || skill.name}
-                </Badge>
-              ))
-            ) : (
-              <p className="text-sm md:text-base">
-                Vous n&apos;avez pas encore de compétences
-              </p>
-            )}
-          </div>
+          <UserSkills skills={user.skills || []} />
         ) : (
           <MultiSelect
             options={skillOptions}
@@ -155,7 +139,11 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Textarea placeholder={user.biography} {...field} />
+                  <Textarea
+                    placeholder={user.biography}
+                    className="text-sm md:text-base"
+                    {...field}
+                  />
                 </FormControl>
 
                 <FormMessage />
