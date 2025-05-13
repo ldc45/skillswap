@@ -168,10 +168,10 @@ export default function ProfilePage() {
         );
       }
 
-      let availabilitiesResponse: Availability[] | null = null;
+let availabilitiesResponse: Availability[] | undefined = undefined;
 
       if (!availabilities.length) {
-        availabilitiesResponse = user.availabilities;
+        availabilitiesResponse = user.availabilities ?? undefined;
         toast.warning(
           "Nous vous conseillons de renseigner vos disponibilités",
           {
@@ -180,7 +180,7 @@ export default function ProfilePage() {
         );
       } else if (areAvailabilitiesEqual(user.availabilities ?? undefined, availabilities)) {
         // No change, skip API calls
-        availabilitiesResponse = user.availabilities;
+        availabilitiesResponse = user.availabilities ?? undefined;
         toast.info("Aucune modification des disponibilités", {
           position: "top-center",
         });
