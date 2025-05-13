@@ -65,7 +65,7 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
       <div className="flex flex-col gap-y-2 items-center">
         <Avatar className="w-20 h-20">
           <AvatarImage
-            src={user.avatarUrl || "https://github.com/shadcn.png"}
+            src={user.avatarUrl || "https://github.com/shadcn.png"} alt={`Avatar ${user.firstName} ${user.lastName}`}
           />
         </Avatar>
         {!isEditing ? (
