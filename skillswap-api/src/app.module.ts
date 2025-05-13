@@ -11,15 +11,17 @@ import { AvailabilityModule } from './availability/availability.module';
 import { UserSkillModule } from './user-skill/user-skill.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
-import {ThrottlerModule} from "@nestjs/throttler";
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([{
-      name: 'login', // name of the throttle
-      ttl: 60000,    // 1 minute
-      limit: 5,      // 5 requests per minute
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        name: 'login', // name of the throttle
+        ttl: 60000, // 1 minute
+        limit: 5, // 5 requests per minute
+      },
+    ]),
     AuthModule,
     UserModule,
     PrismaModule,
