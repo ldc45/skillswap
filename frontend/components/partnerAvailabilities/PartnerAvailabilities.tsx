@@ -11,9 +11,12 @@ export default function PartnerAvailabilities({ partner }: { partner: User }) {
 
       <div className="divide-y">
         {DAYS.map((day) => {
-          const dayAvailabilities = partner.availabilities?.filter((availability) => availability.day === day.id) || [];
+          const dayAvailabilities =
+            partner.availabilities?.filter(
+              (availability) => availability.day === day.id
+            ) || [];
           return (
-            <div key={day.id} className="py-4 flex gap-x-2">
+            <div key={day.id} className="py-4 flex gap-x-2 items-center">
               <div className="text-sm lg:text-lg md:text-base font-semibold whitespace-nowrap">
                 {day.label} :
               </div>
@@ -24,11 +27,14 @@ export default function PartnerAvailabilities({ partner }: { partner: User }) {
                       className="px-1 text-sm lg:text-lg md:text-base"
                       key={availability.id}
                     >
-                      {getFormattedDate(availability.startTime)} - {getFormattedDate(availability.endTime)}
+                      {getFormattedDate(availability.startTime)} -{" "}
+                      {getFormattedDate(availability.endTime)}
                     </span>
                   ))
                 ) : (
-                  <span className="px-1 text-sm text-gray-400">Aucune disponibilité</span>
+                  <p className="px-1 text-sm lg:text-lg md:text-base whitespace-nowrap text-gray-400">
+                    Aucune disponibilité
+                  </p>
                 )}
               </div>
             </div>
