@@ -39,7 +39,7 @@ export default function MemberCard({
         <Card className="flex items-center max-w-[560px] flex-row p-4 shadow-md hover:shadow-lg transition-shadow cursor-pointer justify-between">
           <div className="flex items-center gap-4">
             <Avatar>
-              <AvatarImage src={user.avatarUrl} />
+              <AvatarImage src={user.avatarUrl} alt={`Avatar ${user.firstName} ${user.lastName}`} />
             </Avatar>
             <div className="flex flex-col">
               <p className="font-semibold md:text-lg">
@@ -65,7 +65,7 @@ export default function MemberCard({
   return (
     <Card className="flex items-center max-w-[560px] flex-row p-4 shadow-md">
       <Avatar>
-        <AvatarImage src={user.avatarUrl} />
+        <AvatarImage src={user.avatarUrl} alt={`Avatar ${user.firstName} ${user.lastName}`} />
       </Avatar>
       <div className="flex flex-col">
         <p className="font-semibold md:text-lg">
