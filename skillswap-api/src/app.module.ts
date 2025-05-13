@@ -10,6 +10,7 @@ import { ConversationModule } from './conversation/conversation.module';
 import { AvailabilityModule } from './availability/availability.module';
 import { UserSkillModule } from './user-skill/user-skill.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { createKeyv } from '@keyv/redis';
 
 @Module({
   imports: [
@@ -21,7 +22,10 @@ import { CacheModule } from '@nestjs/cache-manager';
     ConversationModule,
     AvailabilityModule,
     UserSkillModule,
-    CacheModule.register({ isGlobal: true }),
+    CacheModule.register({
+      isGlobal: true,
+      stores: [createKeyv(process.env.REDIS_URL)],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
