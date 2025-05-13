@@ -1,20 +1,12 @@
-import { Availability, Skill } from "@/@types/api";
 import { User } from "@/@types/api/models/User";
 import { create } from "zustand";
 
-// TODO: Replace with the generated type from the API
-export interface UserWithRelations extends User {
-  skills: Skill[] | undefined;
-  availabilities: Availability[] | undefined;
-}
-
-// TODO: Replace UserWithRelations with the generated type from the API
 interface AuthState {
   isAuthenticated: boolean;
-  user: UserWithRelations | null;
-  login: (userData: { user?: UserWithRelations }) => void;
+  user: User | null;
+  login: (userData: { user?: User }) => void;
   logout: () => void;
-  updateUser: (user: Partial<UserWithRelations>) => void;
+  updateUser: (user: Partial<User>) => void;
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { User } from "@/@types/api";
 import { apiService } from "@/lib/services/apiService";
-import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 export default function AuthProvider({
   children,
@@ -18,8 +19,8 @@ export default function AuthProvider({
       if (!isAuthenticated) {
         try {
           // Attempt to fetch the user profile to verify if the session is active
-          const userResponse = await apiService.get<UserWithRelations>("/users/me");
-          
+          const userResponse = await apiService.get<User>("/users/me");
+
           // If we receive a valid response, the session token is active
           // We can automatically log in the user
           if (userResponse && userResponse.id) {
@@ -50,6 +51,6 @@ export default function AuthProvider({
       </div>
     );
   }
-  
+
   return <>{children}</>;
 }

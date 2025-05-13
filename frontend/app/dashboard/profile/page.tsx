@@ -6,9 +6,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { Availability, Skill } from "@/@types/api";
+import { Availability, Skill, User } from "@/@types/api";
 import { apiService } from "@/lib/services/apiService";
-import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
+import { useAuthStore } from "@/lib/stores/authStore";
 import { Form } from "@/components/ui/form";
 import UserAvailabilities from "@/components/userAvailabilities/UserAvailabilities";
 import UserProfile from "@/components/userProfile/UserProfile";
@@ -78,7 +78,7 @@ export default function ProfilePage() {
     const { skills, availabilities, ...userData } = data;
 
     try {
-      const userResponse: UserWithRelations = await apiService.patch(
+      const userResponse: User = await apiService.patch(
         `/users/${user.id}`,
         userData
       );
@@ -90,7 +90,9 @@ export default function ProfilePage() {
       const skillsResponse: Skill[] = [];
       const currentSkillIds = user.skills?.map((s) => s.id) || [];
       const skillsToAdd = skills.filter((id) => !currentSkillIds.includes(id));
-      const skillsToRemove = currentSkillIds.filter((id) => !skills.includes(id));
+      const skillsToRemove = currentSkillIds.filter(
+        (id) => !skills.includes(id)
+      );
 
       if (!skills.length) {
         toast.warning(
@@ -150,25 +152,32 @@ export default function ProfilePage() {
               startTime: new Date(item.startTime).toISOString(),
               endTime: new Date(item.endTime).toISOString(),
             }))
-            .sort((x, y) => x.day - y.day || x.startTime.localeCompare(y.startTime));
-        const normalizeB = (arr: { day: number; startTime: Date; endTime: Date }[]) =>
+            .sort(
+              (x, y) => x.day - y.day || x.startTime.localeCompare(y.startTime)
+            );
+        const normalizeB = (
+          arr: { day: number; startTime: Date; endTime: Date }[]
+        ) =>
           arr
             .map((item) => ({
               day: item.day,
               startTime: item.startTime.toISOString(),
               endTime: item.endTime.toISOString(),
             }))
-            .sort((x, y) => x.day - y.day || x.startTime.localeCompare(y.startTime));
+            .sort(
+              (x, y) => x.day - y.day || x.startTime.localeCompare(y.startTime)
+            );
         const arrA = normalizeA(a);
         const arrB = normalizeB(b);
-        return arrA.every((item, idx) =>
-          item.day === arrB[idx].day &&
-          item.startTime === arrB[idx].startTime &&
-          item.endTime === arrB[idx].endTime
+        return arrA.every(
+          (item, idx) =>
+            item.day === arrB[idx].day &&
+            item.startTime === arrB[idx].startTime &&
+            item.endTime === arrB[idx].endTime
         );
       }
 
-let availabilitiesResponse: Availability[] | undefined = undefined;
+      let availabilitiesResponse: Availability[] | undefined = undefined;
 
       if (!availabilities.length) {
         availabilitiesResponse = user.availabilities ?? undefined;
@@ -178,7 +187,9 @@ let availabilitiesResponse: Availability[] | undefined = undefined;
             position: "top-center",
           }
         );
-      } else if (areAvailabilitiesEqual(user.availabilities ?? undefined, availabilities)) {
+      } else if (
+        areAvailabilitiesEqual(user.availabilities ?? undefined, availabilities)
+      ) {
         // No change, skip API calls
         availabilitiesResponse = user.availabilities ?? undefined;
         toast.info("Aucune modification des disponibilités", {
@@ -199,7 +210,10 @@ let availabilitiesResponse: Availability[] | undefined = undefined;
             endTime: availability.endTime.toISOString(),
             userId: user.id,
           }));
-          availabilitiesResponse = await apiService.post("/availabilities", data);
+          availabilitiesResponse = await apiService.post(
+            "/availabilities",
+            data
+          );
           toast.success("Disponibilités mises à jour", {
             position: "top-center",
           });

@@ -1,15 +1,16 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+
+import { User } from "@/@types/api";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { UserWithRelations } from "@/lib/stores/authStore";
 
 // Add isLink prop to control if MemberCard is clickable
 interface MemberCardProps {
-  user: UserWithRelations;
+  user: User;
   isLoading: boolean;
   isLink?: boolean; // Optional prop to enable/disable link
 }

@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useAuthStore, UserWithRelations } from "@/lib/stores/authStore";
+import { User } from "@/@types/api";
+import { useAuthStore } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -99,9 +100,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
       if (registerResponse) {
         try {
           // Fetch connected user information
-          const userResponse = await apiService.get<UserWithRelations>(
-            "/users/me"
-          );
+          const userResponse = await apiService.get<User>("/users/me");
 
           // Update store with user data
           login({ user: userResponse });
