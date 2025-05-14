@@ -5,14 +5,14 @@ import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
 import { ValidationPipe } from '@nestjs/common';
-import helmet, { hidePoweredBy } from 'helmet';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
-// Security middleware to set various HTTP headers
-  app.use(helmet({hidePoweredBy: true}));
+  // Security middleware to set various HTTP headers
+  app.use(helmet({ hidePoweredBy: true }));
 
   // Use cookie-parser middleware
   app.use(cookieParser());
@@ -67,9 +67,18 @@ async function bootstrap() {
       origin: string | undefined,
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
-      // Allow requests with no origin (Postman/Curl)
+      // In production, reject requests with no origin (Postman/Curl/etc)
+      // In development, allow requests with no origin for testing
       if (!origin) {
-        callback(null, true);
+        if (process.env.NODE_ENV === 'production') {
+          console.log('Blocked request with no origin in production');
+          callback(
+            new Error('Requests with no origin are not allowed in production'),
+          );
+        } else {
+          // Allow in development for testing
+          callback(null, true);
+        }
         return;
       }
       // Check if origin is in the allowed list
