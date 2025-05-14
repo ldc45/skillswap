@@ -103,7 +103,10 @@ export class UserService {
       return plainToInstance(UserResponseDto, randomUsers);
     } else {
       // Store in cache
-      await this.cacheManager.set('users', users);
+      await this.cacheManager.set(
+        'users',
+        plainToInstance(UserResponseDto, users),
+      );
       return plainToInstance(UserResponseDto, users);
     }
   }
