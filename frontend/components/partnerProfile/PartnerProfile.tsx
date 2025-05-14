@@ -18,7 +18,7 @@ export default function PartnerProfile({ partner }: { partner: User }) {
 
       <UserSkills skills={partner.skills || []} />
 
-      <div className="flex w-full flex-col gap-y-1">
+      <div className="flex w-full flex-col gap-y-1 pt-4">
         <h4 className="text-lg md:text-xl lg:text-2xl font-medium">
           Biographie
         </h4>

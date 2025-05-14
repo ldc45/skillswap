@@ -134,7 +134,7 @@ export default function UserAvailabilities({
         <Button
           type="button"
           onClick={() => setIsEditing(true)}
-          className="w-fit lg:self-end self-center md:text-lg"
+          className="w-fit self-center md:text-lg"
         >
           Modifier
         </Button>

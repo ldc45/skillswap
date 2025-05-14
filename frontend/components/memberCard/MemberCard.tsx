@@ -38,11 +38,11 @@ export default function MemberCard({
       <Link href={`/dashboard/partners/${user.id}`}>
         <Card className="flex items-center max-w-[560px] flex-row p-4 shadow-md hover:shadow-lg transition-shadow cursor-pointer justify-between">
           <div className="flex items-center gap-4">
-            <Avatar>
+            <Avatar className="md:size-10 lg:size-12">
               <AvatarImage src={user.avatarUrl} />
             </Avatar>
             <div className="flex flex-col">
-              <p className="font-semibold md:text-lg">
+              <p className="font-semibold md:text-lg lg:text-xl">
                 {user.firstName} {user.lastName.charAt(0)}.
               </p>
               {user && user.skills && user.skills.length > 0 && (
@@ -55,7 +55,7 @@ export default function MemberCard({
               )}
             </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-gray-400" />
+          <ChevronRight className="size-5 md:size-6 lg:size-7 text-gray-400" />
         </Card>
       </Link>
     );
