@@ -1,40 +1,130 @@
+# Simplified API Load Testing Configuration
+# Tests essential API endpoints with realistic load patterns
+
 config:
   target: "http://localhost:4000/api"
-  phases:
-    - duration: 60
-      # Start with 1 request per second
-      arrivalRate: 1
-      # Increase to 5 requests per second
-      rampTo: 5
-      name: Warm up phase
-#    - duration: 60
-#      arrivalRate: 5
-#      rampTo: 10
-#      name: Ramp up load
-#    - duration: 30
-#      arrivalRate: 10
-#      rampTo: 30
-#      name: Spike phase
 
+  # Test execution phases - complete sequence of three phases
+  phases:
+    # Warm-up phase - allows systems to initialize caches and connections
+    - duration: 30        # 30 seconds
+      arrivalRate: 2      # Start with 2 users per second
+      rampTo: 10          # Gradually increase to 10 users per second
+      name: "Warm up"     # Phase name for reports
+
+    # Ramp-up phase - gradual increase to normal operating load
+    - duration: 45        # 45 seconds
+      arrivalRate: 15     # Start where previous phase left off
+      rampTo: 30          # Double the load to 30 users per second
+      name: "Ramp up"     # Phase name for reports
+
+    # Spike phase - tests system resilience under sudden high load
+    - duration: 30        # 30 seconds (shorter to prevent resource exhaustion)
+      arrivalRate: 30     # Start where previous phase left off
+      rampTo: 70          # Rapid increase to 70 users per second
+      name: "Spike"       # Phase name for reports
+
+  # Variables for dynamic test data - create unique users
+  variables:
+    email: "test-{{ $randomString(10) }}@example.com"  # Random email addresses
+    password: "Password123!"                           # Fixed test password
+    username: "testuser-{{ $randomString(5) }}"        # Random usernames
+
+  # Essential plugins for performance analysis
   plugins:
-    # Plugin to verify the performance thresholds
-    ensure: {}
-    # Measure the user satisfaction
-    apdex: {}
-    # Collect metrics for each endpoint
-    metrics-by-endpoint: {}
+    ensure: {}            # Verify performance thresholds
+    apdex: {}             # Measure user satisfaction scores
+    metrics-by-endpoint: {}  # Track performance by endpoint
+
+  # Performance measurement settings
   apdex:
-    threshold: 100
+    threshold: 100        # 100ms is "satisfactory" response time
   ensure:
-    # Performance thresholds to be met
     thresholds:
-        # Ensure that 99% of requests are completed within 100ms
-      - http.response_time.p99: 100
-        # Ensure that 95% of requests are completed within 75ms
-      - http.response_time.p95: 75
+      - http.response_time.p99: 100  # 99% of requests must complete within 100ms
+      - http.response_time.p95: 75  # 95% of requests must complete within 75ms
+
+# Test scenarios representing core user flows
 scenarios:
-  - flow:
+  # High volume basic endpoint testing - tests API responsiveness
+  - name: "API Endpoints"
+    weight: 5             # 50% of test traffic
+    flow:
       - loop:
           - get:
               url: '/users'
-        count: 100
+              expect:
+                - statusCode: 200  # Verify correct response code
+        count: 10         # Each user executes this request 10 times
+
+  # User authentication flow - tests account management
+  - name: "User Flow"
+    weight: 3             # 30% of test traffic
+    flow:
+      # Register a new user
+      - post:
+          url: "/auth/register"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+            username: "{{ username }}"
+            firstName: "Test"
+            lastName: "User"
+          capture:
+            - header: "Set-Cookie"  # Capture authentication cookie
+              as: "authCookies"
+          expect:
+            - statusCode: 201  # Created status code
+
+      # Login with new user credentials
+      - post:
+          url: "/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          headers:
+            Cookie: "{{ authCookies }}"  # Use captured cookies
+          capture:
+            - header: "Set-Cookie"
+              as: "loginCookies"  # Store login session cookies
+          expect:
+            - statusCode: 200
+
+      # Get user profile and logout - complete user journey
+      - get:
+          url: "/users/me"  # Get authenticated user profile
+          headers:
+            Cookie: "{{ loginCookies }}"
+          expect:
+            - statusCode: 200
+      - post:
+          url: "/auth/logout"  # End user session
+          headers:
+            Cookie: "{{ loginCookies }}"
+          expect:
+            - statusCode: 200
+
+  # Skills endpoints - tests content retrieval
+  - name: "Skills API"
+    weight: 2             # 20% of test traffic
+    flow:
+      # Get all skills
+      - get:
+          url: "/skills"  # Get skill listings
+          expect:
+            - statusCode: 200
+      # Get categories and extract ID
+      - get:
+          url: "/categories"
+          capture:
+            - json: "$[0].id"  # Extract first category ID
+              as: "categoryId"
+          expect:
+            - statusCode: 200
+      # Get skills by category using captured ID
+      - get:
+          url: "/skills/category/{{ categoryId }}"
+          expect:
+            - statusCode: 200
+
+# Weight distribution: 5 + 3 + 2 = 10 (values represent 50%, 30%, 20% of traffic)
