@@ -16,7 +16,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
   imports: [
     ThrottlerModule.forRoot([
       {
-        name: 'login', // name of the throttle
+        name: 'login',
         ttl: 60000, // 1 minute
         limit: 5, // 5 requests per minute
       },
@@ -31,7 +31,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     UserSkillModule,
     CacheModule.register({
       isGlobal: true,
-      ttl: 60 * 60, // 1 hour
+      ttl: 3600000, // 1 hour
     }),
   ],
   controllers: [AppController],
