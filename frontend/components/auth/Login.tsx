@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 
 import type { User } from "@/@types/api/models/User";
 import { apiService } from "@/lib/services/apiService";
@@ -13,7 +14,6 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Form, FormField, FormItem, FormLabel } from "../ui/form";
-import { Eye, EyeOff } from "lucide-react";
 
 const defaultValues = {
     email: "",
@@ -169,9 +169,9 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
                                             }
                                         >
                                             {isPasswordVisible ? (
-                                                <EyeOff />
-                                            ) : (
                                                 <Eye />
+                                            ) : (
+                                                <EyeOff />
                                             )}
                                         </Button>
                                     </div>
