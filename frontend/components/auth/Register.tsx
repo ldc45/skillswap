@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -105,6 +106,10 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
 
                     // Update store with user data
                     login({ user: userResponse });
+
+                    toast.success("Inscription réussie !", {
+                        position: "bottom-right",
+                    });
 
                     if (handleLogin) {
                         handleLogin();
