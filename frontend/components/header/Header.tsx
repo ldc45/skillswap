@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { LogOut, Menu, X } from "lucide-react";
@@ -47,6 +48,9 @@ const Header = () => {
             // and update local store
             await apiService.logout();
             setIsMenuOpen(false);
+            toast.success("Déconnexion réussie !", {
+                position: "bottom-right",
+            });
             // Rediriger vers la page d'accueil après déconnexion
             router.push("/");
         } catch (error) {
