@@ -1,0 +1,40 @@
+config:
+  target: "http://localhost:4000/api"
+  phases:
+    - duration: 60
+      # Start with 1 request per second
+      arrivalRate: 1
+      # Increase to 5 requests per second
+      rampTo: 5
+      name: Warm up phase
+#    - duration: 60
+#      arrivalRate: 5
+#      rampTo: 10
+#      name: Ramp up load
+#    - duration: 30
+#      arrivalRate: 10
+#      rampTo: 30
+#      name: Spike phase
+
+  plugins:
+    # Plugin to verify the performance thresholds
+    ensure: {}
+    # Measure the user satisfaction
+    apdex: {}
+    # Collect metrics for each endpoint
+    metrics-by-endpoint: {}
+  apdex:
+    threshold: 100
+  ensure:
+    # Performance thresholds to be met
+    thresholds:
+        # Ensure that 99% of requests are completed within 100ms
+      - http.response_time.p99: 100
+        # Ensure that 95% of requests are completed within 75ms
+      - http.response_time.p95: 75
+scenarios:
+  - flow:
+      - loop:
+          - get:
+              url: '/users'
+        count: 100
