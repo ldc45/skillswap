@@ -50,11 +50,11 @@ export default function ConversationCard({
 
   return (
     <Link href={`/dashboard/messages/${id}`}>
-      <Card className="flex flex-row items-center justify-between p-4 shadow-md hover:shadow-lg transition-shadow relative">
+      <Card className="flex flex-row items-center max-w-2xl mx-auto justify-between p-4 shadow-md hover:shadow-lg transition-shadow relative">
         {partner && (
           <>
             <div className="flex items-center gap-4 flex-1">
-              <Avatar>
+              <Avatar className="md:size-10 lg:size-12">
                 <AvatarImage
                   src={partner.avatarUrl}
                   alt={`${partner.firstName} ${partner.lastName}`}
@@ -62,7 +62,7 @@ export default function ConversationCard({
               </Avatar>
 
               <div className="flex flex-col">
-                <p className="font-semibold md:text-lg">
+                <p className="font-semibold md:text-lg lg:text-xl">
                   {partner.firstName} {partner.lastName.charAt(0)}.
                 </p>
                 {lastMessage && lastMessage.createdAt && (
