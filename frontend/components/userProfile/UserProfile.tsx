@@ -68,7 +68,6 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
                         src={user.avatarUrl || "https://github.com/shadcn.png"}
                         alt={`Avatar ${user.firstName} ${user.lastName}`}
                     />
-
                 </Avatar>
                 {!isEditing ? (
                     <h3 className="text-xl font-medium md:text-2xl lg:text-3xl">

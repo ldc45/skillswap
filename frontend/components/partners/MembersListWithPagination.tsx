@@ -27,7 +27,7 @@ export default function MembersListWithPagination({
 }: MembersListWithPaginationProps) {
     // This hook is used to get the window size (width and height) dynamically
     const size = useWindowSize();
-        
+
     const totalPages = Math.ceil(totalCount / pageSize);
     return (
         <div className={`flex flex-col gap-y-2 lg:gap-y-3 ${className}`}>
@@ -50,7 +50,11 @@ export default function MembersListWithPagination({
                         }
                         disabled={currentPage === 1}
                     >
-                        {size.width && size.width > 640 ? "Précédent" : <ArrowBigLeft />}
+                        {size.width && size.width > 640 ? (
+                            "Précédent"
+                        ) : (
+                            <ArrowBigLeft />
+                        )}
                     </button>
                     <span className="mx-2">
                         Page {currentPage} / {totalPages}
@@ -62,7 +66,11 @@ export default function MembersListWithPagination({
                         }
                         disabled={currentPage === totalPages}
                     >
-                        {size.width && size.width > 640 ? "Suivant" : <ArrowBigRight />}
+                        {size.width && size.width > 640 ? (
+                            "Suivant"
+                        ) : (
+                            <ArrowBigRight />
+                        )}
                     </button>
                 </div>
             )}
