@@ -7,10 +7,10 @@
  * console.log(getFormattedDate(date)); // "14:30"
  */
 export function getFormattedDate(date: Date): string {
-  return new Date(date).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+    return new Date(date).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
 }
 
 /**
@@ -22,5 +22,5 @@ export function getFormattedDate(date: Date): string {
  * console.log(getFormattedTimeSlot(date)); // 16.75
  */
 export function getFormattedTimeSlot(slotDate: Date): number {
-  return slotDate.getHours() + slotDate.getMinutes() / 60;
+    return slotDate.getHours() + slotDate.getMinutes() / 60;
 }

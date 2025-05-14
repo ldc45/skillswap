@@ -21,143 +21,146 @@ import type { Availability } from "./Availability";
  * @interface User
  */
 export interface User {
-  /**
-   * List of user skills
-   * @type {Skill[]}
-   * @memberof User
-   */
-  skills?: Skill[];
-  /**
-   * List of user availabilities
-   * @type {Availability[]}
-   * @memberof User
-   */
-  availabilities?: Availability[];
-  /**
-   * Unique identifier for the user
-   * @type {string}
-   * @memberof User
-   */
-  id: string;
-  /**
-   * User email address
-   * @type {string}
-   * @memberof User
-   */
-  email: string;
-  /**
-   * User password (minimum 8 characters, 1 uppercase, 1 lowercase, 1 number and 1 special character)
-   * @type {string}
-   * @memberof User
-   */
-  password: string;
-  /**
-   * User first name
-   * @type {string}
-   * @memberof User
-   */
-  firstName: string;
-  /**
-   * User last name
-   * @type {string}
-   * @memberof User
-   */
-  lastName: string;
-  /**
-   * User biography
-   * @type {string}
-   * @memberof User
-   */
-  biography?: string;
-  /**
-   * User avatar URL
-   * @type {string}
-   * @memberof User
-   */
-  avatarUrl?: string;
-  /**
-   * Indicates if the user account is archived
-   * @type {boolean}
-   * @memberof User
-   */
-  isArchived: boolean;
-  /**
-   * Date when the user was created
-   * @type {Date}
-   * @memberof User
-   */
-  createdAt: Date;
-  /**
-   * Date when the user was last updated
-   * @type {Date}
-   * @memberof User
-   */
-  updatedAt: Date;
+    /**
+     * List of user skills
+     * @type {Skill[]}
+     * @memberof User
+     */
+    skills?: Skill[];
+    /**
+     * List of user availabilities
+     * @type {Availability[]}
+     * @memberof User
+     */
+    availabilities?: Availability[];
+    /**
+     * Unique identifier for the user
+     * @type {string}
+     * @memberof User
+     */
+    id: string;
+    /**
+     * User email address
+     * @type {string}
+     * @memberof User
+     */
+    email: string;
+    /**
+     * User password (minimum 8 characters, 1 uppercase, 1 lowercase, 1 number and 1 special character)
+     * @type {string}
+     * @memberof User
+     */
+    password: string;
+    /**
+     * User first name
+     * @type {string}
+     * @memberof User
+     */
+    firstName: string;
+    /**
+     * User last name
+     * @type {string}
+     * @memberof User
+     */
+    lastName: string;
+    /**
+     * User biography
+     * @type {string}
+     * @memberof User
+     */
+    biography?: string;
+    /**
+     * User avatar URL
+     * @type {string}
+     * @memberof User
+     */
+    avatarUrl?: string;
+    /**
+     * Indicates if the user account is archived
+     * @type {boolean}
+     * @memberof User
+     */
+    isArchived: boolean;
+    /**
+     * Date when the user was created
+     * @type {Date}
+     * @memberof User
+     */
+    createdAt: Date;
+    /**
+     * Date when the user was last updated
+     * @type {Date}
+     * @memberof User
+     */
+    updatedAt: Date;
 }
 
 /**
  * Check if a given object implements the User interface.
  */
 export function instanceOfUser(value: object): value is User {
-  if (!("id" in value) || value["id"] === undefined) return false;
-  if (!("email" in value) || value["email"] === undefined) return false;
-  if (!("password" in value) || value["password"] === undefined) return false;
-  if (!("firstName" in value) || value["firstName"] === undefined) return false;
-  if (!("lastName" in value) || value["lastName"] === undefined) return false;
-  if (!("isArchived" in value) || value["isArchived"] === undefined)
-    return false;
-  if (!("createdAt" in value) || value["createdAt"] === undefined) return false;
-  if (!("updatedAt" in value) || value["updatedAt"] === undefined) return false;
-  return true;
+    if (!("id" in value) || value["id"] === undefined) return false;
+    if (!("email" in value) || value["email"] === undefined) return false;
+    if (!("password" in value) || value["password"] === undefined) return false;
+    if (!("firstName" in value) || value["firstName"] === undefined)
+        return false;
+    if (!("lastName" in value) || value["lastName"] === undefined) return false;
+    if (!("isArchived" in value) || value["isArchived"] === undefined)
+        return false;
+    if (!("createdAt" in value) || value["createdAt"] === undefined)
+        return false;
+    if (!("updatedAt" in value) || value["updatedAt"] === undefined)
+        return false;
+    return true;
 }
 
 export function UserFromJSON(json: any): User {
-  return UserFromJSONTyped(json, false);
+    return UserFromJSONTyped(json, false);
 }
 
 export function UserFromJSONTyped(
-  json: any,
-  ignoreDiscriminator: boolean
+    json: any,
+    ignoreDiscriminator: boolean
 ): User {
-  if (json == null) {
-    return json;
-  }
-  return {
-    id: json["id"],
-    email: json["email"],
-    password: json["password"],
-    firstName: json["firstName"],
-    lastName: json["lastName"],
-    biography: json["biography"] == null ? undefined : json["biography"],
-    avatarUrl: json["avatarUrl"] == null ? undefined : json["avatarUrl"],
-    isArchived: json["isArchived"],
-    createdAt: new Date(json["createdAt"]),
-    updatedAt: new Date(json["updatedAt"]),
-  };
+    if (json == null) {
+        return json;
+    }
+    return {
+        id: json["id"],
+        email: json["email"],
+        password: json["password"],
+        firstName: json["firstName"],
+        lastName: json["lastName"],
+        biography: json["biography"] == null ? undefined : json["biography"],
+        avatarUrl: json["avatarUrl"] == null ? undefined : json["avatarUrl"],
+        isArchived: json["isArchived"],
+        createdAt: new Date(json["createdAt"]),
+        updatedAt: new Date(json["updatedAt"]),
+    };
 }
 
 export function UserToJSON(json: any): User {
-  return UserToJSONTyped(json, false);
+    return UserToJSONTyped(json, false);
 }
 
 export function UserToJSONTyped(
-  value?: User | null,
-  ignoreDiscriminator: boolean = false
+    value?: User | null,
+    ignoreDiscriminator: boolean = false
 ): any {
-  if (value == null) {
-    return value;
-  }
+    if (value == null) {
+        return value;
+    }
 
-  return {
-    id: value["id"],
-    email: value["email"],
-    password: value["password"],
-    firstName: value["firstName"],
-    lastName: value["lastName"],
-    biography: value["biography"],
-    avatarUrl: value["avatarUrl"],
-    isArchived: value["isArchived"],
-    createdAt: value["createdAt"].toISOString(),
-    updatedAt: value["updatedAt"].toISOString(),
-  };
+    return {
+        id: value["id"],
+        email: value["email"],
+        password: value["password"],
+        firstName: value["firstName"],
+        lastName: value["lastName"],
+        biography: value["biography"],
+        avatarUrl: value["avatarUrl"],
+        isArchived: value["isArchived"],
+        createdAt: value["createdAt"].toISOString(),
+        updatedAt: value["updatedAt"].toISOString(),
+    };
 }
