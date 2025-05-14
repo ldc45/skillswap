@@ -13,16 +13,6 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
 import logo from "@/public/logo.png";
 
-const menuItems = [
-  { id: "profile", name: "Profil", path: "/dashboard/profile" },
-  { id: "messages", name: "Messages", path: "/dashboard/messages" },
-  {
-    id: "partners",
-    name: "Trouver votre partenaire",
-    path: "/dashboard/partners",
-  },
-];
-
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showLogin, setShowLogin] = useState(true);
@@ -184,7 +174,7 @@ const Header = () => {
             <header
                 className={`w-full py-4 px-6 flex items-center justify-between`}
             >
-                <div className="flex items-center grow"">
+                <div className="flex items-center grow">
                   
                         <Button
                             variant="ghost"
