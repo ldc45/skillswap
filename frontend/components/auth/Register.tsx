@@ -14,23 +14,23 @@ import { Input } from "../ui/input";
 import { Form, FormField, FormItem, FormLabel } from "../ui/form";
 
 const defaultValues = {
-  email: "",
-  firstName: "",
-  lastName: "",
-  password: "",
-  confirmPassword: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    password: "",
+    confirmPassword: "",
 };
 
 const formSchema = z.object({
-  email: z.string().email("L'email est invalide"),
-  firstName: z.string().min(2).max(64),
-  lastName: z.string().min(2).max(64),
-  password: z.string().min(12, {
-    message: "Le mot de passe doit contenir au moins 12 caractères",
-  }),
-  confirmPassword: z.string().min(12, {
-    message: "Le mot de passe doit contenir au moins 12 caractères",
-  }),
+    email: z.string().email("L'email est invalide"),
+    firstName: z.string().min(2).max(64),
+    lastName: z.string().min(2).max(64),
+    password: z.string().min(12, {
+        message: "Le mot de passe doit contenir au moins 12 caractères",
+    }),
+    confirmPassword: z.string().min(12, {
+        message: "Le mot de passe doit contenir au moins 12 caractères",
+    }),
 });
 
 const lowercaseRegex = /[a-z]/;
@@ -39,212 +39,232 @@ const numberRegex = /[0-9]/;
 const specialCharRegex = /[!@#$%^&*]/;
 
 interface RegisterProps {
-  onSwitchToLogin?: () => void;
-  handleLogin?: () => void;
+    onSwitchToLogin?: () => void;
+    handleLogin?: () => void;
 }
 
 const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
-  const [error, setError] = useState("");
+    const [error, setError] = useState("");
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    // The zodResolver is inteatgrated to the form
-    resolver: zodResolver(formSchema),
-    defaultValues,
-  });
+    const form = useForm<z.infer<typeof formSchema>>({
+        // The zodResolver is inteatgrated to the form
+        resolver: zodResolver(formSchema),
+        defaultValues,
+    });
 
-  const login = useAuthStore((state) => state.login);
+    const login = useAuthStore((state) => state.login);
 
-  // The form is dirty if at least one field has been modified
-  const isFormDirty = Object.keys(form.formState.dirtyFields).length > 0;
+    // The form is dirty if at least one field has been modified
+    const isFormDirty = Object.keys(form.formState.dirtyFields).length > 0;
 
-  useEffect(() => {
-    // We reset error message when the form is edited again post-submission
-    if (isFormDirty) {
-      setError("");
-    }
-  }, [isFormDirty]);
-
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    const { email, firstName, lastName, password, confirmPassword } = data;
-
-    try {
-      // Check if passwords match
-      if (password !== confirmPassword) {
-        setError("Les mots de passe ne correspondent pas");
-        return;
-      }
-
-      // We check that the password meets the security criteria
-      // The check is made here and not in the schema,
-      // so that the form can be submitted and an error message displayed
-      if (
-        !lowercaseRegex.test(password) ||
-        !uppercaseRegex.test(password) ||
-        !numberRegex.test(password) ||
-        !specialCharRegex.test(password)
-      ) {
-        setError(
-          "Le mot de passe doit contenir au moins : une lettre minuscule, une lettre majuscule, un chiffre et un caractère spécial"
-        );
-        return;
-      }
-
-      const registerResponse = await apiService.post("/auth/register", {
-        email,
-        password,
-        firstName,
-        lastName,
-      });
-
-      // Ensure registration was successful before making the next request
-      if (registerResponse) {
-        try {
-          // Fetch connected user information
-          const userResponse = await apiService.get<User>("/users/me");
-
-          // Update store with user data
-          login({ user: userResponse });
-
-          if (handleLogin) {
-            handleLogin();
-          }
-        } catch (userError) {
-          console.error("Error retrieving user information:", userError);
-
-          if (handleLogin) {
-            handleLogin();
-          }
+    useEffect(() => {
+        // We reset error message when the form is edited again post-submission
+        if (isFormDirty) {
+            setError("");
         }
-      }
-    } catch (err) {
-      console.error("Registration error:", err);
-      setError(err instanceof Error ? err.message : "Registration error");
-    } finally {
-      // Reset the form but keep the values
-      form.reset({}, { keepValues: true, keepDirty: false });
-    }
-  };
+    }, [isFormDirty]);
 
-  return (
-    <div className="w-full">
-      <h2 className="text-2xl font-semibold mb-6 text-center">
-        S&apos;inscrire
-      </h2>
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+        const { email, firstName, lastName, password, confirmPassword } = data;
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+        try {
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                setError("Les mots de passe ne correspondent pas");
+                return;
+            }
+
+            // We check that the password meets the security criteria
+            // The check is made here and not in the schema,
+            // so that the form can be submitted and an error message displayed
+            if (
+                !lowercaseRegex.test(password) ||
+                !uppercaseRegex.test(password) ||
+                !numberRegex.test(password) ||
+                !specialCharRegex.test(password)
+            ) {
+                setError(
+                    "Le mot de passe doit contenir au moins : une lettre minuscule, une lettre majuscule, un chiffre et un caractère spécial"
+                );
+                return;
+            }
+
+            const registerResponse = await apiService.post("/auth/register", {
+                email,
+                password,
+                firstName,
+                lastName,
+            });
+
+            // Ensure registration was successful before making the next request
+            if (registerResponse) {
+                try {
+                    // Fetch connected user information
+                    const userResponse =
+                        await apiService.get<User>("/users/me");
+
+                    // Update store with user data
+                    login({ user: userResponse });
+
+                    if (handleLogin) {
+                        handleLogin();
+                    }
+                } catch (userError) {
+                    console.error(
+                        "Error retrieving user information:",
+                        userError
+                    );
+
+                    if (handleLogin) {
+                        handleLogin();
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("Registration error:", err);
+            setError(err instanceof Error ? err.message : "Registration error");
+        } finally {
+            // Reset the form but keep the values
+            form.reset({}, { keepValues: true, keepDirty: false });
+        }
+    };
+
+    return (
+        <div className="w-full">
+            <h2 className="text-2xl font-semibold mb-6 text-center">
+                S&apos;inscrire
+            </h2>
+
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {error}
+                </div>
+            )}
+
+            <Form {...form}>
+                <form
+                    className="space-y-4"
+                    onSubmit={form.handleSubmit(onSubmit)}
+                >
+                    <div className="space-y-2">
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <Input
+                                        type="email"
+                                        placeholder="votre@email.com"
+                                        {...field}
+                                    />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <FormField
+                                control={form.control}
+                                name="firstName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Prénom</FormLabel>
+                                        <Input
+                                            type="text"
+                                            placeholder="Jean"
+                                            {...field}
+                                        />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <FormField
+                                control={form.control}
+                                name="lastName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Nom</FormLabel>
+                                        <Input
+                                            type="text"
+                                            placeholder="Dupont"
+                                            {...field}
+                                        />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Mot de passe</FormLabel>
+                                    <Input
+                                        type="password"
+                                        placeholder="••••••••••••"
+                                        {...field}
+                                    />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>
+                                        Confirmer le mot de passe
+                                    </FormLabel>
+                                    <Input
+                                        type="password"
+                                        placeholder="••••••••••••"
+                                        {...field}
+                                    />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={
+                            !form.formState.isValid ||
+                            form.formState.isSubmitting
+                        }
+                    >
+                        S&apos;inscrire
+                    </Button>
+                </form>
+            </Form>
+
+            {onSwitchToLogin && (
+                <>
+                    <Separator className="my-6" />
+                    <div className="text-center">
+                        <p className="mb-3">Déjà un compte ?</p>
+                        <Button
+                            variant="secondary"
+                            onClick={onSwitchToLogin}
+                            className="px-6"
+                        >
+                            Se connecter
+                        </Button>
+                    </div>
+                </>
+            )}
         </div>
-      )}
-
-      <Form {...form}>
-        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    type="email"
-                    placeholder="votre@email.com"
-                    {...field}
-                  />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Prénom</FormLabel>
-                    <Input type="text" placeholder="Jean" {...field} />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nom</FormLabel>
-                    <Input type="text" placeholder="Dupont" {...field} />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mot de passe</FormLabel>
-                  <Input
-                    type="password"
-                    placeholder="••••••••••••"
-                    {...field}
-                  />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirmer le mot de passe</FormLabel>
-                  <Input
-                    type="password"
-                    placeholder="••••••••••••"
-                    {...field}
-                  />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={!form.formState.isValid || form.formState.isSubmitting}
-          >
-            S&apos;inscrire
-          </Button>
-        </form>
-      </Form>
-
-      {onSwitchToLogin && (
-        <>
-          <Separator className="my-6" />
-          <div className="text-center">
-            <p className="mb-3">Déjà un compte ?</p>
-            <Button
-              variant="secondary"
-              onClick={onSwitchToLogin}
-              className="px-6"
-            >
-              Se connecter
-            </Button>
-          </div>
-        </>
-      )}
-    </div>
-  );
+    );
 };
 
 export default Register;
