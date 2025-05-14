@@ -46,6 +46,23 @@ async function bootstrap() {
   }
 
   // Determine allowed origins
+  /* let allowedOrigins: string[] = [];
+  if (process.env.NODE_ENV === 'production') {
+    // In production, use ALLOWED_ORIGINS
+    if (process.env.ALLOWED_ORIGINS) {
+      allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+    }
+  } else {
+    // In development, use localhost
+    allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:4000',
+      'http://frontend:3000',
+      'http://127.0.0.1:3000',
+    ];
+  }*/
+
+  // Determine allowed origins
   let allowedOrigins: string[] = [];
   if (process.env.NODE_ENV === 'production') {
     // In production, use ALLOWED_ORIGINS
@@ -61,6 +78,7 @@ async function bootstrap() {
       'http://127.0.0.1:3000',
     ];
   }
+
   // CORS configuration with explicit types
   const corsOptions: CorsOptions = {
     origin: (

@@ -80,7 +80,6 @@ export default function MemberCard({
             <div className="flex flex-col">
                 <p className="font-semibold md:text-lg">
                     {user.firstName} {user.lastName.charAt(0)}.
-
                 </p>
                 {user && user.skills && user.skills.length > 0 && (
                     <p

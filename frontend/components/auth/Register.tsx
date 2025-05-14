@@ -151,84 +151,82 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                     className="space-y-4"
                     onSubmit={form.handleSubmit(onSubmit)}
                 >
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <Input
-                                        type="email"
-                                        placeholder="votre@email.com"
-                                        {...field}
-                                    />
-                                </FormItem>
-                            )}
-                        />
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <Input
+                                    type="email"
+                                    placeholder="votre@email.com"
+                                    {...field}
+                                />
+                            </FormItem>
+                        )}
+                    />
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="firstName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Prénom</FormLabel>
-                                        <Input
-                                            type="text"
-                                            placeholder="Jean"
-                                            {...field}
-                                        />
-                                    </FormItem>
-                                )}
-                            />
+                        <FormField
+                            control={form.control}
+                            name="firstName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Prénom</FormLabel>
+                                    <Input
+                                        type="text"
+                                        placeholder="Jean"
+                                        {...field}
+                                    />
+                                </FormItem>
+                            )}
+                        />
 
-                            <FormField
-                                control={form.control}
-                                name="lastName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nom</FormLabel>
-                                        <Input
-                                            type="text"
-                                            placeholder="Dupont"
-                                            {...field}
-                                        />
-                                    </FormItem>
-                                )}
-                            />
+                        <FormField
+                            control={form.control}
+                            name="lastName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nom</FormLabel>
+                                    <Input
+                                        type="text"
+                                        placeholder="Dupont"
+                                        {...field}
+                                    />
+                                </FormItem>
+                            )}
+                        />
                     </div>
 
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Mot de passe</FormLabel>
-                                    <Input
-                                        type="password"
-                                        placeholder="••••••••••••"
-                                        {...field}
-                                    />
-                                </FormItem>
-                            )}
-                        />
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Mot de passe</FormLabel>
+                                <Input
+                                    type="password"
+                                    placeholder="••••••••••••"
+                                    {...field}
+                                />
+                            </FormItem>
+                        )}
+                    />
 
-                        <FormField
-                            control={form.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        Confirmer le mot de passe
-                                    </FormLabel>
-                                    <Input
-                                        type="password"
-                                        placeholder="••••••••••••"
-                                        {...field}
-                                    />
-                                </FormItem>
-                            )}
-                        />
+                    <FormField
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Confirmer le mot de passe</FormLabel>
+                                <Input
+                                    type="password"
+                                    placeholder="••••••••••••"
+                                    {...field}
+                                />
+                            </FormItem>
+                        )}
+                    />
 
                     <Button
                         type="submit"

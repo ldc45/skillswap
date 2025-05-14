@@ -96,8 +96,8 @@ export default function ConversationPage() {
     // Parse currentUserId as string for comparison
     const currentUserId = user?.id?.toString() ?? "0";
 
-  // This hook is used to get the window size (width and height) dynamically
-  const size = useWindowSize();
+    // This hook is used to get the window size (width and height) dynamically
+    const size = useWindowSize();
 
     useEffect(() => {
         // Fetch conversation by id from API
@@ -116,7 +116,6 @@ export default function ConversationPage() {
                 console.error("Error fetching conversation:", err);
             });
     }, [id]);
-
 
     // Scroll to bottom on new message
     useEffect(() => {

@@ -20,12 +20,12 @@ interface Conversation {
 }
 
 export default function MessagesPage() {
-  // Initialize conversations state
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const { user, isAuthenticated } = useAuthStore();
+    // Initialize conversations state
+    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const { user, isAuthenticated } = useAuthStore();
 
-  // This hook is used to get the window size (width and height) dynamically
-  const size = useWindowSize();
+    // This hook is used to get the window size (width and height) dynamically
+    const size = useWindowSize();
 
     useEffect(() => {
         // Fetch conversations for authenticated user using apiService
@@ -104,7 +104,11 @@ export default function MessagesPage() {
                             }
                             disabled={currentPage === 1}
                         >
-                            {size.width && size.width > 640 ? "Précédent" : <ArrowBigLeft />}
+                            {size.width && size.width > 640 ? (
+                                "Précédent"
+                            ) : (
+                                <ArrowBigLeft />
+                            )}
                         </button>
                         <p>
                             Page {currentPage} / {totalPages}
@@ -118,7 +122,11 @@ export default function MessagesPage() {
                             }
                             disabled={currentPage === totalPages}
                         >
-                            {size.width && size.width > 640 ? "Suivant" : <ArrowBigRight />}
+                            {size.width && size.width > 640 ? (
+                                "Suivant"
+                            ) : (
+                                <ArrowBigRight />
+                            )}
                         </button>
                     </div>
                 </>

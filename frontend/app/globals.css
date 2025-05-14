@@ -4,11 +4,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-    /* Font variables */
-    --font-inter: var(--font-inter, 'Inter', sans-serif);
-    --font-syne: var(--font-syne, 'Syne', sans-serif);
-    --font-geist-sans: var(--font-geist-sans, 'Geist', sans-serif);
-    --font-geist-mono: var(--font-geist-mono, 'Geist Mono', monospace);
     
     --primary: #005884;
     --primary-foreground: #f5fdfe;
