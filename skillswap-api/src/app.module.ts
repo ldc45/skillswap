@@ -9,9 +9,18 @@ import { CategoryModule } from './category/category.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { AvailabilityModule } from './availability/availability.module';
 import { UserSkillModule } from './user-skill/user-skill.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: 'login',
+        ttl: 60000, // 1 minute
+        limit: 5, // 5 requests per minute
+      },
+    ]),
     AuthModule,
     UserModule,
     PrismaModule,
@@ -20,6 +29,10 @@ import { UserSkillModule } from './user-skill/user-skill.module';
     ConversationModule,
     AvailabilityModule,
     UserSkillModule,
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 3600000, // 1 hour
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
