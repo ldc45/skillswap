@@ -68,6 +68,7 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
                         src={user.avatarUrl || "https://github.com/shadcn.png"}
                         alt={`Avatar ${user.firstName} ${user.lastName}`}
                     />
+
                 </Avatar>
                 {!isEditing ? (
                     <h3 className="text-xl font-medium md:text-2xl lg:text-3xl">
@@ -130,7 +131,7 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
                 )}
             </div>
 
-            <div className="flex w-full flex-col gap-y-1">
+            <div className="flex w-full flex-col gap-y-1 pt-4">
                 <h4 className="text-lg md:text-xl lg:text-2xl font-medium">
                     Biographie
                 </h4>

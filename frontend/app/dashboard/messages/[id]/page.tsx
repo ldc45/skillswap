@@ -1,16 +1,18 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { ChevronLeft, Send } from "lucide-react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useWindowSize } from "@uidotdev/usehooks";
+
+import { ApiConversation, ApiMessage } from "@/@types/api/conversation";
+import { apiService } from "@/lib/services/apiService"; // Import apiService for fetching conversation
+import { useAuthStore } from "@/lib/stores/authStore"; // Get current user id from auth store
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import { apiService } from "@/lib/services/apiService"; // Import apiService for fetching conversation
-import { useAuthStore } from "@/lib/stores/authStore"; // Get current user id from auth store
-import { ApiConversation, ApiMessage } from "@/@types/api/conversation";
 
 // Define message and conversation interfaces
 interface Message {
@@ -94,6 +96,9 @@ export default function ConversationPage() {
     // Parse currentUserId as string for comparison
     const currentUserId = user?.id?.toString() ?? "0";
 
+  // This hook is used to get the window size (width and height) dynamically
+  const size = useWindowSize();
+
     useEffect(() => {
         // Fetch conversation by id from API
         apiService
@@ -111,6 +116,7 @@ export default function ConversationPage() {
                 console.error("Error fetching conversation:", err);
             });
     }, [id]);
+
 
     // Scroll to bottom on new message
     useEffect(() => {
@@ -148,23 +154,22 @@ export default function ConversationPage() {
     );
 
     return (
-        <div className="flex flex-col h-[100dvh]">
-            <div className="flex items-center gap-2 p-4 border-b bg-white sticky top-0 z-10">
+        <div className="flex flex-col h-[100dvh] max-w-screen">
+            <div className="flex items-center gap-x-2 md:gap-x-4 p-4 border-b bg-white sticky top-0 z-10">
                 <Link href="/dashboard/messages">
-                    <ChevronLeft className="h-6 w-6 text-gray-500" />
+                    <ChevronLeft className="h-6 w-6 md:h-8 md:w-8 text-gray-500" />
                 </Link>
-                <Avatar>
+                <Avatar className="md:size-10 lg:size-12">
                     <AvatarImage
                         src={conversation.partner.avatar_url}
                         alt="Avatar"
                     />
                 </Avatar>
-                <div className="flex flex-col">
-                    <span className="font-semibold">
-                        {conversation.partner.first_name}{" "}
-                        {conversation.partner.last_name.charAt(0)}.
-                    </span>
-                </div>
+                <p className="font-semibold md:text-lg lg:text-xl">
+                    {size.width && size.width > 640
+                        ? conversation.partner.last_name
+                        : conversation.partner.last_name.charAt(0) + "."}
+                </p>
             </div>
             <div className="flex-1 overflow-y-auto bg-gray-50 px-2 py-4">
                 {sortedMessages.map((msg) => (
@@ -212,7 +217,13 @@ export default function ConversationPage() {
                     placeholder="Écrire un message..."
                     className="flex-1"
                 />
-                <Button type="submit">Envoyer</Button>
+                <Button type="submit">
+                    {size.width && size.width > 640 ? (
+                        "Envoyer"
+                    ) : (
+                        <Send className="h-4 w-4" />
+                    )}
+                </Button>
             </form>
         </div>
     );

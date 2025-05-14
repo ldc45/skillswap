@@ -136,7 +136,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
 
     return (
         <div className="w-full">
-            <h2 className="text-2xl font-semibold mb-6 text-center">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-6 md:mb-10 lg:mb-12 text-center">
                 S&apos;inscrire
             </h2>
 
@@ -151,7 +151,6 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                     className="space-y-4"
                     onSubmit={form.handleSubmit(onSubmit)}
                 >
-                    <div className="space-y-2">
                         <FormField
                             control={form.control}
                             name="email"
@@ -166,10 +165,8 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                                 </FormItem>
                             )}
                         />
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="firstName"
@@ -184,9 +181,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                                     </FormItem>
                                 )}
                             />
-                        </div>
 
-                        <div className="space-y-2">
                             <FormField
                                 control={form.control}
                                 name="lastName"
@@ -201,10 +196,8 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                                     </FormItem>
                                 )}
                             />
-                        </div>
                     </div>
 
-                    <div className="space-y-2">
                         <FormField
                             control={form.control}
                             name="password"
@@ -219,9 +212,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                                 </FormItem>
                             )}
                         />
-                    </div>
 
-                    <div className="space-y-2">
                         <FormField
                             control={form.control}
                             name="confirmPassword"
@@ -238,7 +229,6 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                                 </FormItem>
                             )}
                         />
-                    </div>
 
                     <Button
                         type="submit"
@@ -261,7 +251,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                         <Button
                             variant="secondary"
                             onClick={onSwitchToLogin}
-                            className="px-6"
+                            className="px-6 cursor-pointer"
                         >
                             Se connecter
                         </Button>

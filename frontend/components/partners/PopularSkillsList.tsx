@@ -27,9 +27,7 @@ export default function PopularSkillsList({
                         onSelect(selectedSkill?.id === skill.id ? null : skill)
                     }
                 >
-                    {typeof skill.diminutive === "string" && skill.diminutive
-                        ? skill.diminutive
-                        : skill.name || ""}
+                    {skill.diminutive ? skill.diminutive : skill.name}
                 </Badge>
             ))}
         </div>

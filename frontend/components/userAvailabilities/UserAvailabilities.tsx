@@ -162,8 +162,47 @@ export default function UserAvailabilities({
                     >
                         Enregistrer
                     </Button>
-                </div>
-            )}
+
+                  </DialogTrigger>
+                  <EditAvailability
+                    selectedDay={day}
+                    availabilities={availabilitiesForDay}
+                    setAvailabilities={setAvailabilities}
+                  />
+                </Dialog>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {!isEditing ? (
+        <Button
+          type="button"
+          onClick={() => setIsEditing(true)}
+          className="w-fit self-center md:text-lg"
+        >
+          Modifier
+        </Button>
+      ) : (
+        <div className="flex flex-basis gap-4 grow">
+          <Button
+            type="button"
+            onClick={handleCancel}
+            variant="secondary"
+            className="basis-1/2"
+          >
+            Annuler
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitDisabled}
+            className={`${
+              isSubmitDisabled ? "cursor-not-allowed" : ""
+            } basis-1/2`}
+          >
+            Enregistrer
+          </Button>
         </div>
     );
 }

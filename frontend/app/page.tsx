@@ -93,8 +93,8 @@ export default function Home() {
     );
 
     return (
-        <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-4 md:gap-y-6 lg:gap-y-8">
-            <div className="flex-col gap-4 flex lg:flex-row-reverse lg:justify-between">
+        <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-6 md:gap-y-10 lg:gap-y-14">
+            <div className="flex-col gap-y-4 flex gap-x-8 lg:flex-row-reverse lg:justify-between">
                 <div className="flex flex-col gap-y-2 lg:gap-y-6">
                     {isAuthenticated ? (
                         <>
@@ -139,6 +139,7 @@ export default function Home() {
                     selectedSkill={selectedSkill}
                     onSelect={setSelectedSkill as (skill: Skill | null) => void}
                 />
+
             </div>
             {!usersError ? (
                 <div className="flex flex-col gap-y-2 lg:gap-y-3">

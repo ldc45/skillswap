@@ -13,6 +13,16 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
 import logo from "@/public/logo.png";
 
+const menuItems = [
+  { id: "profile", name: "Profil", path: "/dashboard/profile" },
+  { id: "messages", name: "Messages", path: "/dashboard/messages" },
+  {
+    id: "partners",
+    name: "Trouver votre partenaire",
+    path: "/dashboard/partners",
+  },
+];
+
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showLogin, setShowLogin] = useState(true);
@@ -174,39 +184,38 @@ const Header = () => {
             <header
                 className={`w-full py-4 px-6 flex items-center justify-between`}
             >
-                <div className="flex items-center">
-                    <div className="mr-3">
+                <div className="flex items-center grow"">
+                  
                         <Button
                             variant="ghost"
-                            className="cursor-pointer"
+                            className="cursor-pointer md:w-24 md:h-24 w-16 h-16"
                             onClick={() => handleNavigation("/")}
                         >
                             <Image
                                 src={logo}
                                 alt="SkillSwap Logo"
-                                width={40}
-                                height={40}
                             />
                         </Button>
-                    </div>
+                    
                     <Button
                         variant="ghost"
-                        className="cursor-pointer"
+                        className="cursor-pointer grow md:grow-0"
                         onClick={() => handleNavigation("/")}
                     >
-                        <h1 className="text-4xl">SkillSwap</h1>
+                        <h1 className="text-center text-3xl lg:text-[40px]">SkillSwap</h1>
                     </Button>
                 </div>
 
                 <div>
-                    <button
+                    <Button
+                        variant="ghost"
                         onClick={toggleMenu}
-                        className="flex items-center justify-center w-10 h-10"
+                        className="flex items-center cursor-pointer justify-center md:w-16 md:h-16 w-12 h-12"
                         aria-label="Menu"
                         datatype="burger"
                     >
-                        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
+                        {isMenuOpen ? <X className="min-w-full min-h-full" /> : <Menu className="min-w-full min-h-full" />}
+                    </Button>
                 </div>
 
                 {isMenuOpen && (
