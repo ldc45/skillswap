@@ -1,8 +1,8 @@
 import { getFormattedTimeSlot } from "./format";
 
 type TimeSlot = {
-  start: Date;
-  end: Date;
+    start: Date;
+    end: Date;
 };
 
 /**
@@ -22,18 +22,18 @@ type TimeSlot = {
  * console.log(isNewSlotAvailable(existingSlots, newSlot)); // true
  */
 export function isNewSlotAvailable(
-  existingSlots: TimeSlot[],
-  newSlot: TimeSlot
+    existingSlots: TimeSlot[],
+    newSlot: TimeSlot
 ): boolean {
-  for (const slot of existingSlots) {
-    const existingStart = getFormattedTimeSlot(slot.start);
-    const existingEnd = getFormattedTimeSlot(slot.end);
-    const newStart = getFormattedTimeSlot(newSlot.start);
-    const newEnd = getFormattedTimeSlot(newSlot.end);
+    for (const slot of existingSlots) {
+        const existingStart = getFormattedTimeSlot(slot.start);
+        const existingEnd = getFormattedTimeSlot(slot.end);
+        const newStart = getFormattedTimeSlot(newSlot.start);
+        const newEnd = getFormattedTimeSlot(newSlot.end);
 
-    if (newStart < existingEnd && newEnd > existingStart) {
-      return false;
+        if (newStart < existingEnd && newEnd > existingStart) {
+            return false;
+        }
     }
-  }
-  return true;
+    return true;
 }
