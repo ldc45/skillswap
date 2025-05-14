@@ -13,6 +13,7 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Form, FormField, FormItem, FormLabel } from "../ui/form";
+import { Eye, EyeOff } from "lucide-react";
 
 const defaultValues = {
     email: "",
@@ -46,6 +47,9 @@ interface RegisterProps {
 
 const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
     const [error, setError] = useState("");
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+        useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         // The zodResolver is inteatgrated to the form
@@ -204,11 +208,39 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Mot de passe</FormLabel>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••••••"
-                                    {...field}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={
+                                            isPasswordVisible
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        placeholder="••••••••••••"
+                                        {...field}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        className="absolute right-2.5 -translate-y-1/2 top-1/2 h-4 w-4 text-muted-foreground"
+                                        aria-label="Visibilité du mot de passe"
+                                        title={
+                                            isPasswordVisible
+                                                ? "Masquer le mot de passe"
+                                                : "Afficher le mot de passe"
+                                        }
+                                        onClick={() =>
+                                            setIsPasswordVisible(
+                                                (prev) => !prev
+                                            )
+                                        }
+                                    >
+                                        {isPasswordVisible ? (
+                                            <EyeOff />
+                                        ) : (
+                                            <Eye />
+                                        )}
+                                    </Button>
+                                </div>
                             </FormItem>
                         )}
                     />
@@ -219,11 +251,39 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Confirmer le mot de passe</FormLabel>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••••••"
-                                    {...field}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={
+                                            isConfirmPasswordVisible
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        placeholder="••••••••••••"
+                                        {...field}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        className="absolute right-2.5 -translate-y-1/2 top-1/2 h-4 w-4 text-muted-foreground"
+                                        aria-label="Visibilité du mot de passe répété"
+                                        title={
+                                            isConfirmPasswordVisible
+                                                ? "Masquer le mot de passe répété"
+                                                : "Afficher le mot de passe répété"
+                                        }
+                                        onClick={() =>
+                                            setIsConfirmPasswordVisible(
+                                                (prev) => !prev
+                                            )
+                                        }
+                                    >
+                                        {isConfirmPasswordVisible ? (
+                                            <EyeOff />
+                                        ) : (
+                                            <Eye />
+                                        )}
+                                    </Button>
+                                </div>
                             </FormItem>
                         )}
                     />
