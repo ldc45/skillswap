@@ -139,7 +139,6 @@ export default function Home() {
                     selectedSkill={selectedSkill}
                     onSelect={setSelectedSkill as (skill: Skill | null) => void}
                 />
-
             </div>
             {!usersError ? (
                 <div className="flex flex-col gap-y-2 lg:gap-y-3">
