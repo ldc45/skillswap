@@ -9,6 +9,7 @@ import PopularSkillsList from "@/components/partners/PopularSkillsList";
 import MembersListWithPagination from "@/components/partners/MembersListWithPagination";
 import MemberCard from "@/components/memberCard/MemberCard";
 import { useUserStore } from "@/lib/stores/userStore";
+import { useSkillStore } from "@/lib/stores/skillStore";
 
 export default function Home() {
     const { isAuthenticated, user } = useAuthStore();
@@ -18,6 +19,7 @@ export default function Home() {
         error: usersError,
         fetchUsers,
     } = useUserStore();
+    const { isLoading: isSkillsLoading } = useSkillStore();
 
     const [popularSkills, setPopularSkills] = useState<Skill[]>([]);
     const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
@@ -92,8 +94,16 @@ export default function Home() {
         currentPage * pageSize
     );
 
+
+    const loadingSpinner = (
+            <div className="flex flex-col items-center gap-2">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <p className="text-sm text-muted-foreground">Chargement...</p>
+            </div>
+    );
+
     return (
-        <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-6 md:gap-y-10 lg:gap-y-14">
+        <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-6 md:gap-y-10 lg:gap-y-14 relative min-h-[60vh]">
             <div className="flex-col gap-y-4 flex gap-x-8 lg:flex-row-reverse lg:justify-between">
                 <div className="flex flex-col gap-y-2 lg:gap-y-6">
                     {isAuthenticated ? (
@@ -124,16 +134,13 @@ export default function Home() {
                         </>
                     )}
                 </div>
-                <SkillSearchBar
-                    value={searchValue}
-                    onChange={setSearchValue}
-                    className="max-w-120 md:min-h-10"
-                />
+                <SkillSearchBar value={searchValue} onChange={setSearchValue} />
             </div>
             <div className="flex flex-col gap-y-2 lg:gap-y-3">
                 <h2 className="text-lg md:text-2xl lg:text-3xl">
                     Compétences populaires
                 </h2>
+                {(isUsersLoading || isSkillsLoading) && loadingSpinner}
                 <PopularSkillsList
                     skills={popularSkills}
                     selectedSkill={selectedSkill}
@@ -145,6 +152,7 @@ export default function Home() {
                     <h2 className="text-lg md:text-2xl lg:text-3xl">
                         Nos membres
                     </h2>
+                    {(isUsersLoading || isSkillsLoading) && loadingSpinner}
                     {isAuthenticated ? (
                         <MembersListWithPagination
                             members={paginatedMembers}

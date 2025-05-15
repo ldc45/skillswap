@@ -26,12 +26,11 @@ const menuItems = [
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showLogin, setShowLogin] = useState(true);
-    // State to manage navigation status
-    const [isNavigating, setIsNavigating] = useState(false);
+    // Use global loading state from authStore
+    const { isAuthenticated } = useAuthStore();
     const router = useRouter();
 
     // Using Zustand store instead of local state
-    const { isAuthenticated } = useAuthStore();
 
     // Effect to block body scrolling when menu is open
     useEffect(() => {
@@ -53,7 +52,6 @@ const Header = () => {
     // Handle logout with API service
     const handleLogout = async () => {
         try {
-            setIsNavigating(true);
             // Use API service to call logout endpoint
             // and update local store
             await apiService.logout();
@@ -61,12 +59,10 @@ const Header = () => {
             toast.success("Déconnexion réussie !", {
                 position: "bottom-right",
             });
-            // Rediriger vers la page d'accueil après déconnexion
+            // Redirect to home page after logout
             router.push("/");
         } catch (error) {
             console.error("Error during logout:", error);
-        } finally {
-            setIsNavigating(false);
         }
     };
 
@@ -77,26 +73,9 @@ const Header = () => {
 
     // Close the menu during navigation
     const handleNavigation = (path: string) => {
-        setIsNavigating(true);
         setIsMenuOpen(false);
         router.push(path);
-
-        // On simule un délai pour masquer le spinner après la navigation
-        // Cela permet de s'assurer que le spinner est visible pendant la transition
-        setTimeout(() => {
-            setIsNavigating(false);
-        }, 500);
     };
-
-    // Spinner de chargement
-    const loadingSpinner = (
-        <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-50">
-            <div className="flex flex-col items-center gap-2">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <p className="text-sm text-muted-foreground">Chargement...</p>
-            </div>
-        </div>
-    );
 
     const authenticatedMenu = (
         <>
@@ -157,7 +136,6 @@ const Header = () => {
 
     return (
         <>
-            {isNavigating && loadingSpinner}
             <header
                 className={`w-full py-4 px-6 flex items-center justify-between`}
             >
