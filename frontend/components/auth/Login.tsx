@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 
 import type { User } from "@/@types/api/models/User";
 import { apiService } from "@/lib/services/apiService";
@@ -33,6 +34,7 @@ interface LoginProps {
 
 const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
     const [error, setError] = useState("");
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         // The zodResolver is inteatgrated to the form
@@ -140,11 +142,39 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Mot de passe</FormLabel>
-                                    <Input
-                                        type="password"
-                                        placeholder="••••••••••••"
-                                        {...field}
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            type={
+                                                isPasswordVisible
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            placeholder="••••••••••••"
+                                            {...field}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            className="absolute right-2.5 -translate-y-1/2 top-1/2 h-4 w-4 text-muted-foreground"
+                                            aria-label="Visibilité du mot de passe"
+                                            title={
+                                                isPasswordVisible
+                                                    ? "Masquer le mot de passe"
+                                                    : "Afficher le mot de passe"
+                                            }
+                                            onClick={() =>
+                                                setIsPasswordVisible(
+                                                    (prev) => !prev
+                                                )
+                                            }
+                                        >
+                                            {isPasswordVisible ? (
+                                                <Eye />
+                                            ) : (
+                                                <EyeOff />
+                                            )}
+                                        </Button>
+                                    </div>
                                 </FormItem>
                             )}
                         />

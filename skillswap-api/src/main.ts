@@ -97,4 +97,6 @@ async function bootstrap() {
   app.enableCors(corsOptions);
   await app.listen(process.env.PORT ?? 4000);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  throw err;
+});

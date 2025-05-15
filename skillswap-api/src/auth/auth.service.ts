@@ -17,14 +17,14 @@ export class AuthService {
     const user = await this.userService.create(signUpDto);
     const payload = { id: user.id, email: user.email } as JwtPayload;
 
-    // Créer les tokens
+    // Create tokens
     const accessToken = this.createAccessToken(payload);
     const refreshToken = this.createRefreshToken(payload);
 
-    // Définir les cookies
+    // Define cookies
     this.setTokenCookies(response, accessToken, refreshToken);
 
-    // Retourner également les tokens dans la réponse
+    // Return tokens in response as well
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -44,14 +44,14 @@ export class AuthService {
 
     const payload = { id: user.id, email: user.email } as JwtPayload;
 
-    // Créer les tokens
+    // Create tokens
     const accessToken = this.createAccessToken(payload);
     const refreshToken = this.createRefreshToken(payload);
 
-    // Définir les cookies
+    // Define cookies
     this.setTokenCookies(response, accessToken, refreshToken);
 
-    // Retourner également les tokens dans la réponse
+    // Return tokens in response as well
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -70,13 +70,13 @@ export class AuthService {
     try {
       const payload = this.jwtService.verify<JwtPayload>(refreshToken);
 
-      // Créer un nouveau token d'accès
+      // Create new access token
       const accessToken = this.createAccessToken(payload);
 
-      // Définir le cookie pour le token d'accès (refresh token reste inchangé)
+      // Define access token cookie (refresh token remains unchanged)
       this.setAccessTokenCookie(response, accessToken);
 
-      // Retourner également le token dans la réponse
+      // Return new token in response as well
       return {
         access_token: accessToken,
       };
@@ -85,7 +85,7 @@ export class AuthService {
     }
   }
 
-  // Methode for logout
+  // Method for logout
   logout(response: Response) {
     // Clear the cookies for access and refresh tokens
     response.clearCookie('access_token', {
@@ -102,7 +102,7 @@ export class AuthService {
     return { message: 'Logout successful.' };
   }
 
-  // Méthode utilitaire pour définir les cookies de token
+  // Utility method to define token cookies
   private setTokenCookies(
     response: Response,
     accessToken: string,
@@ -112,23 +112,23 @@ export class AuthService {
     this.setRefreshTokenCookie(response, refreshToken);
   }
 
-  // Définir le cookie pour le token d'accès
+  // Define cookie for access token
   private setAccessTokenCookie(response: Response, token: string) {
     response.cookie('access_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
       sameSite: 'none',
-      maxAge: 15 * 60 * 1000, // 15 minutes en milliseconds
+      maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
     });
   }
 
-  // Définir le cookie pour le token de rafraîchissement
+  // Define cookie for refresh token
   private setRefreshTokenCookie(response: Response, token: string) {
     response.cookie('refresh_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
       sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours en milliseconds
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     });
   }
 }
