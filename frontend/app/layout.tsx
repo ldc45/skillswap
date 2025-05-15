@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { ImageKitProvider } from "@imagekit/next";
 
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
@@ -52,8 +53,14 @@ export default function RootLayout({
             >
                 <div className="flex flex-col flex-1 max-w-screen-xl mx-auto w-full min-h-screen">
                     <AuthProvider>
-                        <Header />
-                        <main className="flex-1">{children}</main>
+                        <ImageKitProvider
+                            urlEndpoint={
+                                process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT
+                            }
+                        >
+                            <Header />
+                            <main className="flex-1">{children}</main>
+                        </ImageKitProvider>
                     </AuthProvider>
                     <Footer />
                 </div>

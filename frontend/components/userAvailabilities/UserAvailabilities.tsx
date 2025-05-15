@@ -21,6 +21,7 @@ interface UserAvailabilitiesProps {
         skills: string[];
         biography: string;
         availabilities: Omit<CreateAvailabilityDto, "userId">[];
+        avatarUrl: string;
     }>;
 }
 

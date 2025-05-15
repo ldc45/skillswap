@@ -1,12 +1,13 @@
 "use client";
 
 import { UseFormReturn } from "react-hook-form";
+import { Image } from "@imagekit/next";
 
 import { CreateAvailabilityDto } from "@/@types/api";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useSkillStore } from "@/lib/stores/skillStore";
 import UserSkills from "@/components/userSkills/UserSkills";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import {
     FormField,
     FormItem,
@@ -17,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 type Options = {
     value: string;
@@ -25,16 +27,22 @@ type Options = {
 
 interface UserProfileProps {
     isEditing: boolean;
+    imageInputRef: React.RefObject<HTMLInputElement | null>;
     userForm: UseFormReturn<{
         firstName: string;
         lastName: string;
         skills: string[];
         biography: string;
         availabilities: Omit<CreateAvailabilityDto, "userId">[];
+        avatarUrl: string;
     }>;
 }
 
-export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
+export default function UserProfile({
+    userForm,
+    isEditing,
+    imageInputRef,
+}: UserProfileProps) {
     const { user } = useAuthStore();
     const { skills, fetchSkills } = useSkillStore();
 
@@ -63,12 +71,22 @@ export default function UserProfile({ userForm, isEditing }: UserProfileProps) {
     return (
         <div className="basis-1/2 p-4 flex flex-col gap-y-4 items-center">
             <div className="flex flex-col gap-y-2 items-center">
-                <Avatar className="w-20 h-20">
-                    <AvatarImage
-                        src={user.avatarUrl || "https://github.com/shadcn.png"}
-                        alt={`Avatar ${user.firstName} ${user.lastName}`}
-                    />
-                </Avatar>
+                {!isEditing ? (
+                    <Avatar className="w-20 h-20">
+                        <Image
+                            src={user.avatarUrl || "/default-avatar.png"}
+                            alt="Logo SkillSwap"
+                            width={500}
+                            height={500}
+                        />
+                    </Avatar>
+                ) : (
+                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                        <Label htmlFor="picture">Photo de profil</Label>
+                        <Input id="picture" type="file" ref={imageInputRef} />
+                    </div>
+                )}
+
                 {!isEditing ? (
                     <h3 className="text-xl font-medium md:text-2xl lg:text-3xl">
                         {user.firstName} {user.lastName?.charAt(0)}.
