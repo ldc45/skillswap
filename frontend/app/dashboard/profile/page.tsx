@@ -34,6 +34,8 @@ export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [progress, setProgress] = useState(0);
 
+    console.log("Progress:", progress);
+
     // This ref is used to access the file input element for the profile picture upload
     const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,6 +129,7 @@ export default function ProfilePage() {
 
         // Call the ImageKit SDK upload function with the required parameters and callbacks.
         try {
+            toast.loading("Téléchargement en cours...");
             const fileName = user?.email.split("@")[0];
             const uploadResponse = await upload({
                 // Authentication parameters
@@ -144,17 +147,25 @@ export default function ProfilePage() {
                 // Abort signal to allow cancellation of the upload if needed.
                 abortSignal: abortController.signal,
             });
+
+            setProgress(0);
+            toast.dismiss();
+            toast.success("Téléchargement réussi !");
             return uploadResponse;
         } catch (error) {
             // Handle specific error types provided by the ImageKit SDK.
             if (error instanceof ImageKitAbortError) {
                 console.error("Upload aborted:", error.reason);
+                toast.error("Téléchargement annulé !");
             } else if (error instanceof ImageKitInvalidRequestError) {
                 console.error("Invalid request:", error.message);
+                toast.error("Requête invalide !");
             } else if (error instanceof ImageKitUploadNetworkError) {
                 console.error("Network error:", error.message);
+                toast.error("Erreur réseau lors du téléchargement !");
             } else if (error instanceof ImageKitServerError) {
                 console.error("Server error:", error.message);
+                toast.error("Erreur serveur lors du téléchargement !");
             } else {
                 // Handle any other errors that may occur.
                 console.error("Upload error:", error);
@@ -171,6 +182,7 @@ export default function ProfilePage() {
             try {
                 const imageResponse: UploadResponse | undefined =
                     await handleUpload();
+
                 if (imageResponse && imageResponse.url) {
                     data.avatarUrl = imageResponse.url;
                 }
@@ -180,7 +192,6 @@ export default function ProfilePage() {
         }
 
         const { skills, availabilities, ...userData } = data;
-        console.log("DATA", data);
 
         try {
             const userResponse: User = await apiService.patch(
@@ -369,19 +380,17 @@ export default function ProfilePage() {
                 user: {
                     ...userResponse,
                     avatarUrl: userResponse.avatarUrl || user.avatarUrl,
-                    skills: [],
-                    availabilities: [],
+                    skills: skillsResponse,
+                    availabilities: availabilitiesResponse,
                 },
             });
+            toast.success("Profil mis à jour");
         } catch (error) {
             console.error("Erreur lors de la modification des données", error);
         } finally {
             setIsEditing(false);
         }
     };
-
-    // TODO: Add a loader using the progress state
-    console.log("Progress", progress);
 
     return (
         <Form {...form}>
