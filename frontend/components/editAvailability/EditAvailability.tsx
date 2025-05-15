@@ -55,7 +55,9 @@ export default function EditAvailability({
         });
 
         if (!isAvailable) {
-            toast.error("Cette disponibilité se chevauche avec une autre.");
+            toast.error("Cette disponibilité se chevauche avec une autre.", {
+                position: "bottom-right",
+            });
             return;
         }
 

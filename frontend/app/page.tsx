@@ -11,7 +11,7 @@ import MemberCard from "@/components/memberCard/MemberCard";
 import { useUserStore } from "@/lib/stores/userStore";
 
 export default function Home() {
-    const { isAuthenticated } = useAuthStore();
+    const { isAuthenticated, user } = useAuthStore();
     const {
         users,
         isLoading: isUsersLoading,
@@ -93,15 +93,36 @@ export default function Home() {
     );
 
     return (
-        <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-4 md:gap-y-6 lg:gap-y-8">
-            <div className="flex-col gap-y-4 flex lg:flex-row-reverse lg:justify-between">
+        <main className="p-4 md:p-6 lg:p-8 flex flex-col gap-y-6 md:gap-y-10 lg:gap-y-14">
+            <div className="flex-col gap-y-4 flex gap-x-8 lg:flex-row-reverse lg:justify-between">
                 <div className="flex flex-col gap-y-2 lg:gap-y-6">
-                    <h2 className="text-lg md:text-2xl lg:text-3xl">
-                        Echangez vos compétences
-                    </h2>
-                    <h3 className="text-sm md:text-lg lg:text-xl">
-                        Rejoignez notre communauté et partagez vos connaissances
-                    </h3>
+                    {isAuthenticated ? (
+                        <>
+                            <h2 className="text-lg md:text-2xl lg:text-3xl text-primary dark:text-primary-200">
+                                Bienvenue sur SkillSwap&nbsp;!
+                            </h2>
+                            <h3 className="text-sm md:text-lg lg:text-xl text-muted-foreground dark:text-muted-foreground">
+                                Heureux de vous revoir
+                                {user?.firstName && (
+                                    <span className="text-primary dark:text-primary-200">
+                                        , {user.firstName}
+                                    </span>
+                                )}
+                                . Découvrez de nouvelles compétences ou partagez
+                                les vôtres !
+                            </h3>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="text-lg md:text-2xl lg:text-3xl text-primary dark:text-primary-200">
+                                Echangez vos compétences
+                            </h2>
+                            <h3 className="text-sm md:text-lg lg:text-xl text-muted-foreground dark:text-muted-foreground">
+                                Rejoignez notre communauté et partagez vos
+                                connaissances
+                            </h3>
+                        </>
+                    )}
                 </div>
                 <SkillSearchBar
                     value={searchValue}

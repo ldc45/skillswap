@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -106,6 +107,10 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                     // Update store with user data
                     login({ user: userResponse });
 
+                    toast.success("Inscription réussie !", {
+                        position: "bottom-right",
+                    });
+
                     if (handleLogin) {
                         handleLogin();
                     }
@@ -131,7 +136,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
 
     return (
         <div className="w-full">
-            <h2 className="text-2xl font-semibold mb-6 text-center">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-6 md:mb-10 lg:mb-12 text-center">
                 S&apos;inscrire
             </h2>
 
@@ -146,16 +151,46 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                     className="space-y-4"
                     onSubmit={form.handleSubmit(onSubmit)}
                 >
-                    <div className="space-y-2">
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <Input
+                                    type="email"
+                                    placeholder="votre@email.com"
+                                    {...field}
+                                />
+                            </FormItem>
+                        )}
+                    />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <FormField
                             control={form.control}
-                            name="email"
+                            name="firstName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel>Prénom</FormLabel>
                                     <Input
-                                        type="email"
-                                        placeholder="votre@email.com"
+                                        type="text"
+                                        placeholder="Jean"
+                                        {...field}
+                                    />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="lastName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nom</FormLabel>
+                                    <Input
+                                        type="text"
+                                        placeholder="Dupont"
                                         {...field}
                                     />
                                 </FormItem>
@@ -163,77 +198,35 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <FormField
-                                control={form.control}
-                                name="firstName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Prénom</FormLabel>
-                                        <Input
-                                            type="text"
-                                            placeholder="Jean"
-                                            {...field}
-                                        />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Mot de passe</FormLabel>
+                                <Input
+                                    type="password"
+                                    placeholder="••••••••••••"
+                                    {...field}
+                                />
+                            </FormItem>
+                        )}
+                    />
 
-                        <div className="space-y-2">
-                            <FormField
-                                control={form.control}
-                                name="lastName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nom</FormLabel>
-                                        <Input
-                                            type="text"
-                                            placeholder="Dupont"
-                                            {...field}
-                                        />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Mot de passe</FormLabel>
-                                    <Input
-                                        type="password"
-                                        placeholder="••••••••••••"
-                                        {...field}
-                                    />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <FormField
-                            control={form.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        Confirmer le mot de passe
-                                    </FormLabel>
-                                    <Input
-                                        type="password"
-                                        placeholder="••••••••••••"
-                                        {...field}
-                                    />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                    <FormField
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Confirmer le mot de passe</FormLabel>
+                                <Input
+                                    type="password"
+                                    placeholder="••••••••••••"
+                                    {...field}
+                                />
+                            </FormItem>
+                        )}
+                    />
 
                     <Button
                         type="submit"
@@ -256,7 +249,7 @@ const Register = ({ onSwitchToLogin, handleLogin }: RegisterProps) => {
                         <Button
                             variant="secondary"
                             onClick={onSwitchToLogin}
-                            className="px-6"
+                            className="px-6 cursor-pointer"
                         >
                             Se connecter
                         </Button>

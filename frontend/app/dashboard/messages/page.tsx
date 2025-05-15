@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import ConversationCard from "@/components/conversationCard/ConversationCard";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
+import { useWindowSize } from "@uidotdev/usehooks";
+import { ArrowBigLeft, ArrowBigRight } from "lucide-react";
 
 // Define conversation interface
 interface Conversation {
@@ -21,6 +23,9 @@ export default function MessagesPage() {
     // Initialize conversations state
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const { user, isAuthenticated } = useAuthStore();
+
+    // This hook is used to get the window size (width and height) dynamically
+    const size = useWindowSize();
 
     useEffect(() => {
         // Fetch conversations for authenticated user using apiService
@@ -91,7 +96,7 @@ export default function MessagesPage() {
                             ))}
                     </div>
                     {/* Render pagination controls */}
-                    <div className="flex justify-center items-center gap-2 mt-6">
+                    <div className="flex justify-center items-center gap-x-2 md:gap-x-6 mt-6 md:text-lg">
                         <button
                             className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
                             onClick={() =>
@@ -99,11 +104,15 @@ export default function MessagesPage() {
                             }
                             disabled={currentPage === 1}
                         >
-                            Précédent
+                            {size.width && size.width > 640 ? (
+                                "Précédent"
+                            ) : (
+                                <ArrowBigLeft />
+                            )}
                         </button>
-                        <span className="mx-2">
+                        <p>
                             Page {currentPage} / {totalPages}
-                        </span>
+                        </p>
                         <button
                             className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
                             onClick={() =>
@@ -113,7 +122,11 @@ export default function MessagesPage() {
                             }
                             disabled={currentPage === totalPages}
                         >
-                            Suivant
+                            {size.width && size.width > 640 ? (
+                                "Suivant"
+                            ) : (
+                                <ArrowBigRight />
+                            )}
                         </button>
                     </div>
                 </>

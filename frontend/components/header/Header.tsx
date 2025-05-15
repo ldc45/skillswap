@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { LogOut, Menu, X } from "lucide-react";
@@ -11,6 +12,16 @@ import Register from "../auth/Register";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { apiService } from "@/lib/services/apiService";
 import logo from "@/public/logo.png";
+
+const menuItems = [
+    { id: "profile", name: "Profil", path: "/dashboard/profile" },
+    { id: "messages", name: "Messages", path: "/dashboard/messages" },
+    {
+        id: "partners",
+        name: "Trouver votre partenaire",
+        path: "/dashboard/partners",
+    },
+];
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,6 +58,9 @@ const Header = () => {
             // and update local store
             await apiService.logout();
             setIsMenuOpen(false);
+            toast.success("Déconnexion réussie !", {
+                position: "bottom-right",
+            });
             // Redirect to home page after logout
             router.push("/");
         } catch (error) {
@@ -87,40 +101,19 @@ const Header = () => {
     const authenticatedMenu = (
         <>
             <nav className="w-full mt-6">
-                <ul className="space-y-6 text-center">
-                    <li>
-                        <Button
-                            variant={"ghost"}
-                            className="block text-xl mx-auto"
-                            onClick={() =>
-                                handleNavigation("/dashboard/profile")
-                            }
-                        >
-                            Profil
-                        </Button>
-                    </li>
-                    <li>
-                        <Button
-                            variant="ghost"
-                            className="block text-xl mx-auto"
-                            onClick={() =>
-                                handleNavigation("/dashboard/messages")
-                            }
-                        >
-                            Messages
-                        </Button>
-                    </li>
-                    <li>
-                        <Button
-                            className="block text-xl mx-auto"
-                            variant={"ghost"}
-                            onClick={() =>
-                                handleNavigation("/dashboard/partners")
-                            }
-                        >
-                            Trouver un skill
-                        </Button>
-                    </li>
+                <ul className="text-center flex flex-col gap-6 md:gap-12 justify-center items-center">
+                    {menuItems.map((item) => (
+                        <li key={item.id}>
+                            <Button
+                                variant="ghost"
+                                className="w-full cursor-pointer text-lg md:text-xl lg:text-2xl"
+                                onClick={() => handleNavigation(item.path)}
+                                datatype={item.name.toLowerCase()}
+                            >
+                                {item.name}
+                            </Button>
+                        </li>
+                    ))}
                 </ul>
             </nav>
 
@@ -143,22 +136,20 @@ const Header = () => {
     const unauthenticatedMenu = (
         <>
             <div className="w-full flex flex-col items-center mt-6">
-                <div className="w-full max-w-md">
-                    {showLogin ? (
-                        <div className="p-6">
+                <div className="w-full max-w-md h-full">
+                    <div className="p-6 flex w-full h-full flex-col items-center">
+                        {showLogin ? (
                             <Login
                                 onSwitchToRegister={() => setShowLogin(false)}
                                 handleLogin={handleLogin}
                             />
-                        </div>
-                    ) : (
-                        <div className="p-6">
+                        ) : (
                             <Register
                                 onSwitchToLogin={() => setShowLogin(true)}
                                 handleLogin={handleLogin}
                             />
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </>
@@ -170,43 +161,42 @@ const Header = () => {
             <header
                 className={`w-full py-4 px-6 flex items-center justify-between`}
             >
-                <div className="flex items-center">
-                    <div className="mr-3">
-                        <Button
-                            variant="ghost"
-                            className="cursor-pointer"
-                            onClick={() => handleNavigation("/")}
-                        >
-                            <Image
-                                src={logo}
-                                alt="SkillSwap Logo"
-                                width={40}
-                                height={40}
-                            />
-                        </Button>
-                    </div>
+                <div className="flex items-center grow">
                     <Button
                         variant="ghost"
-                        className="cursor-pointer"
+                        className="cursor-pointer md:w-24 md:h-24 w-16 h-16"
                         onClick={() => handleNavigation("/")}
                     >
-                        <h1 className="text-4xl">SkillSwap</h1>
+                        <Image src={logo} alt="SkillSwap Logo" />
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        className="cursor-pointer grow md:grow-0"
+                        onClick={() => handleNavigation("/")}
+                    >
+                        <h1 className="text-center text-3xl lg:text-[40px]">
+                            SkillSwap
+                        </h1>
                     </Button>
                 </div>
 
-                <div>
-                    <button
-                        onClick={toggleMenu}
-                        className="flex items-center justify-center w-10 h-10"
-                        aria-label="Menu"
-                        datatype="burger"
-                    >
-                        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
-                </div>
+                <Button
+                    variant="ghost"
+                    onClick={toggleMenu}
+                    className="flex items-center cursor-pointer justify-center md:w-16 md:h-16 w-12 h-12"
+                    aria-label="Menu"
+                    datatype="burger"
+                >
+                    {isMenuOpen ? (
+                        <X className="min-w-full min-h-full" />
+                    ) : (
+                        <Menu className="min-w-full min-h-full" />
+                    )}
+                </Button>
 
                 {isMenuOpen && (
-                    <div className="fixed inset-0 top-16 bg-background z-50 flex flex-col items-center p-6 overflow-y-auto">
+                    <div className="fixed inset-0 top-16 md:top-24 bg-background z-50 flex flex-col items-center p-6 overflow-y-auto">
                         <Separator className="my-4 w-full" />
                         {isAuthenticated
                             ? authenticatedMenu

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -71,6 +72,10 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
                     // Update store with user data - userResponse already contains skills and availabilities
                     login({ user: userResponse as unknown as User });
 
+                    toast.success("Connexion réussie !", {
+                        position: "bottom-right",
+                    });
+
                     if (handleLogin) {
                         handleLogin();
                     }
@@ -96,7 +101,7 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
 
     return (
         <div className="w-full">
-            <h2 className="text-2xl font-semibold mb-6 text-center">
+            <h2 className="text-2xl md:text-32xl lg:text-4xl font-semibold mb-6 md:mb-10 lg:mb-12 text-center">
                 Se connecter
             </h2>
 
@@ -166,7 +171,7 @@ const Login = ({ onSwitchToRegister, handleLogin }: LoginProps) => {
                         <Button
                             variant="secondary"
                             onClick={onSwitchToRegister}
-                            className="px-6"
+                            className="px-6 cursor-pointer"
                         >
                             S&apos;inscrire
                         </Button>

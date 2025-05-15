@@ -12,7 +12,7 @@ interface SkillSearchBarProps {
 export default function SkillSearchBar({
     value,
     onChange,
-    placeholder = "⌕ Rechercher une compétence...",
+    placeholder = "🔍 Rechercher une compétence...",
     className = "",
 }: SkillSearchBarProps) {
     return (

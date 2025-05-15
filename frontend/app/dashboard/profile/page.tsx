@@ -100,16 +100,20 @@ export default function ProfilePage() {
                 toast.warning(
                     "Nous vous conseillons de renseigner au moins une compétence",
                     {
-                        position: "top-center",
+                        position: "bottom-right",
                     }
                 );
             } else {
                 try {
+                    let skillsChanged = false;
                     // Remove skills that are no longer selected
-                    for (const id of skillsToRemove) {
-                        await apiService.delete(
-                            `/users/${user.id}/skills/${id}`
-                        );
+                    if (skillsToRemove.length > 0) {
+                        for (const id of skillsToRemove) {
+                            await apiService.delete(
+                                `/users/${user.id}/skills/${id}`
+                            );
+                        }
+                        skillsChanged = true;
                     }
                     // Add new skills
                     if (skillsToAdd.length > 0) {
@@ -122,6 +126,7 @@ export default function ProfilePage() {
                                 "Erreur lors de la mise à jour des compétences"
                             );
                         }
+                        skillsChanged = true;
                     }
                     // Fetch all selected skills for the updated user
                     for (const id of skills) {
@@ -135,15 +140,17 @@ export default function ProfilePage() {
                         }
                         skillsResponse.push(response);
                     }
-                    toast.success("Compétences mises à jour", {
-                        position: "top-center",
-                    });
+                    if (skillsChanged) {
+                        toast.success("Compétences mises à jour", {
+                            position: "bottom-right",
+                        });
+                    }
                 } catch (err) {
                     console.error(err);
                     toast.error(
                         "Erreur lors de la mise à jour des compétences",
                         {
-                            position: "top-center",
+                            position: "bottom-right",
                         }
                     );
                 }
@@ -199,7 +206,7 @@ export default function ProfilePage() {
                 toast.warning(
                     "Nous vous conseillons de renseigner vos disponibilités",
                     {
-                        position: "top-center",
+                        position: "bottom-right",
                     }
                 );
             } else if (
@@ -208,11 +215,15 @@ export default function ProfilePage() {
                     availabilities
                 )
             ) {
-                // No change, skip API calls
-                availabilitiesResponse = user.availabilities ?? undefined;
-                toast.info("Aucune modification des disponibilités", {
-                    position: "top-center",
-                });
+                // Only show toast if availabilities field was touched
+                if (form.formState.dirtyFields.availabilities) {
+                    availabilitiesResponse = user.availabilities ?? undefined;
+                    toast.info("Aucune modification des disponibilités", {
+                        position: "bottom-right",
+                    });
+                } else {
+                    availabilitiesResponse = user.availabilities ?? undefined;
+                }
             } else {
                 try {
                     // Delete all previous availabilities before adding new ones
@@ -235,14 +246,14 @@ export default function ProfilePage() {
                         data
                     );
                     toast.success("Disponibilités mises à jour", {
-                        position: "top-center",
+                        position: "bottom-right",
                     });
                 } catch (err) {
                     console.error(err);
                     toast.error(
                         "Erreur lors de la mise à jour des disponibilités",
                         {
-                            position: "top-center",
+                            position: "bottom-right",
                         }
                     );
                 }

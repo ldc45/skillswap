@@ -31,7 +31,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     UserSkillModule,
     CacheModule.register({
       isGlobal: true,
-      ttl: 3600000, // 1 hour
+      ttl: 300000, // 5 minutes
     }),
   ],
   controllers: [AppController],

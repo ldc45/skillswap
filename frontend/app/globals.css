@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+    
     --primary: #005884;
     --primary-foreground: #f5fdfe;
     --badge: #001019;
