@@ -59,7 +59,7 @@ const Header = () => {
             toast.success("Déconnexion réussie !", {
                 position: "bottom-right",
             });
-            // Redirect to home after logout
+            // Redirect to home page after logout
             router.push("/");
         } catch (error) {
             console.error("Error during logout:", error);
@@ -76,7 +76,6 @@ const Header = () => {
         setIsMenuOpen(false);
         router.push(path);
     };
-
 
     const authenticatedMenu = (
         <>

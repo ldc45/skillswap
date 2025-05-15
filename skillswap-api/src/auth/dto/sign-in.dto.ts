@@ -11,18 +11,19 @@ export class SignInDto {
 
   @ApiProperty({
     example: 'Password123!@#',
-    description: 'User password (minimum 12 characters, must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character)',
+    description:
+      'User password (minimum 12 characters, must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character)',
   })
   @IsString()
   @MinLength(12, {
-    message: 'Le mot de passe doit contenir au moins 12 caractères'
+    message: 'Le mot de passe doit contenir au moins 12 caractères',
   })
   @Matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      {
-        message:
-            'Le mot de passe doit contenir au moins 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial',
-      }
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+    {
+      message:
+        'Le mot de passe doit contenir au moins 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial',
+    },
   )
   password: string;
 }

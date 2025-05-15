@@ -134,11 +134,7 @@ export default function Home() {
                         </>
                     )}
                 </div>
-                <SkillSearchBar
-                    value={searchValue}
-                    onChange={setSearchValue}
-                    className="max-w-120 md:min-h-10"
-                />
+                <SkillSearchBar value={searchValue} onChange={setSearchValue} />
             </div>
             <div className="flex flex-col gap-y-2 lg:gap-y-3">
                 <h2 className="text-lg md:text-2xl lg:text-3xl">
