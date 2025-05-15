@@ -3,15 +3,11 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Conversation } from './entities/conversation.entity';
-import { Request } from 'express';
-import { RequestCookies } from '../auth/types/request-cookies';
-import { JwtPayload } from '../auth/types/jwt-payload';
 
 @Injectable()
 export class ConversationService {

@@ -58,7 +58,6 @@ describe('AuthService', () => {
   });
 
   describe('signUp', () => {
-
     const createUserDto: CreateUserDto = {
       email: testEmail,
       password: testPassword,
@@ -212,7 +211,6 @@ describe('AuthService', () => {
       // Ensure that verify was called with the correct token
       expect(mockJwtService.verify).toHaveBeenCalledWith(testRefreshToken);
     });
-
 
     it('should create a new access token and set access token cookie', () => {
       // Arrange

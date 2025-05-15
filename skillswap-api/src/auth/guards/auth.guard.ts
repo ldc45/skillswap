@@ -26,7 +26,7 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
 
-      // Ajouter le payload décodé à la requête pour une utilisation ultérieure
+      // Add decoded payload to request for later use
       request['user'] = payload;
     } catch (error) {
       console.error(
