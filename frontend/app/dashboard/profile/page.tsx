@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import {
+    ImageKitAbortError,
+    ImageKitInvalidRequestError,
+    ImageKitServerError,
+    ImageKitUploadNetworkError,
+    upload,
+    UploadResponse,
+} from "@imagekit/next";
 
 import { Availability, Skill, User } from "@/@types/api";
 import { apiService } from "@/lib/services/apiService";
 import { useAuthStore } from "@/lib/stores/authStore";
+import { authenticator } from "@/utils/media";
 import { Form } from "@/components/ui/form";
 import UserAvailabilities from "@/components/userAvailabilities/UserAvailabilities";
 import UserProfile from "@/components/userProfile/UserProfile";
@@ -23,12 +32,19 @@ export default function ProfilePage() {
     const { user, login } = useAuthStore();
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [progress, setProgress] = useState(0);
 
+    console.log("Progress:", progress);
+
+    // This ref is used to access the file input element for the profile picture upload
+    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    // The default values are set based on the current user data
     const defaultValues = {
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
         // We extract the ids to set the default values for the skills and match the expected type by the schema
-        skills: user?.skills?.map((skill) => skill.id) || [],
+        skills: user?.skills?.map((skill) => skill?.id) || [],
         biography: user?.biography || "",
         // We extract the ids to set the default values for the availabilities and match the expected type by the schema
         availabilities:
@@ -39,6 +55,7 @@ export default function ProfilePage() {
                     endTime: availability.endTime,
                 };
             }) || [],
+        avatarUrl: user?.avatarUrl || "",
     };
 
     // The schema ensures that the form data respects the expected types and constraints
@@ -62,6 +79,7 @@ export default function ProfilePage() {
                 endTime: z.date(),
             })
         ),
+        avatarUrl: z.string(),
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -70,10 +88,108 @@ export default function ProfilePage() {
         defaultValues,
     });
 
+    // This instance of AbortController is used to cancel the upload if needed
+    const abortController = new AbortController();
+
+    /**
+     * Handles the file upload process.
+     *
+     * This function:
+     * - Validates file selection.
+     * - Retrieves upload authentication credentials.
+     * - Initiates the file upload via the ImageKit SDK.
+     * - Updates the upload progress.
+     * - Catches and processes errors accordingly.
+     */
+    const handleUpload = async () => {
+        // Access the file input element using the ref
+        const fileInput = imageInputRef.current;
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+            alert("Please select a file to upload");
+            return;
+        }
+
+        // Extract the first file from the file input
+        const file = fileInput.files[0];
+
+        if (!user) {
+            console.error("User not found");
+            return;
+        }
+
+        // Retrieve authentication parameters for the upload.
+        let authParams;
+        try {
+            authParams = await authenticator();
+        } catch (authError) {
+            console.error("Failed to authenticate for upload:", authError);
+            return;
+        }
+        const { signature, expire, token, publicKey } = authParams;
+
+        // Call the ImageKit SDK upload function with the required parameters and callbacks.
+        try {
+            toast.loading("Téléchargement en cours...");
+            const fileName = user?.email.split("@")[0];
+            const uploadResponse = await upload({
+                // Authentication parameters
+                expire,
+                token,
+                signature,
+                publicKey,
+                file,
+                fileName,
+                folder: "/users",
+                // Progress callback to update upload progress state
+                onProgress: (event) => {
+                    setProgress((event.loaded / event.total) * 100);
+                },
+                // Abort signal to allow cancellation of the upload if needed.
+                abortSignal: abortController.signal,
+            });
+
+            setProgress(0);
+            toast.dismiss();
+            toast.success("Téléchargement réussi !");
+            return uploadResponse;
+        } catch (error) {
+            // Handle specific error types provided by the ImageKit SDK.
+            if (error instanceof ImageKitAbortError) {
+                console.error("Upload aborted:", error.reason);
+                toast.error("Téléchargement annulé !");
+            } else if (error instanceof ImageKitInvalidRequestError) {
+                console.error("Invalid request:", error.message);
+                toast.error("Requête invalide !");
+            } else if (error instanceof ImageKitUploadNetworkError) {
+                console.error("Network error:", error.message);
+                toast.error("Erreur réseau lors du téléchargement !");
+            } else if (error instanceof ImageKitServerError) {
+                console.error("Server error:", error.message);
+                toast.error("Erreur serveur lors du téléchargement !");
+            } else {
+                // Handle any other errors that may occur.
+                console.error("Upload error:", error);
+            }
+        }
+    };
+
     // Data is typed using the schema
     // This ensures that the data passed to the onSubmit function matches the schema
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
         if (!user) return;
+
+        if (imageInputRef.current?.files?.length) {
+            try {
+                const imageResponse: UploadResponse | undefined =
+                    await handleUpload();
+
+                if (imageResponse && imageResponse.url) {
+                    data.avatarUrl = imageResponse.url;
+                }
+            } catch (err) {
+                console.error("Error uploading image:", err);
+            }
+        }
 
         const { skills, availabilities, ...userData } = data;
 
@@ -263,10 +379,12 @@ export default function ProfilePage() {
             login({
                 user: {
                     ...userResponse,
+                    avatarUrl: userResponse.avatarUrl || user.avatarUrl,
                     skills: skillsResponse,
                     availabilities: availabilitiesResponse,
                 },
             });
+            toast.success("Profil mis à jour");
         } catch (error) {
             console.error("Erreur lors de la modification des données", error);
         } finally {
@@ -279,7 +397,11 @@ export default function ProfilePage() {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div className="flex flex-col lg:flex-row gap-8 p-4 lg:p-8">
                     <div className="flex flex-col flex-1 gap-4">
-                        <UserProfile isEditing={isEditing} userForm={form} />
+                        <UserProfile
+                            isEditing={isEditing}
+                            userForm={form}
+                            imageInputRef={imageInputRef}
+                        />
                     </div>
                     <div className="flex flex-col flex-1 gap-4">
                         <UserAvailabilities
