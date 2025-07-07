@@ -117,7 +117,7 @@ Le backend utilise automatiquement la variable `DATABASE_URL` construite par Doc
 
 ```bash
 # Démarrer tous les services
-docker-compose up -d
+docker-compose watch
 
 # Suivre les logs en temps réel
 docker-compose logs -f
@@ -175,7 +175,7 @@ docker-compose build
 
 # Supprimer volumes et reconstruire
 docker-compose down -v
-docker-compose up -d --build
+docker-compose watch -d --build
 ```
 
 ## 🏗 Structure du projet
