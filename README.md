@@ -1,7 +1,7 @@
 # SkillSwap
 
 <p align="center">
-  <img src="https://ibb.co/LzKPDTGM" alt="SkillSwap Logo">
+<img src="https://i.ibb.co/hR0MxGqk/logo.webp" alt="logo" border="0">
 </p>
 
 ## 📋 Table des matières
@@ -202,44 +202,6 @@ projet-skillswap/
 
 L'API est documentée avec Swagger/OpenAPI et accessible à l'adresse :
 [http://localhost:4000/api](http://localhost:4000/api)
-
-
-## 🧪 Tests
-
-### Tests Frontend
-
-```bash
-# Entrer dans le container frontend
-docker-compose exec frontend bash
-
-# Tests unitaires
-npm test
-
-# Tests en mode watch
-npm run test:watch
-
-# Tests e2e avec Cypress
-npx cypress open
-```
-
-### Tests Backend
-
-```bash
-# Entrer dans le container API
-docker-compose exec skill-swap-api bash
-
-# Tests unitaires
-npm test
-
-# Tests avec coverage
-npm run test:cov
-
-# Tests e2e
-npm run test:e2e
-
-# Tests de charge avec Artillery
-npm run artillery
-```
 
 ## 🤝 Contribution
 
