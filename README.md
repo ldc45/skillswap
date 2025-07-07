@@ -12,7 +12,6 @@
 - [Utilisation](#-utilisation)
 - [Structure du projet](#-structure-du-projet)
 - [API Documentation](#-api-documentation)
-- [Tests](#-tests)
 - [Contribution](#-contribution)
 - [Équipe](#-équipe)
 
