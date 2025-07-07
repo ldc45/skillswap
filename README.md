@@ -1,49 +1,20 @@
 # SkillSwap
 
 <p align="center">
-  <img src="https://via.placeholder.com/200x150/005884/FFFFFF?text=SkillSwap" alt="SkillSwap Logo">
+<img src="https://i.ibb.co/hR0MxGqk/logo.webp" alt="logo" border="0">
 </p>
-
-**SkillSwap** est une plateforme innovante conçue pour faciliter l'échange de compétences et de connaissances au sein d'une communauté diversifiée. Le projet repose sur le principe que chaque individu possède des compétences uniques à partager, qu'il s'agisse de compétences professionnelles, de talents artistiques, de connaissances linguistiques, ou de passe-temps.
 
 ## 📋 Table des matières
 
-- [À propos du projet](#-à-propos-du-projet)
 - [Technologies utilisées](#-technologies-utilisées)
 - [Prérequis](#-prérequis)
 - [Installation et configuration](#-installation-et-configuration)
 - [Utilisation](#-utilisation)
 - [Structure du projet](#-structure-du-projet)
 - [API Documentation](#-api-documentation)
-- [Tests](#-tests)
 - [Contribution](#-contribution)
 - [Équipe](#-équipe)
 
-## 🎯 À propos du projet
-
-### Objectifs principaux
-
-- **Promouvoir l'apprentissage mutuel** : Faciliter l'échange de compétences entre particuliers
-- **Créer une communauté** : Mettre en relation des personnes aux compétences complémentaires
-- **Système d'évaluation** : Garantir la qualité des interactions et la fiabilité de la communauté
-- **Gratuité** : Faciliter la continuité de l'échange grâce à la gratuité des services
-
-### Fonctionnalités principales
-
-#### MVP (Version 1.0)
-- 🏠 **Landing Page** : Présentation de SkillSwap avec profils aléatoires
-- 🔐 **Système d'authentification** : Inscription/Connexion sécurisée
-- 👤 **Gestion de profil** : Création et modification de profil utilisateur
-- 🔍 **Moteur de recherche** : Recherche par compétences
-- 💬 **Système de contact** : Communication entre utilisateurs
-
-#### Évolutions futures
-- ⭐ **Système d'évaluation** : Noter les partenaires après échange
-- 📱 **Messagerie instantanée** : Communication en temps réel
-- 🔍 **Recherche avancée** : Filtres par localisation, disponibilités
-- 🔔 **Notifications** : Alertes pour messages, évaluations
-- 🚫 **Système de blocage** : Contrôle des interactions
-- 👮 **Back-office administrateur** : Modération de la plateforme
 
 ## 🛠 Technologies utilisées
 
@@ -95,12 +66,6 @@ cd projet-skillswap
 
 ### 2. Configuration des variables d'environnement
 
-Les variables d'environnement sont utilisées pour :
-- **Sécurité** : Stocker les secrets (JWT, clés API) de manière sécurisée
-- **Configuration** : Adapter l'application selon l'environnement (dev/prod)
-- **Base de données** : Paramètres de connexion PostgreSQL
-- **Services externes** : Clés d'API pour les services tiers
-
 #### Configuration principale (.env)
 
 Copiez le fichier d'exemple et configurez les variables :
@@ -120,8 +85,6 @@ POSTGRES_DB=skillswap_db
 # JWT Secret (générez une clé sécurisée)
 JWT_SECRET=your_jwt_secret_key_minimum_32_characters
 
-# Clé API Resend (pour l'envoi d'emails)
-RESEND_API_KEY=your_resend_api_key
 ```
 
 #### Configuration Frontend
@@ -239,64 +202,6 @@ projet-skillswap/
 L'API est documentée avec Swagger/OpenAPI et accessible à l'adresse :
 [http://localhost:4000/api](http://localhost:4000/api)
 
-### Principales routes
-
-#### Authentification
-- `POST /api/auth/register` - Création de compte
-- `POST /api/auth/login` - Connexion
-- `POST /api/auth/logout` - Déconnexion
-
-#### Utilisateurs
-- `GET /api/users` - Liste des utilisateurs
-- `GET /api/users/me` - Profil utilisateur connecté
-- `PATCH /api/users/:id` - Mise à jour du profil
-
-#### Compétences
-- `GET /api/skills` - Liste des compétences
-- `GET /api/categories` - Liste des catégories
-
-#### Conversations
-- `GET /api/conversations` - Conversations de l'utilisateur
-- `POST /api/conversations` - Créer une conversation
-- `PATCH /api/conversations/:id` - Ajouter un message
-
-## 🧪 Tests
-
-### Tests Frontend
-
-```bash
-# Entrer dans le container frontend
-docker-compose exec frontend bash
-
-# Tests unitaires
-npm test
-
-# Tests en mode watch
-npm run test:watch
-
-# Tests e2e avec Cypress
-npx cypress open
-```
-
-### Tests Backend
-
-```bash
-# Entrer dans le container API
-docker-compose exec skill-swap-api bash
-
-# Tests unitaires
-npm test
-
-# Tests avec coverage
-npm run test:cov
-
-# Tests e2e
-npm run test:e2e
-
-# Tests de charge avec Artillery
-npm run artillery
-```
-
 ## 🤝 Contribution
 
 ### Convention de code
@@ -304,7 +209,6 @@ npm run artillery
 Le projet utilise :
 - **ESLint** : Pour la qualité du code
 - **Prettier** : Pour le formatage automatique
-- **Husky** : Pour les hooks Git (si configuré)
 
 ```bash
 # Formatter le code
@@ -347,7 +251,3 @@ Pour toute question ou problème :
 1. Consulter la documentation API : [http://localhost:4000/api](http://localhost:4000/api)
 2. Vérifier les logs : `docker-compose logs`
 3. Créer une issue dans le repository
-
-## 📄 Licence
-
-Ce projet est sous licence privée - voir le fichier [LICENSE](LICENSE) pour plus de détails.
