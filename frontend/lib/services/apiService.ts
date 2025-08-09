@@ -1,10 +1,6 @@
 import { useAuthStore } from "../stores/authStore";
 
-// Configuration temporaire hardcodée pour Koyeb
-const API_URL = 'https://skillswap-api.koyeb.app/api';
-
-// TODO: Remplacer par une vraie gestion des variables d'environnement
-console.log('⚠️ TEMP: API_URL hardcodée:', API_URL);
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Track if a refresh request is in progress
 let isRefreshing = false;
