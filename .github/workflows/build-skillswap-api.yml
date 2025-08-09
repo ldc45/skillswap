@@ -31,10 +31,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build and push frontend image (Next.js dev image as defined by Dockerfile)
+      # Build and push frontend image (Next.js prod target from Dockerfile)
       - name: Build and push frontend image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/skillswap-frontend:latest -f frontend/Dockerfile frontend
+          docker build -t ghcr.io/${{ github.repository_owner }}/skillswap-frontend:latest -f frontend/Dockerfile --target prod frontend
           docker push ghcr.io/${{ github.repository_owner }}/skillswap-frontend:latest
 
       # Build and push backend image (NestJS prod target from Dockerfile)
