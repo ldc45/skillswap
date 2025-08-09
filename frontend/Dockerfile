@@ -1,12 +1,10 @@
-FROM node:20-alpine AS base
-
-# Install Java (si nécessaire pour votre app)
-RUN apk add --no-cache openjdk17-jre
+FROM node:18-alpine AS base
 
 # Step 1: Dependencies
 FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
 # Step 2: Development environment
@@ -19,48 +17,32 @@ ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
 
-# Step 3: Build for production
-FROM deps AS build
+# Step 3: Build for production (standalone mode)
+FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Set environment variables pour le build
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-
-# Build de l'application Next.js
 RUN npm run build
 
-# Step 4: Prune dependencies for production
-FROM base AS prunner
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
-
-# Step 5: Production image
+# Step 4: Production image (suivant la doc Koyeb)
 FROM base AS prod
 WORKDIR /app
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV HOSTNAME=0.0.0.0
-ENV PORT=3000
 
-# Create non-root user for security
-RUN addgroup --system --gid 1024 nodejs && \
-    adduser --system --uid 1024 nextjs
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Copy all files with proper ownership
-COPY --chown=nextjs:nodejs --from=prunner /app/node_modules ./node_modules
-COPY --chown=nextjs:nodejs --from=prunner /app/package*.json ./
-COPY --chown=nextjs:nodejs --from=build /app/.next ./.next
-COPY --chown=nextjs:nodejs --from=build /app/public ./public
+# Copy built application from builder stage
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Create .next/cache directory with proper permissions
 USER nextjs
-RUN mkdir -p .next/cache
 
 EXPOSE 3000
 
-# Start the Next.js application
-CMD ["npm", "start"]
+ENV PORT=3000
+
+CMD ["node", "server.js"]
