@@ -9,6 +9,11 @@ on:
   repository_dispatch:
     types: [ build-api-trigger ]
 
+permissions:
+  contents: read
+  packages: write
+  actions: write
+
 jobs:
   build:
     # Use the latest Ubuntu runner provided by GitHub
