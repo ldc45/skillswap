@@ -2,10 +2,8 @@ name: Deploy SkillSwap API to Koyeb 🚀
 
 # This workflow is triggered when the build workflow completes successfully
 on:
-  
-  # Direct trigger from build workflow
-  repository_dispatch:
-    types: [ deploy-api-trigger ]
+  # Appelé par d'autres workflows
+  workflow_call:
   
   # Manual trigger for testing
   workflow_dispatch:
