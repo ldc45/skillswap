@@ -47,3 +47,5 @@ jobs:
   call-deploy-workflow:
     needs: build
     uses: ./.github/workflows/deploy-skillswap-api.yml
+    secrets: inherit
+
