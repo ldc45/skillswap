@@ -29,4 +29,6 @@ jobs:
     
           export PATH=$HOME/.koyeb/bin:$PATH
           
-          koyeb service redeploy skillswap-api/skillswap-api
+          koyeb service redeploy back/skillswap-api
+          
+          koyeb service redeploy front/skillswap-frontend
