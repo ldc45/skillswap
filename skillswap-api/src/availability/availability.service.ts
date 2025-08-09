@@ -42,6 +42,7 @@ export class AvailabilityService {
   }
 
   async update(id: string, updateAvailabilityDto: UpdateAvailabilityDto) {
+    console.log("test")
     return this.prisma.availability.update({
       where: {
         id,
