@@ -19,7 +19,7 @@ jobs:
           # Get the Koyeb API token from GitHub secrets
           KOYEB_TOKEN: ${{ secrets.KOYEB_API_TOKEN }}
 
-        # Download and install the Koyeb CLI to the user's home directorykoyeb service redeploy coloured-reina/skillswap-api
+        # Download and install the Koyeb CLI to the user's home directorykoyeb service redeploy skillswap-api/skillswap-api
         # Add the Koyeb CLI to the PATH for this shell session
         # Update the existing service on Koyeb with the latest Docker image
         # This assumes the service "skillswap-api" already exists on Koyeb
@@ -29,4 +29,4 @@ jobs:
     
           export PATH=$HOME/.koyeb/bin:$PATH
           
-          koyeb service redeploy coloured-reina/skillswap-api
+          koyeb service redeploy skillswap-api/skillswap-api
