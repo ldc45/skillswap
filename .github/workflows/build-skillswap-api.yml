@@ -43,7 +43,7 @@ jobs:
           docker build -t ghcr.io/${{ github.repository_owner }}/skillswap-api:latest -f skillswap-api/Dockerfile --target prod skillswap-api
           docker push ghcr.io/${{ github.repository_owner }}/skillswap-api:latest
   
-  # Job qui appelle le workflow de déploiement
+  # Job qui appelle le workflow de déploiement.
   call-deploy-workflow:
     needs: build
     uses: ./.github/workflows/deploy-skillswap-api.yml
