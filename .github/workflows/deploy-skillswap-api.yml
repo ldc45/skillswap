@@ -1,68 +1,40 @@
-name: Deploy SkillSwap API to Koyeb (Safe Switch) 🚀
+name: Deploy SkillSwap API to Koyeb 🚀
+# This workflow is triggered when the build workflow completes successfully
 on:
+  # Appelé par d'autres workflows.
   workflow_call:
+
+  # Manual trigger for testing
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Koyeb CLI and Deploy Safely 🚀🚀
+      - name: Install Koyeb CLI and Deploy to Koyeb 🚀🚀
         env:
+          # Get the Koyeb API token from GitHub secrets
           KOYEB_TOKEN: ${{ secrets.KOYEB_API_TOKEN }}
+          # Organization IDs from secrets
+          KOYEB_BACK_ORG_ID: ${{ secrets.KOYEB_BACK_ORG_ID }}
+          KOYEB_FRONT_ORG_ID: ${{ secrets.KOYEB_FRONT_ORG_ID }}
         run: |
           # Download and install the Koyeb CLI
           curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
+          
+          # Add the Koyeb CLI to the PATH for this shell session
           export PATH=$HOME/.koyeb/bin:$PATH
           
-          echo "📋 Available organizations:"
-          koyeb organizations list
+          # Create the Koyeb configuration directory and file
+          mkdir -p $HOME/.koyeb
+          touch $HOME/.koyeb.yaml
           
-          # Deploy Backend
-          echo ""
-          echo "🏢 === BACKEND DEPLOYMENT ==="
-          echo "🔄 Switching to skillswap-back-bdd organization..."
+          # Deploy the backend service in skillswap-back-bdd organization
+          echo "🚀 Deploying backend service..."
+          koyeb service redeploy back/skillswap-api --organization $KOYEB_BACK_ORG_ID
           
-          if koyeb organizations switch --organization skillswap-back-bdd; then
-            echo "✅ Successfully switched to skillswap-back-bdd"
+          # Deploy the frontend service in skillswap-front organization
+          echo "🚀 Deploying frontend service..."
+          koyeb service redeploy front/skillswap-frontend --organization $KOYEB_FRONT_ORG_ID
           
-            echo "📋 Available services:"
-            koyeb services list
-          
-            echo "🚀 Deploying backend service..."
-            if koyeb services redeploy back/skillswap-api; then
-              echo "✅ Backend deployment completed"
-            else
-              echo "❌ Backend deployment failed"
-              echo "Available services in this organization:"
-              koyeb services list --output table
-            fi
-          else
-            echo "❌ Failed to switch to skillswap-back-bdd organization"
-          fi
-          
-          # Deploy Frontend
-          echo ""
-          echo "🎨 === FRONTEND DEPLOYMENT ==="
-          echo "🔄 Switching to skillswap-front organization..."
-          
-          if koyeb organizations switch --organization skillswap-front; then
-            echo "✅ Successfully switched to skillswap-front"
-          
-            echo "📋 Available services:"
-            koyeb services list
-          
-            echo "🚀 Deploying frontend service..."
-            if koyeb services redeploy front/skillswap-frontend; then
-              echo "✅ Frontend deployment completed"
-            else
-              echo "❌ Frontend deployment failed"
-              echo "Available services in this organization:"
-              koyeb services list --output table
-            fi
-          else
-            echo "❌ Failed to switch to skillswap-front organization"
-          fi
-          
-          echo ""
-          echo "🎉 Deployment process completed!"
+          echo "✅ Both services deployed successfully!"
